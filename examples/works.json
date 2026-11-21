@@ -1,0 +1,72 @@
+[
+ {
+  "id": "ex1",
+  "file": "ex1.webp",
+  "w": 782,
+  "h": 900,
+  "film": "peel",
+  "surface": "fig",
+  "temp": 70,
+  "flipped": false
+ },
+ {
+  "id": "ex2",
+  "file": "ex2.webp",
+  "w": 900,
+  "h": 678,
+  "film": "integral",
+  "surface": "cold",
+  "temp": 45,
+  "flipped": false
+ },
+ {
+  "id": "ex3",
+  "file": "ex3.webp",
+  "w": 900,
+  "h": 801,
+  "film": "peel",
+  "surface": "leaves",
+  "temp": 72,
+  "flipped": false
+ },
+ {
+  "id": "ex4",
+  "file": "ex4.webp",
+  "w": 900,
+  "h": 678,
+  "film": "peel",
+  "surface": "hanji",
+  "temp": 70,
+  "flipped": true
+ },
+ {
+  "id": "ex5",
+  "file": "ex5.webp",
+  "w": 900,
+  "h": 658,
+  "film": "integral",
+  "surface": "pebble",
+  "temp": 47,
+  "flipped": false
+ },
+ {
+  "id": "ex6",
+  "file": "ex6.webp",
+  "w": 900,
+  "h": 688,
+  "film": "peel",
+  "surface": "linen",
+  "temp": 68,
+  "flipped": false
+ },
+ {
+  "id": "ex7",
+  "file": "ex7.webp",
+  "w": 900,
+  "h": 598,
+  "film": "integral",
+  "surface": "wood",
+  "temp": 45,
+  "flipped": false
+ }
+]
