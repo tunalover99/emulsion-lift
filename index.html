@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
+<title>에멀전 리프트 작업실</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: darkroom bench. Stage (the tray) on the left, process sheet with numbered real steps on the right; stacks on phones. */
+:root {
+  --bg: #e8ebe6;
+  --surface: #f7f8f5;
+  --ink: #17201b;
+  --muted: #57625b;
+  --line: #d0d6cf;
+  --accent: #0d6a6f;
+  --accent-ink: #ffffff;
+  --hot: #b04b16;
+  --cold: #2a6893;
+  --chip: rgba(18, 26, 22, 0.74);
+  --chip-ink: #eef3ef;
+  --f-sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1211; --surface: #161b19; --ink: #e2e8e4; --muted: #95a199; --line: #29302c;
+    --accent: #5dbfbf; --accent-ink: #052120; --hot: #f08b52; --cold: #79b6df;
+    --chip: rgba(8, 12, 10, 0.8); --chip-ink: #e8eee9; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1211; --surface: #161b19; --ink: #e2e8e4; --muted: #95a199; --line: #29302c;
+  --accent: #5dbfbf; --accent-ink: #052120; --hot: #f08b52; --cold: #79b6df;
+  --chip: rgba(8, 12, 10, 0.8); --chip-ink: #e8eee9; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-sans); font-size: 14px; line-height: 1.55; }
+.shell {
+  max-width: 1340px; margin: 0 auto; display: grid; gap: 22px;
+  padding-block: 22px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+header.top h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; text-wrap: balance; }
+header.top p { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 70ch; }
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 20px; align-items: start; }
+.stage-col { min-width: 0; display: grid; gap: 10px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); }
+.stage {
+  position: relative; width: 100%; max-width: 100%; aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden;
+  background: #cdd0c9; margin-inline: auto;
+  max-width: min(100%, calc((100vh - 150px) * 4 / 3));
+}
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.stage.tool-on canvas { cursor: none; }
+#cursor {
+  position: absolute; left: 0; top: 0; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%);
+  border: 1.5px solid rgba(255, 255, 255, 0.95); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+.readout {
+  position: absolute; left: 12px; top: 12px; background: var(--chip); color: var(--chip-ink);
+  font-family: var(--f-mono); font-size: 12px; padding: 6px 10px; border-radius: 6px; pointer-events: none;
+  font-variant-numeric: tabular-nums; max-width: calc(100% - 24px);
+}
+.dropzone {
+  position: absolute; inset: 10px; border: 2px dashed rgba(255, 255, 255, 0.9); border-radius: 8px;
+  display: grid; place-items: center; background: rgba(13, 106, 111, 0.35); color: #fff; font-weight: 500; pointer-events: none;
+}
+.stage-hint { margin: 0; color: var(--muted); font-size: 13px; text-align: center; min-height: 1.5em; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.steps { list-style: none; margin: 0; padding: 0; }
+.step + .step { border-top: 1px solid var(--line); }
+.step-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px; }
+.num {
+  flex: none; width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--line);
+  display: grid; place-items: center; font-family: var(--f-mono); font-size: 12px; color: var(--muted);
+}
+.step.current .num { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.step.done .num { border-color: var(--accent); color: var(--accent); }
+.step h2 { margin: 0; font-size: 15px; font-weight: 700; }
+.step:not(.current) h2 { color: var(--muted); font-weight: 500; }
+.step .meta { margin-left: auto; font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); text-align: right; }
+.step-body { padding: 0 18px 18px 56px; display: grid; gap: 14px; }
+.real { margin: 0; font-size: 13.5px; line-height: 1.7; }
+.real strong { font-weight: 700; }
+.note { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+.field { display: grid; gap: 7px; }
+.label { font-size: 12px; color: var(--muted); letter-spacing: 0.02em; display: flex; justify-content: space-between; gap: 8px; }
+.label output { font-family: var(--f-mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button, .btn {
+  font: inherit; font-size: 13px; line-height: 1.3; padding: 8px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.seg button small { display: block; font-size: 11px; opacity: 0.75; }
+.btn:hover:not(:disabled), .seg button:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 500; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+#temp { accent-color: var(--hot); }
+.temp-out { color: var(--hot) !important; }
+.check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+.check input { margin-top: 3px; accent-color: var(--accent); }
+.bar { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.15s linear; }
+.file-btn { position: relative; overflow: hidden; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.result img { width: 100%; border-radius: 6px; border: 1px solid var(--line); display: block; }
+.primer { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; }
+.primer section { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; min-width: 0; }
+.primer h3 { margin: 0 0 10px; font-size: 15px; }
+.table-wrap { overflow-x: auto; }
+table.map { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 520px; }
+table.map th, table.map td { text-align: left; vertical-align: top; padding: 9px 10px 9px 0; border-top: 1px solid var(--line); line-height: 1.6; }
+table.map th { font-size: 12px; color: var(--muted); font-weight: 500; border-top: 0; }
+table.map td:first-child { font-weight: 500; width: 34%; }
+.primer ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13px; }
+.layers { display: grid; gap: 3px; margin-top: 14px; font-size: 12px; font-family: var(--f-mono); }
+.layers div { padding: 5px 10px; border-radius: 4px; border: 1px solid var(--line); }
+.layers .em { background: linear-gradient(90deg, #d86b7a, #e6b35a, #4f8fb3); color: #fff; border: 0; }
+.toast {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); transform: translateX(-50%);
+  background: var(--chip); color: var(--chip-ink); padding: 10px 16px; border-radius: 8px; font-size: 13px; z-index: 20;
+  max-width: calc(100% - 32px);
+}
+.gl-error { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; background: var(--surface); color: var(--ink); }
+@media (max-width: 960px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .stage-col { position: static; }
+  .stage { max-width: 100%; }
+  .primer { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .step-body { padding-left: 18px; }
+}
+</style>
+
+<div class="shell">
+  <header class="top">
+    <h1>에멀전 리프트 작업실</h1>
+    <p>즉석필름의 이미지 막을 물에서 떼어 종이에 옮기는 에멀전 리프트를 화면 위에서 그대로 따라 합니다. 사진을 올리고 실제 순서대로 담그고, 떼어내고, 옮기고, 말리세요.</p>
+  </header>
+
+  <main class="app">
+    <div class="stage-col">
+      <div class="stage" id="stage">
+        <canvas id="gl" aria-label="작업 트레이. 사진 막을 끌어서 모양을 잡을 수 있습니다."></canvas>
+        <div id="cursor" hidden></div>
+        <div class="readout" id="readout">준비</div>
+        <div class="dropzone" id="dropzone" hidden>여기에 사진을 놓으세요</div>
+      </div>
+      <p class="stage-hint" id="stageHint"></p>
+    </div>
+
+    <aside class="panel" aria-label="작업 순서">
+      <ol class="steps">
+        <li class="step" data-step="1">
+          <div class="step-head"><span class="num">1</span><h2>필름 고르고 인화하기</h2><span class="meta" id="meta1"></span></div>
+          <div class="step-body">
+            <p class="real">에멀전 리프트는 즉석사진 속 <strong>이미지가 담긴 젤라틴 막(유제)</strong>만 물로 떼어내 다른 종이에 옮기는 기법입니다. 필 어파트 필름과 폴라로이드 인티그럴 필름에서 되고, 인스탁스는 구조상 되지 않습니다. 실제로는 인화 후 하루쯤 완전히 말린 사진으로 시작합니다.</p>
+            <div class="field">
+              <span class="label">필름</span>
+              <div class="seg" id="filmSeg">
+                <button type="button" id="film-peel" data-film="peel" aria-pressed="true">필 어파트<small>FP-100C 방식 · 4:3</small></button>
+                <button type="button" id="film-integral" data-film="integral" aria-pressed="false">인티그럴<small>폴라로이드 600 · i-Type</small></button>
+              </div>
+            </div>
+            <div class="row">
+              <label class="btn file-btn" for="file">사진 올리기<input type="file" id="file" accept="image/*"></label>
+              <button type="button" class="btn" id="sampleBtn">예시 사진</button>
+            </div>
+            <p class="note" id="filmNote"></p>
+            <div class="row"><button type="button" class="btn primary" id="toSoak">뜨거운 물에 담그기로</button></div>
+          </div>
+        </li>
+
+        <li class="step" data-step="2">
+          <div class="step-head"><span class="num">2</span><h2>뜨거운 물에 담그기</h2><span class="meta" id="meta2"></span></div>
+          <div class="step-body" hidden>
+            <p class="real" id="soakText"></p>
+            <div class="field">
+              <span class="label"><span>물 온도</span><output class="temp-out" id="tempOut" for="temp">70°C</output></span>
+              <input type="range" id="temp" min="30" max="90" step="1" value="70">
+              <p class="note" id="tempNote"></p>
+            </div>
+            <div class="bar" aria-hidden="true"><i id="soakBar"></i></div>
+            <div class="row">
+              <button type="button" class="btn" id="soakBtn">담그기 시작</button>
+              <button type="button" class="btn primary" id="toLift" disabled>찬물로 옮기기</button>
+            </div>
+          </div>
+        </li>
+
+        <li class="step" data-step="3">
+          <div class="step-head"><span class="num">3</span><h2>찬물에서 막 떼어내기</h2><span class="meta" id="meta3"></span></div>
+          <div class="step-body" hidden>
+            <p class="real" id="liftText">찬물 트레이로 옮긴 뒤 손가락이나 부드러운 붓으로 <strong>가장자리부터 안쪽으로</strong> 살살 밀어 막을 떼어냅니다. 떨어진 막은 젖은 셀로판처럼 물에 떠다닙니다. 서두르면 찢어집니다.</p>
+            <div class="field">
+              <span class="label">도구</span>
+              <div class="seg" id="tool3Seg">
+                <button type="button" id="t3-release" data-tool="release" aria-pressed="true">떼어내기</button>
+                <button type="button" id="t3-push" data-tool="push" aria-pressed="false">밀기</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="label"><span>붓 크기</span><output id="brush3Out" for="brush3">70</output></span>
+              <input type="range" id="brush3" min="25" max="160" value="70">
+            </div>
+            <div class="field">
+              <span class="label"><span>떨어진 면적</span><output id="relOut">0%</output></span>
+              <div class="bar" aria-hidden="true"><i id="relBar"></i></div>
+            </div>
+            <div class="row">
+              <button type="button" class="btn" id="autoRelease">남은 부분 한꺼번에 떼기</button>
+              <button type="button" class="btn primary" id="toPaper" disabled>종이 위로 옮기기</button>
+            </div>
+          </div>
+        </li>
+
+        <li class="step" data-step="4">
+          <div class="step-head"><span class="num">4</span><h2>종이에 옮기고 모양 잡기</h2><span class="meta" id="meta4"></span></div>
+          <div class="step-body" hidden>
+            <p class="real">받을 종이를 막 아래로 밀어 넣고 비스듬히 들어 올립니다. 아직 젖어 있는 동안 붓과 물로 막을 <strong>밀고, 모으고, 접고, 찢어</strong> 모양을 만듭니다. 막을 뒤집어 올리면 좌우가 바뀝니다. 다시 물에 담갔다 빼면 주름이 펴집니다.</p>
+            <div class="field">
+              <span class="label">받는 종이</span>
+              <div class="seg" id="paperSeg">
+                <button type="button" id="pp-cold" data-paper="cold" aria-pressed="true">수채화지<small>콜드프레스</small></button>
+                <button type="button" id="pp-hot" data-paper="hot" aria-pressed="false">수채화지<small>핫프레스</small></button>
+                <button type="button" id="pp-hanji" data-paper="hanji" aria-pressed="false">한지<small>닥섬유</small></button>
+                <button type="button" id="pp-kraft" data-paper="kraft" aria-pressed="false">크라프트지<small>갈색</small></button>
+              </div>
+            </div>
+            <label class="check" id="whiteWrap" hidden><input type="checkbox" id="whiteLayer"><span>흰 층 남기기<br><span class="note">인티그럴 필름의 흰 시약층을 씻어내지 않으면 막이 불투명해져 어두운 종이에서도 이미지가 보입니다.</span></span></label>
+            <div class="field">
+              <span class="label">도구</span>
+              <div class="seg" id="tool4Seg">
+                <button type="button" id="t4-push" data-tool="push" aria-pressed="true">밀기</button>
+                <button type="button" id="t4-pinch" data-tool="pinch" aria-pressed="false">주름 모으기</button>
+                <button type="button" id="t4-smooth" data-tool="smooth" aria-pressed="false">펴기</button>
+                <button type="button" id="t4-tear" data-tool="tear" aria-pressed="false">찢기</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="label"><span>붓 크기</span><output id="brush4Out" for="brush4">70</output></span>
+              <input type="range" id="brush4" min="20" max="200" value="70">
+            </div>
+            <div class="row">
+              <button type="button" class="btn" id="flipBtn">뒤집기</button>
+              <button type="button" class="btn" id="dipBtn">담갔다 빼기</button>
+              <button type="button" class="btn" id="shakeBtn">물에서 흔들기</button>
+              <button type="button" class="btn" id="undoBtn" disabled>되돌리기</button>
+            </div>
+            <div class="row"><button type="button" class="btn primary" id="toDry">말리기</button></div>
+          </div>
+        </li>
+
+        <li class="step" data-step="5">
+          <div class="step-head"><span class="num">5</span><h2>말리고 저장하기</h2><span class="meta" id="meta5"></span></div>
+          <div class="step-body" hidden>
+            <p class="real">평평한 곳에서 하루 정도 말립니다. 마른 뒤 무거운 책으로 눌러 종이를 펴고, 원하면 무광 미디엄을 발라 막을 고정합니다. 막은 투명해서 종이 결이 이미지 사이로 비칩니다.</p>
+            <div class="bar" aria-hidden="true"><i id="dryBar"></i></div>
+            <div class="result" id="result" hidden><img id="resultImg" alt="완성된 에멀전 리프트 이미지"></div>
+            <p class="note" id="saveNote" hidden></p>
+            <div class="row">
+              <button type="button" class="btn primary" id="saveBtn" disabled>PNG로 저장</button>
+              <button type="button" class="btn" id="backBtn">다시 적시기</button>
+              <button type="button" class="btn" id="restartBtn">처음부터</button>
+            </div>
+          </div>
+        </li>
+      </ol>
+    </aside>
+  </main>
+
+  <div class="primer">
+    <section>
+      <h3>실제 과정과 이 화면이 하는 일</h3>
+      <div class="table-wrap">
+        <table class="map">
+          <thead><tr><th>암실에서</th><th>화면에서</th></tr></thead>
+          <tbody>
+            <tr><td>즉석필름으로 찍고 하루 말리기. 필 어파트는 뒷면에 투명 시트지를 붙여 보호</td><td>올린 사진을 필름 비율로 자르고 색을 입힙니다. FP-100C는 차가운 그림자와 선명한 색, 폴라로이드는 들뜬 검정과 따뜻한 하이라이트, 비네팅, 입자를 넣습니다.</td></tr>
+            <tr><td>필 어파트는 약 70°C 물에 3~5분. 인티그럴은 테두리를 잘라 앞뒤를 분리하고 40~50°C 물에 담금</td><td>가장자리에서 시작해 불규칙한 경계를 따라 들뜬 부분이 번지고 기포가 생깁니다. 온도가 높으면 빨리 들뜨지만 가장자리가 거칠어지고 구멍이 생깁니다.</td></tr>
+            <tr><td>찬물에서 손가락이나 붓으로 가장자리부터 막을 밀어 떼어냄</td><td>이미지를 약 2,500개의 점으로 이은 얇은 막으로 바꿉니다. 붙어 있는 점은 고정되고, 떼어낸 점은 물결을 따라 떠다닙니다. 뒷판에는 희미한 잔상이 남습니다.</td></tr>
+            <tr><td>종이를 아래로 넣어 건지고 붓으로 주름, 접힘, 찢김을 만듦</td><td>점과 점 사이는 조금만 늘어나고 줄어드는 것은 허용됩니다. 그래서 밀면 주름이 지고, 접혀 겹친 곳은 염료가 곱해져 더 진해집니다(곱하기 합성). 찢으면 이음새가 끊겨 실제로 벌어집니다.</td></tr>
+            <tr><td>평평하게 하루 건조, 필요하면 무광 미디엄으로 고정</td><td>젖은 광택과 종이의 젖은 색이 빠지고 막이 살짝 줄어듭니다. 종이 질감이 투명한 막 사이로 비칩니다.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section>
+      <h3>실제로 해볼 때 준비물</h3>
+      <ul>
+        <li>필 어파트 또는 폴라로이드 인티그럴 사진 (인스탁스 불가)</li>
+        <li>트레이 2개: 뜨거운 물, 찬물</li>
+        <li>부드러운 붓, 장갑, 집게</li>
+        <li>받을 종이: 수채화지, 한지 등 물에 강한 종이</li>
+        <li>투명 시트지(필 어파트), 가위나 커터(인티그럴)</li>
+        <li>무광 미디엄(선택)</li>
+      </ul>
+      <div class="layers" aria-label="인티그럴 필름 단면">
+        <div>투명 플라스틱 앞면</div>
+        <div class="em">유제층 · 이미지가 있는 막</div>
+        <div>흰 시약층 (이산화티타늄)</div>
+        <div>검은 뒷판</div>
+      </div>
+      <p class="note" style="margin-top:8px">인티그럴 필름 단면. 리프트는 가운데 유제층만 꺼내는 작업입니다.</p>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- constants & state ---------- */
+const W = 1200, H = 900, BGS = 1.5;
+const PAPER = { x: 120, y: 90, w: 960, h: 720 };
+const TRAY = { x: 36, y: 28, w: 1128, h: 844 };
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const state = {
+  phase: 1, film: 'peel', temp: 70, paper: 'cold', whiteLayer: false,
+  tool3: 'release', tool4: 'push', brush3: 70, brush4: 70, flipped: false,
+  soakP: 0, soaking: false, soakDone: false, soakThr: 0.2, ragged: 1, holes: 0,
+  autoRel: null, dryP: 0, drying: false, dip: 0, simFrames: 0,
+  srcImg: null, resultBlob: null,
+};
+const $ = id => document.getElementById(id);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+
+/* ---------- noise ---------- */
+function hash2(x, y, s) {
+  let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) + Math.imul(s | 0, 1442695041)) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16;
+  return (h >>> 0) / 4294967296;
+}
+function vnoise(x, y, s) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  const a = hash2(xi, yi, s), b = hash2(xi + 1, yi, s), c = hash2(xi, yi + 1, s), d = hash2(xi + 1, yi + 1, s);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+function fbm(x, y, s, o = 4) {
+  let t = 0, a = 0.5, f = 1, n = 0;
+  for (let i = 0; i < o; i++) { t += a * vnoise(x * f, y * f, s + i * 17); n += a; a *= 0.5; f *= 2; }
+  return t / n;
+}
+const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+
+/* ---------- WebGL ---------- */
+const canvas = $('gl');
+const gl = canvas.getContext('webgl', { antialias: true, preserveDrawingBuffer: true, alpha: false });
+if (!gl) {
+  const e = document.createElement('div'); e.className = 'gl-error';
+  e.textContent = '이 브라우저에서는 WebGL을 쓸 수 없어 작업 트레이를 그릴 수 없습니다. 최신 Chrome, Safari, Firefox에서 열어 주세요.';
+  $('stage').appendChild(e); return;
+}
+const NOISE_GLSL = `
+float h1(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+ return mix(mix(h1(i),h1(i+vec2(1.,0.)),f.x),mix(h1(i+vec2(0.,1.)),h1(i+vec2(1.,1.)),f.x),f.y);}
+`;
+const VS_VIEW = `uniform vec4 u_view; vec4 toClip(vec2 w){vec2 n=(w-u_view.xy)/u_view.zw; return vec4(n.x*2.-1.,1.-n.y*2.,0.,1.);}`;
+const BG_VS = `attribute vec2 a_pos; ${VS_VIEW} varying vec2 v_w; void main(){v_w=a_pos; gl_Position=toClip(a_pos);}`;
+const BG_FS = `precision mediump float; ${NOISE_GLSL}
+uniform sampler2D u_bg; uniform float u_water, u_time, u_wet; uniform vec3 u_tint; uniform vec4 u_wr, u_pr;
+varying vec2 v_w;
+float inR(vec2 w, vec4 r){return step(r.x,w.x)*step(w.x,r.x+r.z)*step(r.y,w.y)*step(w.y,r.y+r.w);}
+void main(){
+  vec2 w=v_w; float inW=u_water*inR(w,u_wr);
+  vec2 off=inW*vec2(sin(w.y*0.035+u_time*1.3),cos(w.x*0.03+u_time*1.1))*1.6;
+  vec3 c=texture2D(u_bg,(w+off)/vec2(${W}.,${H}.)).rgb;
+  c=mix(c,c*vec3(0.88,0.89,0.9),u_wet*inR(w,u_pr));
+  c=mix(c,c*u_tint,min(inW,1.)*0.6);
+  float a=n2(w*0.02+vec2(u_time*0.15,u_time*0.1)), b=n2(w*0.031-vec2(u_time*0.12,-u_time*0.07));
+  c+=inW*pow(max(0.,1.-abs(a-b)*2.4),10.)*0.045;
+  gl_FragColor=vec4(c,1.);
+}`;
+const MV_VS = `attribute vec2 a_pos; attribute vec2 a_uv; attribute float a_comp, a_rel, a_field; ${VS_VIEW}
+varying vec2 v_uv; varying float v_comp, v_rel, v_field;
+void main(){v_uv=a_uv; v_comp=a_comp; v_rel=a_rel; v_field=a_field; gl_Position=toClip(a_pos);}`;
+const MV_FS = `precision mediump float; ${NOISE_GLSL}
+uniform sampler2D u_img, u_dmg; uniform float u_mode, u_whiteA, u_soak, u_relVis, u_wet, u_aspect;
+varying vec2 v_uv; varying float v_comp, v_rel, v_field;
+void main(){
+  float m=texture2D(u_dmg,v_uv).r;
+  float a=smoothstep(0.05,0.2,m);
+  if(a<0.01) discard;
+  if(u_mode>0.5){ gl_FragColor=vec4(0.985,0.982,0.972,a*u_whiteA); return; }
+  vec3 c=texture2D(u_img,v_uv).rgb;
+  float comp=clamp(v_comp,-0.4,1.);
+  float cp=max(comp,0.);
+  vec2 q=v_uv*vec2(26.,26./u_aspect);
+  float n=n2(q)+0.5*n2(q*2.3+7.1);
+  float crease=1.-smoothstep(0.,0.25,abs(sin(n*16.)));
+  c=pow(max(c,vec3(0.001)),vec3(1.+comp*1.3));
+  c*=1.-crease*cp*0.7;
+  c*=1.-cp*0.12*n;
+  float rim=1.-smoothstep(0.2,1.,m);
+  c*=1.-rim*0.3;
+  c=mix(c,vec3(1.),v_rel*u_relVis*0.12);
+  float bl=(u_soak>0.)?smoothstep(u_soak,u_soak-0.05,v_field):0.;
+  float bub=step(0.9,h1(floor(v_uv*vec2(70.,70./u_aspect))))*bl;
+  c=mix(c,vec3(1.),bl*0.13+bub*0.45);
+  c=mix(c,vec3(1.),u_wet*0.06);
+  c=mix(vec3(1.),c,a);
+  gl_FragColor=vec4(c,1.);
+}`;
+function compile(type, src) {
+  const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+function program(vs, fs, attrs, unis) {
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, vs)); gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  const o = { p, a: {}, u: {} };
+  attrs.forEach(n => o.a[n] = gl.getAttribLocation(p, n));
+  unis.forEach(n => o.u[n] = gl.getUniformLocation(p, n));
+  return o;
+}
+const bgProg = program(BG_VS, BG_FS, ['a_pos'], ['u_view', 'u_bg', 'u_water', 'u_time', 'u_wet', 'u_tint', 'u_wr', 'u_pr']);
+const mProg = program(MV_VS, MV_FS, ['a_pos', 'a_uv', 'a_comp', 'a_rel', 'a_field'],
+  ['u_view', 'u_img', 'u_dmg', 'u_mode', 'u_whiteA', 'u_soak', 'u_relVis', 'u_wet', 'u_aspect']);
+
+function makeTex() {
+  const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  return t;
+}
+function upload(t, src) { gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src); }
+const bgTex = makeTex(), imgTex = makeTex(), dmgTex = makeTex();
+const bgBuf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, bgBuf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, W, 0, 0, H, W, 0, W, H, 0, H]), gl.STATIC_DRAW);
+const mBuf = gl.createBuffer(), iBuf = gl.createBuffer();
+
+/* ---------- sample photo ---------- */
+function makeSample() {
+  const c = mk(1400, 1060), g = c.getContext('2d');
+  let gr = g.createLinearGradient(0, 0, 0, 640);
+  gr.addColorStop(0, '#24426f'); gr.addColorStop(0.42, '#b86b8c'); gr.addColorStop(0.78, '#f09f5c'); gr.addColorStop(1, '#f8d28c');
+  g.fillStyle = gr; g.fillRect(0, 0, 1400, 640);
+  const sx = 900, sy = 566;
+  const rg = g.createRadialGradient(sx, sy, 0, sx, sy, 300);
+  rg.addColorStop(0, 'rgba(255,240,205,1)'); rg.addColorStop(0.16, 'rgba(255,212,140,.85)'); rg.addColorStop(1, 'rgba(255,170,120,0)');
+  g.fillStyle = rg; g.fillRect(0, 0, 1400, 640);
+  g.fillStyle = '#fff4da'; g.beginPath(); g.arc(sx, sy, 50, 0, Math.PI * 2); g.fill();
+  for (let i = 0; i < 14; i++) {
+    g.fillStyle = `rgba(${120 + i * 6},${70 + i * 3},${110},${0.18 + (i % 3) * 0.05})`;
+    g.beginPath(); g.ellipse(100 + ((i * 337) % 1250), 120 + ((i * 97) % 300), 160 + (i % 4) * 60, 10 + (i % 3) * 5, 0, 0, Math.PI * 2); g.fill();
+  }
+  g.fillStyle = '#3b2b41'; g.beginPath(); g.moveTo(0, 640);
+  for (let x = 0; x <= 560; x += 20) g.lineTo(x, 640 - 90 * Math.exp(-((x - 220) ** 2) / 26000) - 26 * Math.sin(x * 0.03) - 20);
+  g.lineTo(560, 640); g.fill();
+  gr = g.createLinearGradient(0, 640, 0, 1060);
+  gr.addColorStop(0, '#d98d6a'); gr.addColorStop(0.35, '#6c4f74'); gr.addColorStop(1, '#1d2944');
+  g.fillStyle = gr; g.fillRect(0, 640, 1400, 420);
+  for (let i = 0; i < 110; i++) {
+    const y = 646 + Math.pow(i / 110, 1.5) * 400, w = 30 + Math.random() * (180 - i);
+    g.fillStyle = `rgba(255,${200 + Math.random() * 40},${150 + Math.random() * 40},${0.55 - i / 260})`;
+    g.fillRect(sx - w / 2 + (Math.random() - 0.5) * 60, y, w, 2 + Math.random() * 3);
+  }
+  g.fillStyle = '#1e1826';
+  g.beginPath(); g.moveTo(380, 742); g.lineTo(470, 742); g.lineTo(456, 758); g.lineTo(392, 758); g.fill();
+  g.beginPath(); g.moveTo(424, 740); g.lineTo(424, 640); g.lineTo(466, 736); g.fill();
+  g.beginPath(); g.moveTo(420, 740); g.lineTo(420, 660); g.lineTo(392, 736); g.fill();
+  g.strokeStyle = '#2a2033'; g.lineWidth = 3;
+  [[1040, 300], [1080, 280], [1010, 330]].forEach(([x, y]) => { g.beginPath(); g.moveTo(x - 14, y); g.quadraticCurveTo(x - 6, y - 8, x, y); g.quadraticCurveTo(x + 6, y - 8, x + 14, y); g.stroke(); });
+  return c;
+}
+
+/* ---------- film rendering ---------- */
+let film = { canvas: null, aspect: 95 / 73 };
+function makeFilm(img) {
+  const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+  const aspect = state.film === 'integral' ? 1 : (iw >= ih ? 95 / 73 : 73 / 95);
+  const L = 1024, tw = aspect >= 1 ? L : Math.round(L * aspect), th = aspect >= 1 ? Math.round(L / aspect) : L;
+  const c = mk(tw, th), g = c.getContext('2d');
+  const s = Math.max(tw / iw, th / ih), dw = iw * s, dh = ih * s;
+  if (state.film === 'integral') g.filter = 'blur(0.7px)';
+  g.drawImage(img, (tw - dw) / 2, (th - dh) / 2, dw, dh);
+  g.filter = 'none';
+  const id = g.getImageData(0, 0, tw, th), d = id.data;
+  const integ = state.film === 'integral';
+  for (let y = 0; y < th; y++) for (let x = 0; x < tw; x++) {
+    const i = (y * tw + x) * 4;
+    let r = d[i] / 255, gg = d[i + 1] / 255, b = d[i + 2] / 255;
+    const nx = x / tw - 0.5, ny = y / th - 0.5, vig = nx * nx + ny * ny;
+    if (!integ) {
+      r = r + 0.32 * (r * r * (3 - 2 * r) - r); gg = gg + 0.32 * (gg * gg * (3 - 2 * gg) - gg); b = b + 0.32 * (b * b * (3 - 2 * b) - b);
+      const l = 0.3 * r + 0.59 * gg + 0.11 * b;
+      r += -0.045 * (1 - l) + 0.025 * l; gg += 0.012 * (1 - l); b += 0.04 * (1 - l) - 0.01 * l;
+      const l2 = 0.3 * r + 0.59 * gg + 0.11 * b;
+      r = l2 + (r - l2) * 1.14; gg = l2 + (gg - l2) * 1.14; b = l2 + (b - l2) * 1.14;
+      const v = 1 - vig * 0.35; r *= v; gg *= v; b *= v;
+    } else {
+      r = 0.07 + r * 0.88; gg = 0.07 + gg * 0.87; b = 0.08 + b * 0.84;
+      const l = 0.3 * r + 0.59 * gg + 0.11 * b;
+      r += 0.05 * l; gg += 0.015 * l + 0.02 * (1 - l); b += -0.06 * l + 0.035 * (1 - l);
+      const l2 = 0.3 * r + 0.59 * gg + 0.11 * b;
+      r = l2 + (r - l2) * 0.82; gg = l2 + (gg - l2) * 0.82; b = l2 + (b - l2) * 0.82;
+      const v = 1 - vig * 0.75; r *= v; gg *= v; b *= v;
+    }
+    const n = (Math.random() - 0.5) * (integ ? 0.05 : 0.035);
+    d[i] = clamp((r + n) * 255, 0, 255); d[i + 1] = clamp((gg + n) * 255, 0, 255); d[i + 2] = clamp((b + n) * 255, 0, 255);
+  }
+  g.putImageData(id, 0, 0);
+  film = { canvas: c, aspect };
+  upload(imgTex, c);
+}
+
+function printRect() {
+  const a = film.aspect; let w, h;
+  if (state.film === 'integral') { w = h = 440; }
+  else if (a >= 1) { w = 560; h = Math.round(560 / a); }
+  else { h = 560; w = Math.round(560 * a); }
+  const cy = state.film === 'integral' ? 418 : 450;
+  return { x: 600 - w / 2, y: cy - h / 2, w, h };
+}
+
+/* ---------- damage mask (edges, holes, tears) in uv space ---------- */
+let dmg = null, dctx = null;
+function initDamage() {
+  const a = film.aspect, DW = a >= 1 ? 512 : Math.round(512 * a), DH = a >= 1 ? Math.round(512 / a) : 512;
+  dmg = mk(DW, DH); dctx = dmg.getContext('2d', { willReadFrequently: true });
+  dctx.fillStyle = '#fff'; dctx.fillRect(0, 0, DW, DH);
+  upload(dmgTex, dmg);
+}
+function raggedEdges(amount, holes) {
+  const r = printRect(), DW = dmg.width, DH = dmg.height;
+  const id = dctx.getImageData(0, 0, DW, DH), d = id.data, seed = (Math.random() * 1e5) | 0;
+  for (let y = 0; y < DH; y++) for (let x = 0; x < DW; x++) {
+    const u = (x + 0.5) / DW, v = (y + 0.5) / DH;
+    const dist = Math.min(Math.min(u, 1 - u) * r.w, Math.min(v, 1 - v) * r.h);
+    const n = fbm(u * 9, v * 9 * r.h / r.w, seed, 4);
+    const th = amount * (3 + 18 * n * n);
+    let val = smooth(th - 1, th + 9, dist);
+    if (holes > 0) {
+      const hn = fbm(u * 16 + 3.1, v * 16 * r.h / r.w, seed + 99, 3);
+      val *= 1 - smooth(0.76 - holes * 0.12, 0.8 - holes * 0.12, hn);
+    }
+    const o = (y * DW + x) * 4, cur = d[o] / 255, nv = Math.min(cur, val) * 255;
+    d[o] = d[o + 1] = d[o + 2] = nv;
+  }
+  dctx.putImageData(id, 0, 0);
+  upload(dmgTex, dmg);
+}
+
+/* ---------- membrane mesh ---------- */
+let M = null;
+function buildMesh() {
+  const r = printRect(), cell = 10;
+  const cols = Math.round(r.w / cell) + 1, rows = Math.round(r.h / cell) + 1, n = cols * rows;
+  const P = new Float32Array(n * 2), R = new Float32Array(n * 2), UV = new Float32Array(n * 2), V = new Float32Array(n * 2);
+  const inv = new Float32Array(n).fill(1), rel = new Float32Array(n), field = new Float32Array(n), comp = new Float32Array(n), touch = new Float32Array(n);
+  const seed = (Math.random() * 1e5) | 0;
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const k = j * cols + i, u = i / (cols - 1), v = j / (rows - 1);
+    P[2 * k] = R[2 * k] = r.x + u * r.w; P[2 * k + 1] = R[2 * k + 1] = r.y + v * r.h;
+    UV[2 * k] = u; UV[2 * k + 1] = v;
+    field[k] = Math.min(u, 1 - u, v, 1 - v) * 2 + (fbm(u * 5, v * 5 * r.h / r.w, seed) - 0.5) * 0.4;
+  }
+  const ca = [], cr = [], ck = [];
+  const add = (a, b, kind) => { ca.push(a, b); cr.push(Math.hypot(R[2 * b] - R[2 * a], R[2 * b + 1] - R[2 * a + 1])); ck.push(kind); };
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const k = j * cols + i;
+    if (i < cols - 1) add(k, k + 1, 0);
+    if (j < rows - 1) add(k, k + cols, 0);
+    if (i < cols - 1 && j < rows - 1) { add(k, k + cols + 1, 1); add(k + 1, k + cols, 1); }
+    if (i < cols - 2) add(k, k + 2, 2);
+    if (j < rows - 2) add(k, k + 2 * cols, 2);
+  }
+  const idx = [];
+  for (let j = 0; j < rows - 1; j++) for (let i = 0; i < cols - 1; i++) {
+    const k = j * cols + i; idx.push(k, k + 1, k + cols, k + 1, k + cols + 1, k + cols);
+  }
+  M = {
+    n, cols, rows, P, R, UV, V, inv, rel, field, comp, touch,
+    CA: new Uint32Array(ca), CR: new Float32Array(cr), CK: new Uint8Array(ck), broken: new Uint8Array(ck.length),
+    cw: r.w / (cols - 1), ch: r.h / (rows - 1), vb: new Float32Array(n * 7), nIdx: idx.length,
+  };
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuf);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idx), gl.STATIC_DRAW);
+  state.flipped = false;
+}
+function stretchAmt() {
+  const base = state.film === 'integral' ? 45 : 70;
+  return 0.012 + clamp(state.temp / base - 0.7, 0, 0.7) * 0.07;
+}
+function solve(iters) {
+  const { P, inv, CA, CR, CK, broken } = M, s = stretchAmt();
+  const hi = [1 + s, 1 + s * 1.35, 9], lo = [0.14, 0.14, 0.3], nc = CK.length;
+  for (let it = 0; it < iters; it++) {
+    for (let c = 0; c < nc; c++) {
+      if (broken[c]) continue;
+      const ia = CA[2 * c], ib = CA[2 * c + 1], wa = inv[ia], wb = inv[ib], ws = wa + wb;
+      if (ws === 0) continue;
+      const a = 2 * ia, b = 2 * ib;
+      let dx = P[b] - P[a], dy = P[b + 1] - P[a + 1];
+      const d = Math.sqrt(dx * dx + dy * dy) || 1e-6, rest = CR[c], k = CK[c];
+      let t;
+      if (d > rest * hi[k]) t = rest * hi[k]; else if (d < rest * lo[k]) t = rest * lo[k]; else continue;
+      const f = (d - t) / (d * ws); dx *= f; dy *= f;
+      P[a] += dx * wa; P[a + 1] += dy * wa; P[b] -= dx * wb; P[b + 1] -= dy * wb;
+    }
+  }
+}
+function computeComp() {
+  const { P, cols, rows, comp, cw, ch } = M;
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const k = j * cols + i; let s = 0, c = 0;
+    const acc = (o, rest) => { const dx = P[2 * o] - P[2 * k], dy = P[2 * o + 1] - P[2 * k + 1]; s += Math.sqrt(dx * dx + dy * dy) / rest; c++; };
+    if (i > 0) acc(k - 1, cw); if (i < cols - 1) acc(k + 1, cw);
+    if (j > 0) acc(k - cols, ch); if (j < rows - 1) acc(k + cols, ch);
+    const v = clamp((1 - s / c) / 0.45, -0.4, 1);
+    comp[k] = comp[k] * 0.55 + v * 0.45;
+  }
+}
+function centroid() {
+  let x = 0, y = 0; const { P, n } = M;
+  for (let k = 0; k < n; k++) { x += P[2 * k]; y += P[2 * k + 1]; }
+  return [x / n, y / n];
+}
+
+/* ---------- tools ---------- */
+function gauss(d2, r) { return Math.exp(-d2 / (2 * (r * 0.5) ** 2)); }
+function applyPush(cx, cy, r, dx, dy) {
+  const { P, n, touch } = M;
+  for (let k = 0; k < n; k++) {
+    const ex = P[2 * k] - cx, ey = P[2 * k + 1] - cy, d2 = ex * ex + ey * ey;
+    if (d2 > r * r * 2.2) continue;
+    const f = gauss(d2, r);
+    P[2 * k] += dx * f; P[2 * k + 1] += dy * f;
+    if (f > touch[k]) touch[k] = f;
+  }
+}
+function applyPinch(cx, cy, r, amt) {
+  const { P, n, touch } = M;
+  for (let k = 0; k < n; k++) {
+    const ex = P[2 * k] - cx, ey = P[2 * k + 1] - cy, d2 = ex * ex + ey * ey;
+    if (d2 > r * r * 2.2) continue;
+    const f = gauss(d2, r) * amt;
+    P[2 * k] -= ex * f; P[2 * k + 1] -= ey * f;
+    if (f / amt > touch[k]) touch[k] = f / amt;
+  }
+}
+function applySmooth(cx, cy, r, amt, global) {
+  const { P, R, cols, rows, touch } = M, fx = state.flipped ? -1 : 1;
+  const Q = new Float32Array(P);
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const k = j * cols + i;
+    let f = amt;
+    if (!global) {
+      const ex = P[2 * k] - cx, ey = P[2 * k + 1] - cy, d2 = ex * ex + ey * ey;
+      if (d2 > r * r * 2.2) continue;
+      f *= gauss(d2, r);
+    }
+    let tx = 0, ty = 0, c = 0;
+    const nb = o => { tx += Q[2 * o] - fx * (R[2 * o] - R[2 * k]); ty += Q[2 * o + 1] - (R[2 * o + 1] - R[2 * k + 1]); c++; };
+    if (i > 0) nb(k - 1); if (i < cols - 1) nb(k + 1); if (j > 0) nb(k - cols); if (j < rows - 1) nb(k + cols);
+    P[2 * k] += (tx / c - Q[2 * k]) * f; P[2 * k + 1] += (ty / c - Q[2 * k + 1]) * f;
+    touch[k] = Math.max(touch[k], f / amt);
+  }
+}
+function applyRelease(cx, cy, r) {
+  const { P, n, rel, inv } = M;
+  for (let k = 0; k < n; k++) {
+    const ex = P[2 * k] - cx, ey = P[2 * k + 1] - cy;
+    if (ex * ex + ey * ey < r * r) { rel[k] = 1; inv[k] = 1; }
+  }
+}
+function applyTear(cx, cy, r) {
+  const { P, UV, n } = M, DW = dmg.width, DH = dmg.height, pr = printRect();
+  const rr = r * 0.35 * DW / pr.w;
+  dctx.fillStyle = '#000';
+  for (let k = 0; k < n; k++) {
+    const ex = P[2 * k] - cx, ey = P[2 * k + 1] - cy;
+    if (ex * ex + ey * ey > (r * 0.45) ** 2) continue;
+    const u = UV[2 * k] * DW, v = UV[2 * k + 1] * DH;
+    dctx.beginPath();
+    dctx.ellipse(u + (Math.random() - 0.5) * rr, v + (Math.random() - 0.5) * rr, rr * (0.3 + Math.random() * 0.5), rr * (0.2 + Math.random() * 0.4), Math.random() * 3, 0, Math.PI * 2);
+    dctx.fill();
+  }
+  upload(dmgTex, dmg);
+}
+function updateBroken() {
+  const { UV, CA, broken } = M, DW = dmg.width, DH = dmg.height;
+  const d = dctx.getImageData(0, 0, DW, DH).data;
+  for (let c = 0; c < broken.length; c++) {
+    const a = CA[2 * c], b = CA[2 * c + 1];
+    const u = (UV[2 * a] + UV[2 * b]) / 2, v = (UV[2 * a + 1] + UV[2 * b + 1]) / 2;
+    const x = Math.min(DW - 1, (u * DW) | 0), y = Math.min(DH - 1, (v * DH) | 0);
+    broken[c] = d[(y * DW + x) * 4] < 70 ? 1 : 0;
+  }
+}
+
+/* ---------- undo ---------- */
+const undo = [];
+function pushUndo() {
+  undo.push({ P: new Float32Array(M.P), broken: new Uint8Array(M.broken), dmg: dctx.getImageData(0, 0, dmg.width, dmg.height), flipped: state.flipped });
+  if (undo.length > 25) undo.shift();
+  $('undoBtn').disabled = false;
+}
+function popUndo() {
+  const s = undo.pop(); if (!s) return;
+  M.P.set(s.P); M.broken.set(s.broken); dctx.putImageData(s.dmg, 0, 0); upload(dmgTex, dmg); state.flipped = s.flipped;
+  computeComp(); computeComp();
+  $('undoBtn').disabled = undo.length === 0;
+}
+
+/* ---------- backgrounds ---------- */
+function noiseLayer(g, w, h, scale, alpha) {
+  const sw = Math.max(2, Math.ceil(w / scale)), sh = Math.max(2, Math.ceil(h / scale));
+  const c = mk(sw, sh), x = c.getContext('2d'), id = x.createImageData(sw, sh);
+  for (let i = 0; i < sw * sh; i++) { const v = Math.random() * 255; id.data[4 * i] = id.data[4 * i + 1] = id.data[4 * i + 2] = v; id.data[4 * i + 3] = 255; }
+  x.putImageData(id, 0, 0);
+  g.globalAlpha = alpha; g.imageSmoothingEnabled = true; g.drawImage(c, 0, 0, w, h); g.globalAlpha = 1;
+}
+let tableCanvas = null;
+function makeTable() {
+  const w = W * BGS, h = H * BGS, c = mk(w, h), g = c.getContext('2d');
+  g.fillStyle = '#c9cdc5'; g.fillRect(0, 0, w, h);
+  noiseLayer(g, w, h, 2, 0.06); noiseLayer(g, w, h, 60, 0.025);
+  return c;
+}
+const paperCache = {};
+const PAPERS = {
+  cold: { base: [244, 241, 233], layers: [[3, 0.5], [7, 0.45], [16, 0.35], [44, 0.2]], emb: 1.3, tone: 0.05 },
+  hot: { base: [248, 247, 243], layers: [[2, 0.35], [6, 0.18], [30, 0.12]], emb: 0.35, tone: 0.02 },
+  hanji: { base: [241, 235, 221], layers: [[2, 0.3], [9, 0.2], [40, 0.15]], emb: 0.6, tone: 0.07, fibers: 'light' },
+  kraft: { base: [183, 146, 104], layers: [[2, 0.45], [8, 0.3], [34, 0.2]], emb: 0.7, tone: 0.12, fibers: 'dark' },
+};
+function makePaper(type) {
+  if (paperCache[type]) return paperCache[type];
+  const spec = PAPERS[type], w = Math.round(PAPER.w * BGS), h = Math.round(PAPER.h * BGS);
+  const hc = mk(w, h), hg = hc.getContext('2d', { willReadFrequently: true });
+  hg.fillStyle = '#808080'; hg.fillRect(0, 0, w, h);
+  spec.layers.forEach(([s, a]) => noiseLayer(hg, w, h, s, a));
+  if (spec.fibers) {
+    hg.lineCap = 'round';
+    for (let i = 0; i < 2600; i++) {
+      const x = Math.random() * w, y = Math.random() * h, a = Math.random() * Math.PI * 2, L = 20 + Math.random() * 120;
+      hg.strokeStyle = `rgba(${spec.fibers === 'light' ? '255,255,255' : '40,40,40'},${0.08 + Math.random() * 0.14})`;
+      hg.lineWidth = 0.6 + Math.random() * 1.6;
+      hg.beginPath(); hg.moveTo(x, y);
+      hg.quadraticCurveTo(x + Math.cos(a + 0.6) * L * 0.5, y + Math.sin(a + 0.6) * L * 0.5, x + Math.cos(a) * L, y + Math.sin(a) * L);
+      hg.stroke();
+    }
+  }
+  const src = hg.getImageData(0, 0, w, h).data, out = hg.createImageData(w, h), o = out.data;
+  const [br, bg, bb] = spec.base;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4;
+    const a = src[(Math.max(0, y - 1) * w + Math.max(0, x - 1)) * 4], b = src[(Math.min(h - 1, y + 1) * w + Math.min(w - 1, x + 1)) * 4];
+    const hv = src[i] / 255 - 0.5;
+    const s = 1 + ((a - b) / 255) * spec.emb * 0.35 + hv * spec.tone;
+    o[i] = clamp(br * s, 0, 255); o[i + 1] = clamp(bg * s, 0, 255); o[i + 2] = clamp(bb * s, 0, 255); o[i + 3] = 255;
+  }
+  const c = mk(w, h); c.getContext('2d').putImageData(out, 0, 0);
+  paperCache[type] = c;
+  return c;
+}
+const bgCanvas = mk(W * BGS, H * BGS), bgCtx = bgCanvas.getContext('2d');
+function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function drawTray(g) {
+  g.save();
+  g.shadowColor = 'rgba(0,0,0,.25)'; g.shadowBlur = 30; g.shadowOffsetY = 10;
+  g.fillStyle = '#e9ebe7'; roundRect(g, TRAY.x, TRAY.y, TRAY.w, TRAY.h, 26); g.fill();
+  g.restore();
+  g.fillStyle = '#f3f4f1'; roundRect(g, TRAY.x + 14, TRAY.y + 14, TRAY.w - 28, TRAY.h - 28, 16); g.fill();
+  const gr = g.createLinearGradient(0, TRAY.y, 0, TRAY.y + TRAY.h);
+  gr.addColorStop(0, 'rgba(0,0,0,.07)'); gr.addColorStop(0.08, 'rgba(0,0,0,0)'); gr.addColorStop(0.92, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.06)');
+  g.fillStyle = gr; roundRect(g, TRAY.x + 14, TRAY.y + 14, TRAY.w - 28, TRAY.h - 28, 16); g.fill();
+}
+function shadowRect(g, x, y, w, h, color, blur = 18, r = 3) {
+  g.save(); g.shadowColor = 'rgba(0,0,0,.22)'; g.shadowBlur = blur; g.shadowOffsetY = 4;
+  g.fillStyle = color; roundRect(g, x, y, w, h, r); g.fill(); g.restore();
+}
+function composeBG() {
+  if (!tableCanvas) tableCanvas = makeTable();
+  const g = bgCtx, ph = state.phase, r = printRect(), integ = state.film === 'integral';
+  g.setTransform(BGS, 0, 0, BGS, 0, 0);
+  g.drawImage(tableCanvas, 0, 0, W, H);
+  if (ph >= 2 && ph <= 4) drawTray(g);
+  if (ph === 1) {
+    if (integ) shadowRect(g, r.x - 28, r.y - 28, r.w + 56, r.h + 28 + 120, '#f3f2ec', 22, 4);
+    else shadowRect(g, r.x - 24, r.y - 24, r.w + 48, r.h + 48, '#f6f4ee', 22, 4);
+    g.fillStyle = '#fff'; g.fillRect(r.x, r.y, r.w, r.h);
+  } else if (ph === 2) {
+    if (integ) shadowRect(g, r.x - 2, r.y - 2, r.w + 4, r.h + 4, '#fafafa', 10, 1);
+    else shadowRect(g, r.x - 24, r.y - 24, r.w + 48, r.h + 48, '#f6f4ee', 10, 4);
+    g.fillStyle = '#fff'; g.fillRect(r.x, r.y, r.w, r.h);
+  } else if (ph === 3) {
+    if (integ) {
+      g.save(); g.fillStyle = 'rgba(255,255,255,.45)'; g.strokeStyle = 'rgba(60,70,70,.25)'; g.lineWidth = 1.5;
+      g.fillRect(r.x - 2, r.y - 2, r.w + 4, r.h + 4); g.strokeRect(r.x - 2, r.y - 2, r.w + 4, r.h + 4); g.restore();
+    } else {
+      shadowRect(g, r.x - 24, r.y - 24, r.w + 48, r.h + 48, '#f6f4ee', 8, 4);
+      g.fillStyle = '#eee7da'; g.fillRect(r.x, r.y, r.w, r.h);
+      g.globalAlpha = 0.13; g.drawImage(film.canvas, r.x, r.y, r.w, r.h); g.globalAlpha = 1;
+    }
+  } else {
+    const p = makePaper(state.paper);
+    shadowRect(g, PAPER.x, PAPER.y, PAPER.w, PAPER.h, '#fff', ph === 4 ? 10 : 24, 2);
+    g.drawImage(p, PAPER.x, PAPER.y, PAPER.w, PAPER.h);
+  }
+  upload(bgTex, bgCanvas);
+}
+
+/* ---------- rendering ---------- */
+let time = 0;
+function fillVB() {
+  const { P, UV, comp, rel, field, n, vb } = M;
+  for (let k = 0; k < n; k++) {
+    const o = k * 7;
+    vb[o] = P[2 * k]; vb[o + 1] = P[2 * k + 1]; vb[o + 2] = UV[2 * k]; vb[o + 3] = UV[2 * k + 1];
+    vb[o + 4] = comp[k]; vb[o + 5] = rel[k]; vb[o + 6] = field[k];
+  }
+  gl.bindBuffer(gl.ARRAY_BUFFER, mBuf); gl.bufferData(gl.ARRAY_BUFFER, vb, gl.DYNAMIC_DRAW);
+}
+function params() {
+  const ph = state.phase;
+  const hot = [1.0, 0.97, 0.92], cold = [0.9, 0.95, 0.985];
+  if (ph === 1) return { water: 0, tint: cold, wet: 0, soak: 0, relVis: 0, mwet: 0 };
+  if (ph === 2) return { water: 1, tint: hot, wet: 0, soak: state.soakP * state.soakThr, relVis: 0, mwet: 0 };
+  if (ph === 3) return { water: 1, tint: cold, wet: 0, soak: 0, relVis: 1, mwet: 0.5 };
+  if (ph === 4) return { water: 0.45 + state.dip * 0.55, tint: cold, wet: 1, soak: 0, relVis: 0, mwet: 1 };
+  const w = 1 - state.dryP; return { water: 0, tint: cold, wet: w, soak: 0, relVis: 0, mwet: w };
+}
+function render(view) {
+  const p = params();
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.disable(gl.BLEND);
+  gl.useProgram(bgProg.p);
+  gl.uniform4f(bgProg.u.u_view, view[0], view[1], view[2], view[3]);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, bgTex); gl.uniform1i(bgProg.u.u_bg, 0);
+  gl.uniform1f(bgProg.u.u_water, p.water); gl.uniform1f(bgProg.u.u_time, reduceMotion ? 0 : time);
+  gl.uniform1f(bgProg.u.u_wet, p.wet); gl.uniform3fv(bgProg.u.u_tint, p.tint);
+  gl.uniform4f(bgProg.u.u_wr, TRAY.x + 14, TRAY.y + 14, TRAY.w - 28, TRAY.h - 28);
+  gl.uniform4f(bgProg.u.u_pr, PAPER.x, PAPER.y, PAPER.w, PAPER.h);
+  gl.bindBuffer(gl.ARRAY_BUFFER, bgBuf);
+  gl.enableVertexAttribArray(bgProg.a.a_pos);
+  gl.vertexAttribPointer(bgProg.a.a_pos, 2, gl.FLOAT, false, 0, 0);
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  gl.disableVertexAttribArray(bgProg.a.a_pos);
+
+  if (!M) return;
+  fillVB();
+  gl.useProgram(mProg.p);
+  const a = mProg.a, u = mProg.u, st = 28;
+  gl.bindBuffer(gl.ARRAY_BUFFER, mBuf); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuf);
+  [[a.a_pos, 2, 0], [a.a_uv, 2, 8], [a.a_comp, 1, 16], [a.a_rel, 1, 20], [a.a_field, 1, 24]].forEach(([loc, sz, off]) => {
+    gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, st, off);
+  });
+  gl.uniform4f(u.u_view, view[0], view[1], view[2], view[3]);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, imgTex); gl.uniform1i(u.u_img, 0);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, dmgTex); gl.uniform1i(u.u_dmg, 1);
+  gl.uniform1f(u.u_soak, p.soak); gl.uniform1f(u.u_relVis, p.relVis); gl.uniform1f(u.u_wet, p.mwet);
+  gl.uniform1f(u.u_aspect, film.aspect);
+  gl.enable(gl.BLEND);
+  if (state.whiteLayer && state.film === 'integral' && state.phase >= 3) {
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.uniform1f(u.u_mode, 1); gl.uniform1f(u.u_whiteA, 0.88);
+    gl.drawElements(gl.TRIANGLES, M.nIdx, gl.UNSIGNED_SHORT, 0);
+  }
+  gl.blendFunc(gl.DST_COLOR, gl.ZERO);
+  gl.uniform1f(u.u_mode, 0);
+  gl.drawElements(gl.TRIANGLES, M.nIdx, gl.UNSIGNED_SHORT, 0);
+  [a.a_pos, a.a_uv, a.a_comp, a.a_rel, a.a_field].forEach(l => gl.disableVertexAttribArray(l));
+  gl.activeTexture(gl.TEXTURE0);
+}
+const STAGE_VIEW = [0, 0, W, H];
+
+/* ---------- simulation per frame ---------- */
+const ptr = { down: false, x: 0, y: 0, in: false, id: null };
+function drift() {
+  const { P, V, inv, n } = M, t = time * 0.22;
+  for (let k = 0; k < n; k++) {
+    if (inv[k] === 0) continue;
+    const x = P[2 * k], y = P[2 * k + 1];
+    V[2 * k] = (V[2 * k] + (vnoise(x * 0.005 + t, y * 0.005, 3) - 0.5) * 0.09) * 0.92;
+    V[2 * k + 1] = (V[2 * k + 1] + (vnoise(x * 0.005, y * 0.005 - t, 9) - 0.5) * 0.09) * 0.92;
+    if (x < TRAY.x + 60) V[2 * k] += 0.05; if (x > TRAY.x + TRAY.w - 60) V[2 * k] -= 0.05;
+    if (y < TRAY.y + 60) V[2 * k + 1] += 0.05; if (y > TRAY.y + TRAY.h - 60) V[2 * k + 1] -= 0.05;
+    P[2 * k] += V[2 * k]; P[2 * k + 1] += V[2 * k + 1];
+  }
+}
+function step(dt) {
+  time += dt;
+  const ph = state.phase;
+  if (ph === 2 && state.soaking) {
+    const dur = reduceMotion ? 1.5 : 6;
+    state.soakP = Math.min(1, state.soakP + dt / dur);
+    $('soakBar').style.width = (state.soakP * 100).toFixed(1) + '%';
+    if (state.soakP >= 1) finishSoak();
+  }
+  if (ph === 3) {
+    if (state.autoRel !== null) {
+      state.autoRel += 0.025;
+      const { field, rel, inv, n } = M;
+      for (let k = 0; k < n; k++) if (field[k] < state.autoRel) { rel[k] = 1; inv[k] = 1; }
+      if (state.autoRel > 1.4) state.autoRel = null;
+    }
+    if (ptr.down && state.tool3 === 'release') applyRelease(ptr.x, ptr.y, state.brush3);
+    if (!reduceMotion) drift();
+    solve(6); computeComp();
+    updateRelProgress();
+  }
+  if (ph === 4) {
+    if (ptr.down) {
+      if (state.tool4 === 'pinch') { applyPinch(ptr.x, ptr.y, state.brush4, 0.035); state.simFrames = 30; }
+      if (state.tool4 === 'smooth') { applySmooth(ptr.x, ptr.y, state.brush4, 0.35, false); state.simFrames = 30; }
+    }
+    if (state.dip > 0) {
+      applySmooth(0, 0, 0, 0.14, true); state.simFrames = 30;
+      state.dip = Math.max(0, state.dip - dt * 1.1);
+    }
+    if (state.simFrames > 0) {
+      const { inv, touch, n } = M;
+      for (let k = 0; k < n; k++) inv[k] = 0.1 + 0.9 * touch[k];
+      solve(4); computeComp();
+      state.simFrames--;
+    }
+  }
+  if (ph === 5 && state.drying) {
+    const dur = reduceMotion ? 0.8 : 2.6;
+    const prev = state.dryP;
+    state.dryP = Math.min(1, state.dryP + dt / dur);
+    const s = 1 - (state.dryP - prev) * 0.008;
+    const [cx, cy] = centroid(), P = M.P;
+    for (let k = 0; k < M.n; k++) { P[2 * k] = cx + (P[2 * k] - cx) * s; P[2 * k + 1] = cy + (P[2 * k + 1] - cy) * s; }
+    $('dryBar').style.width = (state.dryP * 100).toFixed(1) + '%';
+    if (state.dryP >= 1) { state.drying = false; finishDry(); }
+  }
+  updateReadout();
+}
+let last = performance.now(), exporting = false;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (!exporting && M) { step(dt); render(STAGE_VIEW); }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- readouts & UI ---------- */
+function fmtTime(sec) { const m = Math.floor(sec / 60), s = Math.floor(sec % 60); return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; }
+function soakRealSeconds() {
+  const base = state.film === 'integral' ? 45 : 70, mins = state.film === 'integral' ? 3 : 4;
+  return mins * 60 * Math.pow(base / state.temp, 1.6);
+}
+function updateReadout() {
+  const ph = state.phase, ro = $('readout');
+  let t = '';
+  if (ph === 1) t = `${state.film === 'integral' ? '인티그럴 · 79×79mm' : 'FP-100C · 73×95mm'} · 인화 완료`;
+  else if (ph === 2) t = `뜨거운 물 ${state.temp}°C · 실제 시간 ${fmtTime(state.soakP * soakRealSeconds())}`;
+  else if (ph === 3) t = `찬물 · 떨어진 면적 ${Math.round(relFrac * 100)}%`;
+  else if (ph === 4) t = `${PAPER_NAMES[state.paper]} · 젖은 상태${state.flipped ? ' · 뒤집힘' : ''}`;
+  else t = state.dryP >= 1 ? '건조 완료' : `건조 중 · 실제 ${Math.round(state.dryP * 24)}시간째`;
+  if (ro.textContent !== t) ro.textContent = t;
+}
+const PAPER_NAMES = { cold: '콜드프레스 수채화지', hot: '핫프레스 수채화지', hanji: '한지', kraft: '크라프트지' };
+let relFrac = 0;
+function updateRelProgress() {
+  const { rel, n } = M; let c = 0;
+  for (let k = 0; k < n; k++) c += rel[k];
+  relFrac = c / n;
+  $('relOut').textContent = Math.round(relFrac * 100) + '%';
+  $('relBar').style.width = (relFrac * 100).toFixed(1) + '%';
+  $('toPaper').disabled = relFrac < 0.97;
+}
+const HINTS = {
+  1: '사진을 이 화면에 끌어다 놓거나 붙여넣을 수도 있습니다.',
+  2: '담그기를 누르면 가장자리부터 막이 들뜨는 모습이 보입니다.',
+  3: { release: '가장자리부터 안쪽으로 문질러 막을 떼어내세요. 떨어진 부분은 물에 뜹니다.', push: '떨어진 막을 끌어 옮길 수 있습니다. 붙어 있는 부분은 움직이지 않습니다.' },
+  4: { push: '끌어서 막을 밀어 보세요. 한쪽을 밀면 주름이 지고, 가장자리를 넘기면 접힙니다.', pinch: '누르고 있으면 막이 가운데로 모이며 주름이 생깁니다.', smooth: '문지르면 주름이 펴지고 원래 모양으로 돌아갑니다.', tear: '문지른 자리가 찢어집니다. 찢긴 곳을 밀면 실제로 벌어집니다.' },
+  5: '말리는 동안 젖은 광택이 빠지고 막이 살짝 줄어듭니다.',
+};
+function updateHint() {
+  const h = HINTS[state.phase];
+  $('stageHint').textContent = typeof h === 'string' ? h : h[state.phase === 3 ? state.tool3 : state.tool4];
+}
+function toolActive() { return state.phase === 3 || state.phase === 4; }
+function brushR() { return state.phase === 3 ? state.brush3 : state.brush4; }
+function setPhase(n) {
+  state.phase = n;
+  document.querySelectorAll('.step').forEach(li => {
+    const s = +li.dataset.step;
+    li.classList.toggle('current', s === n); li.classList.toggle('done', s < n);
+    li.querySelector('.step-body').hidden = s !== n;
+    if (s === n) li.removeAttribute('aria-disabled'); else li.setAttribute('aria-disabled', 'true');
+  });
+  $('stage').classList.toggle('tool-on', toolActive());
+  $('cursor').hidden = !(toolActive() && ptr.in);
+  composeBG(); updateHint(); updateMeta(); updateReadout();
+}
+function updateMeta() {
+  $('meta1').textContent = state.phase > 1 ? (state.film === 'integral' ? '인티그럴' : '필 어파트') : '';
+  $('meta2').textContent = state.phase > 2 ? `${state.temp}°C` : '';
+  $('meta3').textContent = state.phase > 3 ? '분리 완료' : '';
+  $('meta4').textContent = state.phase > 4 ? PAPER_NAMES[state.paper] : '';
+  $('meta5').textContent = '';
+}
+function setFilmNotes() {
+  const integ = state.film === 'integral';
+  $('filmNote').textContent = integ
+    ? '인티그럴은 사진 한 장 안에 앞면 플라스틱, 유제층, 흰 시약층, 뒷판이 붙어 있습니다. 다음 단계에서 테두리를 잘라 앞뒤를 분리합니다.'
+    : '필 어파트는 현상 후 떼어낸 양화 종이를 씁니다. 실제로는 뒷면에 투명 시트지를 붙여 종이가 물에 풀리지 않게 합니다.';
+  $('soakText').innerHTML = integ
+    ? '흰 테두리를 잘라내고 앞쪽 투명 플라스틱과 뒷판을 떼어 분리합니다. 유제는 대개 플라스틱 쪽에 붙어 있습니다. <strong>40~50°C 따뜻한 물</strong>에 몇 분 담가 둡니다.'
+    : '사진을 <strong>약 70°C 뜨거운 물</strong>에 3~5분 담급니다. 가장자리부터 작은 기포가 생기며 막이 들뜨기 시작하면 준비된 것입니다.';
+  $('whiteWrap').hidden = !integ;
+}
+function setTempNote() {
+  const base = state.film === 'integral' ? 45 : 70, r = state.temp / base;
+  $('tempOut').textContent = state.temp + '°C';
+  let t = `권장 ${state.film === 'integral' ? '40~50' : '65~75'}°C. `;
+  if (r < 0.8) t += '물이 미지근하면 막이 거의 들뜨지 않습니다.';
+  else if (r > 1.15) t += '너무 뜨거우면 빨리 들뜨지만 가장자리가 너덜해지고 구멍이 생깁니다.';
+  else t += `실제로는 약 ${Math.round(soakRealSeconds() / 60)}분 걸립니다.`;
+  $('tempNote').textContent = t;
+}
+let toastT = 0;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3200); }
+
+/* ---------- phase transitions ---------- */
+function loadImage(img) {
+  state.srcImg = img;
+  makeFilm(img); buildMesh(); initDamage();
+  undo.length = 0; $('undoBtn').disabled = true;
+  state.soakP = 0; state.soaking = false; state.soakDone = false; state.dryP = 0; state.resultBlob = null;
+  setPhase(1);
+}
+function finishSoak() {
+  state.soaking = false; state.soakDone = true;
+  const base = state.film === 'integral' ? 45 : 70, r = state.temp / base;
+  state.soakThr = clamp(0.2 + (r - 1) * 0.7, 0.03, 0.5);
+  state.ragged = clamp(0.55 + (r - 1) * 3.2, 0.35, 1.9);
+  state.holes = clamp((r - 1.12) * 3, 0, 1);
+  $('toLift').disabled = false; $('soakBtn').disabled = true;
+  if (r < 0.8) toast('물이 미지근해서 가장자리만 조금 들떴습니다. 다음 단계에서 더 오래 문질러야 합니다.');
+}
+function startSoak() {
+  state.soakP = 0; state.soaking = true; $('soakBtn').disabled = true; $('toLift').disabled = true;
+}
+function enterLift() {
+  raggedEdges(state.ragged, state.holes);
+  const { field, rel, inv, n, V } = M;
+  for (let k = 0; k < n; k++) { const f = field[k] < state.soakThr; rel[k] = f ? 1 : 0; inv[k] = f ? 1 : 0; }
+  V.fill(0); state.autoRel = null;
+  setPhase(3); updateRelProgress();
+}
+function enterPaper() {
+  const { rel, inv, n, P, touch } = M;
+  rel.fill(1); inv.fill(1); touch.fill(0);
+  const [cx, cy] = centroid(), dx = 600 - cx, dy = 450 - cy;
+  for (let k = 0; k < n; k++) { P[2 * k] += dx; P[2 * k + 1] += dy; }
+  undo.length = 0; $('undoBtn').disabled = true;
+  state.dryP = 0;
+  setPhase(4);
+}
+function enterDry() {
+  state.dryP = 0; state.drying = true; state.resultBlob = null;
+  $('saveBtn').disabled = true; $('result').hidden = true; $('saveNote').hidden = true; $('dryBar').style.width = '0%';
+  setPhase(5);
+}
+async function renderExport() {
+  exporting = true;
+  const ow = canvas.width, oh = canvas.height;
+  canvas.width = 1920; canvas.height = 1440;
+  render([PAPER.x, PAPER.y, PAPER.w, PAPER.h]);
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+  canvas.width = ow; canvas.height = oh;
+  exporting = false;
+  return blob;
+}
+let resultURL = null;
+async function finishDry() {
+  const blob = await renderExport();
+  state.resultBlob = blob;
+  if (resultURL) URL.revokeObjectURL(resultURL);
+  resultURL = URL.createObjectURL(blob);
+  $('resultImg').src = resultURL; $('result').hidden = false;
+  $('saveBtn').disabled = false;
+  updateMeta();
+}
+
+/* ---------- downloads ---------- */
+let downloads = null;
+(async () => { try { if (window.claude && window.claude.use) downloads = await window.claude.use('downloads'); } catch (e) { downloads = null; } })();
+async function save() {
+  if (!state.resultBlob) return;
+  const name = `emulsion-lift-${new Date().toISOString().slice(0, 10)}.png`;
+  if (downloads) {
+    try { await downloads.save({ filename: name, data: state.resultBlob }); toast('이미지를 저장했습니다.'); return; }
+    catch (e) {
+      if (e && e.code === 'declined') { toast('저장을 취소했습니다.'); return; }
+      if (e && e.code === 'rate_limited') { toast('저장 창이 이미 열려 있습니다. 잠시 뒤 다시 눌러 주세요.'); return; }
+    }
+  }
+  const a = document.createElement('a'); a.href = resultURL; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  const n = $('saveNote'); n.hidden = false;
+  n.textContent = '저장 창이 뜨지 않으면 위 이미지를 길게 누르거나 마우스 오른쪽 버튼으로 눌러 저장하세요.';
+}
+
+/* ---------- pointer ---------- */
+function worldPt(e) {
+  const r = canvas.getBoundingClientRect();
+  return [(e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H, r];
+}
+function moveCursor(e) {
+  const [x, y, r] = worldPt(e), c = $('cursor');
+  const d = brushR() * 2 * r.width / W * (state.phase === 4 && state.tool4 === 'tear' ? 0.45 : 1);
+  c.style.width = c.style.height = d + 'px';
+  c.style.left = (x / W * r.width) + 'px'; c.style.top = (y / H * r.height) + 'px';
+}
+canvas.addEventListener('pointerenter', e => { ptr.in = true; $('cursor').hidden = !toolActive(); moveCursor(e); });
+canvas.addEventListener('pointerleave', () => { ptr.in = false; $('cursor').hidden = true; });
+canvas.addEventListener('pointerdown', e => {
+  if (!toolActive() || !M) return;
+  canvas.setPointerCapture(e.pointerId); ptr.id = e.pointerId;
+  const [x, y] = worldPt(e); ptr.down = true; ptr.x = x; ptr.y = y;
+  ptr.in = true; $('cursor').hidden = false; moveCursor(e);
+  if (state.phase === 4) {
+    pushUndo(); M.touch.fill(0);
+    if (state.tool4 === 'tear') applyTear(x, y, state.brush4);
+  }
+  if (state.phase === 3 && state.tool3 === 'release') applyRelease(x, y, state.brush3);
+  e.preventDefault();
+});
+canvas.addEventListener('pointermove', e => {
+  moveCursor(e);
+  if (!ptr.down || e.pointerId !== ptr.id) return;
+  const [x, y] = worldPt(e), dx = x - ptr.x, dy = y - ptr.y;
+  ptr.x = x; ptr.y = y;
+  if (state.phase === 3 && state.tool3 === 'push') {
+    const { inv } = M;
+    const P = M.P; const r = state.brush3;
+    for (let k = 0; k < M.n; k++) {
+      if (inv[k] === 0) continue;
+      const ex = P[2 * k] - x, ey = P[2 * k + 1] - y, d2 = ex * ex + ey * ey;
+      if (d2 > r * r * 2.2) continue;
+      const f = gauss(d2, r); P[2 * k] += dx * f; P[2 * k + 1] += dy * f; M.V[2 * k] = dx * f * 0.3; M.V[2 * k + 1] = dy * f * 0.3;
+    }
+  }
+  if (state.phase === 4) {
+    if (state.tool4 === 'push') { applyPush(x, y, state.brush4, dx, dy); state.simFrames = 30; }
+    if (state.tool4 === 'tear') applyTear(x, y, state.brush4);
+  }
+});
+function endStroke(e) {
+  if (!ptr.down || (e && e.pointerId !== ptr.id)) return;
+  ptr.down = false;
+  if (state.phase === 4 && state.tool4 === 'tear') { updateBroken(); state.simFrames = 30; }
+}
+canvas.addEventListener('pointerup', endStroke);
+canvas.addEventListener('pointercancel', endStroke);
+
+/* ---------- canvas sizing ---------- */
+function resize() {
+  if (exporting) return;
+  const r = canvas.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  const w = Math.min(2400, Math.round(r.width * dpr)), h = Math.round(w * 3 / 4);
+  if (w > 0 && (canvas.width !== w || canvas.height !== h)) { canvas.width = w; canvas.height = h; }
+}
+new ResizeObserver(resize).observe($('stage'));
+
+/* ---------- controls ---------- */
+function bindSeg(segId, attr, fn) {
+  const seg = $(segId);
+  seg.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    fn(b.dataset[attr]);
+  });
+}
+bindSeg('filmSeg', 'film', v => {
+  if (state.film === v) return;
+  state.film = v; state.temp = v === 'integral' ? 45 : 70; $('temp').value = state.temp;
+  if (v !== 'integral') state.whiteLayer = false, $('whiteLayer').checked = false;
+  setFilmNotes(); setTempNote();
+  if (state.srcImg) loadImage(state.srcImg);
+});
+bindSeg('tool3Seg', 'tool', v => { state.tool3 = v; updateHint(); });
+bindSeg('tool4Seg', 'tool', v => { state.tool4 = v; updateHint(); });
+bindSeg('paperSeg', 'paper', v => {
+  state.paper = v; $('readout').textContent = '종이 준비 중';
+  setTimeout(() => { composeBG(); updateReadout(); }, 20);
+});
+$('whiteLayer').addEventListener('change', e => { state.whiteLayer = e.target.checked; });
+$('temp').addEventListener('input', e => { state.temp = +e.target.value; setTempNote(); updateReadout(); });
+$('brush3').addEventListener('input', e => { state.brush3 = +e.target.value; $('brush3Out').textContent = e.target.value; });
+$('brush4').addEventListener('input', e => { state.brush4 = +e.target.value; $('brush4Out').textContent = e.target.value; });
+$('toSoak').addEventListener('click', () => {
+  state.soakP = 0; state.soakDone = false; $('soakBar').style.width = '0%';
+  $('soakBtn').disabled = false; $('toLift').disabled = true; setPhase(2);
+});
+$('soakBtn').addEventListener('click', startSoak);
+$('toLift').addEventListener('click', enterLift);
+$('autoRelease').addEventListener('click', () => { state.autoRel = 0; });
+$('toPaper').addEventListener('click', enterPaper);
+$('flipBtn').addEventListener('click', () => {
+  pushUndo();
+  const [cx] = centroid(), P = M.P;
+  for (let k = 0; k < M.n; k++) P[2 * k] = 2 * cx - P[2 * k];
+  state.flipped = !state.flipped; computeComp(); updateReadout();
+  toast('막을 뒤집어 올렸습니다. 이미지 좌우가 바뀝니다.');
+});
+$('dipBtn').addEventListener('click', () => { pushUndo(); M.touch.fill(1); state.dip = 1; });
+$('shakeBtn').addEventListener('click', () => {
+  pushUndo(); M.touch.fill(1);
+  const pr = printRect(), [cx, cy] = centroid();
+  for (let i = 0; i < 14; i++) {
+    const x = cx + (Math.random() - 0.5) * pr.w * 0.9, y = cy + (Math.random() - 0.5) * pr.h * 0.9;
+    const r = 35 + Math.random() * 90;
+    if (Math.random() < 0.55) for (let s = 0; s < 14; s++) applyPinch(x, y, r, 0.03);
+    else { const a = Math.random() * Math.PI * 2, d = 25 + Math.random() * 55; applyPush(x, y, r, Math.cos(a) * d, Math.sin(a) * d); }
+    M.touch.fill(1); solve(4);
+  }
+  state.simFrames = 40; computeComp();
+});
+$('undoBtn').addEventListener('click', popUndo);
+$('toDry').addEventListener('click', enterDry);
+$('saveBtn').addEventListener('click', save);
+$('backBtn').addEventListener('click', () => { state.drying = false; state.dryP = 0; state.resultBlob = null; setPhase(4); });
+$('restartBtn').addEventListener('click', () => { if (state.srcImg) loadImage(state.srcImg); });
+
+function readFile(file) {
+  if (!file || !file.type.startsWith('image/')) { toast('이미지 파일만 쓸 수 있습니다. JPG, PNG, HEIC 등을 골라 주세요.'); return; }
+  const url = URL.createObjectURL(file), img = new Image();
+  img.onload = () => { loadImage(img); URL.revokeObjectURL(url); toast('사진을 즉석필름에 인화했습니다.'); };
+  img.onerror = () => toast('이 사진을 열 수 없습니다. 다른 형식(JPG, PNG)으로 시도해 주세요.');
+  img.src = url;
+}
+$('file').addEventListener('change', e => { readFile(e.target.files[0]); e.target.value = ''; });
+$('sampleBtn').addEventListener('click', () => loadImage(makeSample()));
+const stageEl = $('stage');
+stageEl.addEventListener('dragover', e => { e.preventDefault(); $('dropzone').hidden = false; });
+stageEl.addEventListener('dragleave', e => { if (!stageEl.contains(e.relatedTarget)) $('dropzone').hidden = true; });
+stageEl.addEventListener('drop', e => { e.preventDefault(); $('dropzone').hidden = true; if (state.phase <= 1 || confirmReplace()) readFile(e.dataTransfer.files[0]); });
+function confirmReplace() { return true; }
+window.addEventListener('paste', e => {
+  const it = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+  if (it) readFile(it.getAsFile());
+});
+
+/* ---------- boot ---------- */
+setFilmNotes(); setTempNote();
+resize();
+loadImage(makeSample());
+requestAnimationFrame(frame);
+window.__lift = { state, setPhase, startSoak, enterLift, enterPaper, enterDry, get M() { return M; } };
+})();
+</script>
+
+</body>
+</html>
