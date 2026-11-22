@@ -64,5 +64,13 @@ OA.performers = [
   { id: "michelangeli", ko: "아르투로 베네데티 미켈란젤리", en: "Arturo Benedetti Michelangeli", role: "piano", years: "1920–1995", from: "이탈리아", bio: "극도의 완벽주의와 정밀한 음색 조절로 유명한 피아니스트." },
   { id: "gieseking", ko: "발터 기제킹", en: "Walter Gieseking", role: "piano", years: "1895–1956", from: "독일 (프랑스 리옹 출생)", bio: "드뷔시·라벨 피아노 음악 해석의 선구자." },
   { id: "boulez", ko: "피에르 불레즈", en: "Pierre Boulez", role: "conductor", years: "1925–2016", from: "프랑스", bio: "작곡가이자 지휘자. 악보를 엑스레이처럼 투명하게 드러내는 정밀한 해석으로 유명합니다." },
+  { id: "stravinsky-p", ko: "이고르 스트라빈스키 (지휘)", en: "Igor Stravinsky", role: "conductor", years: "1882–1971", from: "러시아 → 미국", bio: "작곡가 자신. 1950–60년대 컬럼비아 레코드와 자작곡 대부분을 직접 지휘해 녹음했습니다.", composer: "stravinsky" },
+  { id: "monteux", ko: "피에르 몽퇴", en: "Pierre Monteux", role: "conductor", years: "1875–1964", from: "프랑스 → 미국", bio: "〈페트루슈카〉, 〈봄의 제전〉, 〈다프니스와 클로에〉의 초연을 지휘한 역사의 증인. 보스턴 심포니, 샌프란시스코 심포니, 런던 심포니를 이끌었습니다." },
+  { id: "abbado", ko: "클라우디오 아바도", en: "Claudio Abbado", role: "conductor", years: "1933–2014", from: "이탈리아", bio: "카라얀의 뒤를 이어 1989–2002년 베를린 필하모닉을 이끈 지휘자. 섬세하고 투명한 음향, 젊은 음악가 육성으로 유명합니다." },
+  { id: "lupu", ko: "라두 루푸", en: "Radu Lupu", role: "piano", years: "1945–2022", from: "루마니아", bio: "1969년 리즈 콩쿠르 우승자. 녹음과 인터뷰를 꺼렸지만 브람스·슈베르트의 내밀한 해석으로 ‘건반 위의 시인’이라 불렸습니다." },
+  { id: "perlemuter", ko: "블라도 페를레뮈테르", en: "Vlado Perlemuter", role: "piano", years: "1904–2002", from: "리투아니아 → 프랑스", bio: "1927년 라벨에게 직접 라벨 피아노 작품 전곡을 배운 피아니스트. 그의 녹음은 작곡가의 의도를 전하는 기록으로 여겨집니다." },
+  { id: "pogorelich", ko: "이보 포고렐리치", en: "Ivo Pogorelich", role: "piano", years: "1958–", from: "크로아티아", bio: "1980년 쇼팽 콩쿠르 본선 탈락에 항의해 심사위원 아르헤리치가 사퇴하면서 일약 유명해진, 개성이 극도로 강한 피아니스트." },
+  { id: "quartetto-italiano", ko: "콰르테토 이탈리아노", en: "Quartetto Italiano", role: "ensemble", years: "1945–1980", from: "이탈리아", bio: "악보를 외워 연주한 것으로 유명한 현악 4중주단. 노래하는 음색으로 베토벤·모차르트·라벨 녹음을 남겼습니다." },
+  { id: "alban-berg", ko: "알반 베르크 4중주단", en: "Alban Berg Quartett", role: "ensemble", years: "1970–2008", from: "오스트리아 (빈)", bio: "정밀한 앙상블과 강렬한 표현으로 20세기 후반을 대표한 현악 4중주단." },
   { id: "reiner", ko: "프리츠 라이너", en: "Fritz Reiner", role: "conductor", years: "1888–1963", from: "헝가리 → 미국", bio: "시카고 심포니를 이끌며 RCA ‘리빙 스테레오’ 시리즈에 명반을 남긴 엄격한 지휘자." }
 ];

@@ -534,6 +534,89 @@ OA.works = [
     am: "Liszt Consolation No. 3 S. 172", related: ["liszt-liebestraum-3", "chopin-nocturne-op9-2"], terms: ["lento"]
   },
 
+  /* ---------------- BRAHMS ---------------- */
+  {
+    id: "brahms-symphony-1", composer: "brahms", ko: "교향곡 1번", en: "Symphony No. 1",
+    year: "1855–1876", key: "C minor", genre: ["symphony"], cat: [{ s: "op", t: "Op. 68" }],
+    instr: "2관 편성 오케스트라 (콘트라바순·트롬본 포함)",
+    movements: [["Un poco sostenuto – Allegro", "조금 무겁게 – 빠르게"], ["Andante sostenuto", "걷는 빠르기로, 음을 끌며"], ["Un poco allegretto e grazioso", "조금 빠르고 우아하게"], ["Adagio – Più andante – Allegro non troppo, ma con brio", "느리게 – 빠르게, 생기 있게"]],
+    bg: "‘베토벤이라는 거인의 발소리’를 의식한 브람스가 스케치에서 완성까지 20년 넘게 매달린 첫 교향곡입니다. 1876년 카를스루에에서 초연되었고, 지휘자 한스 폰 뷜로는 이 곡을 ‘베토벤의 10번 교향곡’이라 불렀습니다.",
+    points: ["1악장 서주: 팀파니가 같은 음을 쿵쿵 두드리는 동안 현악기는 위로, 관악기는 아래로 벌어지며 엄청난 긴장을 만듭니다.", "4악장: 어둠 속에서 호른이 부르는 ‘알프호른’ 선율 — 브람스가 클라라 슈만의 생일 카드에 적어 보낸 선율입니다.", "이어지는 현악기의 넓은 주제가 베토벤 9번의 ‘환희의 송가’와 닮았다는 지적에, 브람스는 ‘그건 바보라도 안다’고 답했다고 전해집니다.", "C단조에서 C장조로 — 베토벤 5번과 같은 ‘어둠에서 빛으로’의 서사."],
+    recs: [
+      { p: ["klemperer"], label: "EMI", year: "1956", why: "필하모니아 오케스트라. 느리고 장대한 구조감." },
+      { p: ["bohm"], label: "DG", year: "1959", why: "베를린 필. 단단하고 극적인 추진력으로 오랫동안 기준으로 꼽힌 녹음." },
+      { p: ["karajan"], label: "DG", why: "베를린 필의 풍성하고 유려한 음향. 여러 차례 녹음했습니다." }
+    ],
+    am: "Brahms Symphony No. 1 Op. 68 Allegro non troppo ma con brio", related: ["beethoven-symphony-5", "brahms-symphony-4"], terms: ["con-brio", "coda"]
+  },
+  {
+    id: "brahms-symphony-4", composer: "brahms", ko: "교향곡 4번", en: "Symphony No. 4",
+    year: "1884–1885", key: "E minor", genre: ["symphony", "variations"], cat: [{ s: "op", t: "Op. 98" }],
+    instr: "2관 편성 오케스트라 (피콜로·콘트라바순·트롬본·트라이앵글 포함)",
+    movements: [["Allegro non troppo", "빠르게, 지나치지 않게"], ["Andante moderato", "보통 걷는 빠르기로"], ["Allegro giocoso", "익살스럽게"], ["Allegro energico e passionato", "힘차고 열정적으로 — 파사칼리아"]],
+    bg: "브람스의 마지막 교향곡으로, 1885년 마이닝겐에서 작곡가 자신의 지휘로 초연되었습니다. 단조로 시작해 단조로 끝나는, 장엄하고 비극적인 작품입니다.",
+    points: ["1악장 첫머리: 3도씩 내려가고 올라가는 두 음짜리 한숨 같은 동기가 이어지며 주제가 됩니다.", "4악장: 바흐 칸타타(BWV 150)의 저음 선율에서 가져온 8마디 주제 위에 30개의 변주와 코다를 쌓은 [[t:passacaglia|파사칼리아]]. 변주가 바뀔 때마다 8마디씩 세어 보세요.", "고전적인 교향곡 마지막 악장에 바로크 변주 형식을 쓴 대담한 선택입니다."],
+    recs: [
+      { p: ["ckleiber"], label: "DG", year: "1980", why: "빈 필과의 녹음. 긴장과 유연함이 공존하는, 이 곡의 대표 음반." },
+      { p: ["karajan"], label: "DG", why: "베를린 필의 웅장하고 매끄러운 음향." },
+      { p: ["furtwangler"], label: "여러 레이블", year: "1948 (라이브)", why: "템포를 크게 움직이는 즉흥적이고 극적인 해석." }
+    ],
+    am: "Brahms Symphony No. 4 Op. 98 Allegro energico e passionato", related: ["brahms-symphony-1", "bach-goldberg"], terms: ["passacaglia", "variation"]
+  },
+  {
+    id: "brahms-violin-concerto", composer: "brahms", ko: "바이올린 협주곡", en: "Violin Concerto",
+    year: "1878", key: "D major", genre: ["concerto"], cat: [{ s: "op", t: "Op. 77" }],
+    instr: "바이올린 독주 · 오케스트라",
+    movements: [["Allegro non troppo", "빠르게, 지나치지 않게"], ["Adagio", "느리게 — 오보에 독주로 시작"], ["Allegro giocoso, ma non troppo vivace", "익살스럽게 — 헝가리풍 론도"]],
+    bg: "평생의 친구인 바이올리니스트 요제프 요아힘을 위해 썼고, 1879년 1월 1일 라이프치히에서 요아힘의 독주와 브람스의 지휘로 초연되었습니다. 요아힘은 작곡 과정에서 바이올린 파트에 조언했고, 1악장 카덴차도 그가 쓴 것이 지금도 가장 많이 연주됩니다. [[w:beethoven-violin-concerto|베토벤]]과 같은 D장조입니다.",
+    points: ["2악장: 바이올린보다 먼저 오보에가 긴 선율을 노래합니다. 바이올리니스트 사라사테는 ‘오보에가 곡의 유일한 선율을 부르는데 나더러 바이올린을 들고 서서 듣고만 있으라는 거냐’고 불평했다는 일화가 있습니다.", "3악장: 요아힘의 고향 헝가리를 떠올리게 하는 집시풍 리듬.", "교향곡처럼 오케스트라 비중이 커서 ‘바이올린을 위한 교향곡’이라고도 불립니다."],
+    recs: [
+      { p: ["heifetz"], label: "RCA", year: "1955", why: "프리츠 라이너 지휘 시카고 심포니. 빠르고 긴장감 넘치는 연주." },
+      { p: ["oistrakh", "klemperer"], label: "EMI", year: "1960", why: "프랑스 국립방송 관현악단. 넉넉하고 장대한 해석." },
+      { p: ["mutter", "karajan"], label: "DG", year: "1981", why: "베를린 필. 풍부한 음색과 서정성." }
+    ],
+    am: "Brahms Violin Concerto Op. 77 Adagio", related: ["beethoven-violin-concerto", "tchaikovsky-violin-concerto"], terms: ["cadenza"]
+  },
+  {
+    id: "brahms-hungarian-5", composer: "brahms", ko: "헝가리 무곡 5번", en: "Hungarian Dance No. 5",
+    year: "1869 출판", key: "F# minor", keyNote: "원곡(피아노 연탄) 기준 · 널리 연주되는 관현악 편곡은 G단조", genre: [], cat: [{ s: "woo", t: "WoO 1 No. 5" }],
+    instr: "피아노 연탄(네 손) — 관현악·바이올린 등 편곡판 다수",
+    movements: [["Allegro – Vivace", "빠르게 – 생기 있게"]],
+    bg: "21곡의 〈헝가리 무곡〉은 피아노 한 대를 두 사람이 함께 치는 연탄곡으로 출판되어 큰 인기를 끌었습니다. 브람스는 ‘작곡’이 아니라 ‘편곡’이라고 여겨 Op. 번호를 붙이지 않았고, 그래서 WoO 번호를 받았습니다. 5번의 주선율은 실은 민요가 아니라 헝가리 작곡가 켈레르 벨러가 쓴 차르다시에서 왔습니다. 브람스가 직접 관현악으로 편곡한 것은 1·3·10번뿐이고, 유명한 5번 관현악판은 다른 사람의 편곡입니다.",
+    points: ["느려졌다 빨라졌다 하는 극단적인 템포 변화 — 헝가리 춤 차르다시의 특징.", "중간부의 갑작스러운 멈춤과 질주.", "[[cat:woo|WoO]]가 ‘가치가 낮다’는 뜻이 아니라는 좋은 예입니다. 브람스의 가장 유명한 곡 중 하나니까요."],
+    recs: [
+      { p: ["abbado"], label: "DG", year: "1982", why: "빈 필과의 21곡 전곡 관현악 녹음. 생기 있고 세련된 연주." }
+    ],
+    am: "Brahms Hungarian Dance No. 5", related: ["liszt-hungarian-2"], terms: ["transcription"]
+  },
+  {
+    id: "brahms-intermezzo-op118-2", composer: "brahms", ko: "인테르메초 A장조", en: "Intermezzo in A major (6 Klavierstücke)",
+    year: "1893", key: "A major", genre: [], cat: [{ s: "op", t: "Op. 118 No. 2" }],
+    instr: "피아노 독주",
+    movements: [["Andante teneramente", "걷는 빠르기로, 다정하게"]],
+    bg: "60세의 브람스가 쓴 여섯 곡의 피아노 소품집 Op. 118의 두 번째 곡으로, 클라라 슈만에게 헌정되었습니다. 말년의 브람스는 교향곡 같은 대작 대신 짧고 내밀한 피아노 소품에 마음을 담았습니다.",
+    points: ["첫 세 음의 짧은 동기가 위아래로 뒤집히며 곡 전체를 이룹니다.", "중간부의 단조 부분에서 잠깐 어두워졌다가 다시 따뜻하게 돌아옵니다.", "‘인테르메초(간주곡)’라는 제목은 원래 무언가의 ‘사이’를 뜻하지만, 브람스는 독립된 소품에 이 이름을 붙였습니다."],
+    recs: [
+      { p: ["lupu"], label: "Decca", why: "‘건반 위의 시인’이라 불린 피아니스트의 깊고 부드러운 브람스 후기 소품 녹음." },
+      { p: ["gould"], label: "Columbia", year: "1960", why: "〈10개의 인테르메초〉 앨범. 굴드 자신이 ‘가장 관능적인 녹음’이라 부른, 느리고 사색적인 연주." }
+    ],
+    am: "Brahms Intermezzo Op. 118 No. 2 A major", related: ["schubert-impromptus-d899", "liszt-consolation-3"], terms: ["andante"]
+  },
+  {
+    id: "brahms-requiem", composer: "brahms", ko: "독일 레퀴엠", en: "Ein deutsches Requiem",
+    year: "1865–1868", key: "F major", keyNote: "1곡 기준", genre: ["requiem", "oratorio"], cat: [{ s: "op", t: "Op. 45" }],
+    instr: "소프라노 · 바리톤 독창 · 합창 · 오케스트라 · 오르간",
+    movements: [["Selig sind, die da Leid tragen", "슬퍼하는 사람은 복이 있나니"], ["Denn alles Fleisch, es ist wie Gras", "모든 육체는 풀과 같고"], ["Herr, lehre doch mich", "주여, 나에게 알려 주소서"], ["Wie lieblich sind deine Wohnungen", "주의 장막이 어찌 그리 사랑스러운지"], ["Ihr habt nun Traurigkeit", "너희도 지금은 근심하나 (소프라노)"], ["Denn wir haben hie keine bleibende Statt", "여기에는 영원한 도성이 없으니"], ["Selig sind die Toten", "죽은 자들은 복이 있도다"]],
+    bg: "가톨릭 전례의 라틴어 레퀴엠이 아니라, 브람스가 루터 성경에서 직접 고른 독일어 구절로 만든 일곱 곡의 작품입니다. 죽은 이를 위한 기도보다 남겨진 사람을 위로하는 데 초점을 둡니다. 스승 슈만과 어머니의 죽음이 계기가 된 것으로 여겨지며, 1869년 라이프치히에서 일곱 곡 전체가 초연되어 브람스의 명성을 확고히 했습니다.",
+    points: ["1곡: 바이올린 없이 비올라·첼로의 어두운 음색으로 시작하는 부드러운 위로.", "2곡 ‘모든 육체는 풀과 같고’: 장송 행진 같은 3박자가 점점 커지다가 환희로 바뀝니다.", "첫 곡과 마지막 곡이 모두 ‘복이 있나니(Selig)’로 시작하는 대칭 구조."],
+    recs: [
+      { p: ["klemperer"], label: "EMI", year: "1961", why: "필하모니아. 슈바르츠코프와 피셔디스카우의 독창. 장중하고 깊은 고전적 명반." },
+      { p: ["karajan"], label: "DG", year: "1964", why: "베를린 필. 풍부하고 극적인 음향." },
+      { p: ["gardiner"], label: "Philips", year: "1990", why: "원전 악기. 투명한 합창과 빠른 템포의 새로운 해석." }
+    ],
+    am: "Brahms Ein deutsches Requiem Op. 45 Selig sind, die da Leid tragen", related: ["mozart-requiem", "brahms-symphony-1"], terms: []
+  },
+
   /* ---------------- TCHAIKOVSKY ---------------- */
   {
     id: "tchaikovsky-swan-lake", composer: "tchaikovsky", ko: "발레 〈백조의 호수〉", en: "Swan Lake (Лебединое озеро)",
@@ -738,5 +821,153 @@ OA.works = [
       { p: ["gieseking"], label: "EMI", why: "역사적인 드뷔시 해석의 기준점." }
     ],
     am: "Debussy Preludes Book 1 La fille aux cheveux de lin", related: ["rachmaninoff-prelude-op3-2", "bach-wtc-1"], terms: ["whole-tone"]
+  },
+  /* ---------------- RAVEL ---------------- */
+  {
+    id: "ravel-bolero", composer: "ravel", ko: "볼레로", en: "Boléro",
+    year: "1928", key: "C major", meter: "3/4", genre: ["ballet"], cat: [{ s: "m", t: "M. 81" }],
+    instr: "대편성 오케스트라 (색소폰 포함)",
+    movements: [["Tempo di Boléro, moderato assai", "볼레로 템포로, 아주 보통 빠르기로 — 약 15분"]],
+    bg: "무용가 이다 루빈시테인의 발레를 위해 쓰였고, 1928년 파리 오페라 극장에서 초연되었습니다. 라벨 자신은 이 곡을 ‘음악이 없는 관현악의 조직’이라며 하나의 실험이라고 말했지만, 그의 가장 유명한 작품이 되었습니다.",
+    points: ["작은북이 같은 리듬을 처음부터 끝까지 반복하는 [[t:ostinato|오스티나토]] 위에서 두 개의 선율이 번갈아 나옵니다.", "선율은 거의 바뀌지 않고, 악기만 바뀝니다: 플루트 → 클라리넷 → 바순 → … → 오케스트라 전체. [[t:orchestration|관현악법]]만으로 15분 동안 하나의 거대한 [[t:crescendo|크레셴도]]를 만듭니다.", "C장조로만 이어지다가 거의 끝에서 단 한 번 E장조로 [[t:modulation|전조]]하는 순간 — 그리고 곧바로 무너지듯 끝납니다."],
+    recs: [
+      { p: ["dutoit"], label: "Decca", year: "1981", why: "몬트리올 심포니. 세련되고 정확한 음색 조절로 라벨 관현악 녹음의 기준이 된 음반." },
+      { p: ["boulez"], label: "DG", year: "1993", why: "베를린 필. 흔들림 없는 템포와 투명한 음색." }
+    ],
+    am: "Ravel Boléro", related: ["ravel-daphnis", "debussy-la-mer"], terms: ["ostinato", "orchestration", "crescendo"]
+  },
+  {
+    id: "ravel-pavane", composer: "ravel", ko: "죽은 왕녀를 위한 파반", en: "Pavane pour une infante défunte",
+    year: "1899 (관현악판 1910)", key: "G major", genre: [], cat: [{ s: "m", t: "M. 19" }],
+    instr: "피아노 독주 — 작곡가 자신의 관현악판",
+    movements: [["Assez doux, mais d'une sonorité large", "꽤 부드럽게, 그러나 넓은 울림으로"]],
+    bg: "파리 음악원 학생 시절 쓴 피아노곡으로, 후원자 폴리냐크 공작부인에게 헌정되었습니다. ‘파반’은 16–17세기 궁정의 느리고 장중한 춤입니다. 라벨은 제목이 특정한 죽음을 가리키는 것이 아니라 ‘옛 스페인 궁정에서 어린 왕녀가 추었을 법한 파반’을 떠올린 것이며, 단어의 울림이 좋아서 골랐다고 말했습니다.",
+    points: ["관현악판 첫머리, 호른이 부르는 부드러운 선율.", "같은 주제가 세 번 돌아오는 A-B-A-C-A 구조.", "피아노판과 관현악판을 비교해 들어 보세요. 라벨의 관현악법이 어떻게 색을 더하는지 알 수 있습니다."],
+    recs: [
+      { p: ["perlemuter"], label: "Nimbus", why: "라벨에게 직접 배운 피아니스트의 피아노판 연주." },
+      { p: ["dutoit"], label: "Decca", why: "몬트리올 심포니의 관현악판." }
+    ],
+    am: "Ravel Pavane pour une infante défunte", related: ["debussy-clair-de-lune", "ravel-bolero"], terms: ["orchestration"]
+  },
+  {
+    id: "ravel-concerto-g", composer: "ravel", ko: "피아노 협주곡 G장조", en: "Piano Concerto in G major",
+    year: "1929–1931", key: "G major", genre: ["concerto"], cat: [{ s: "m", t: "M. 83" }],
+    instr: "피아노 독주 · 오케스트라",
+    movements: [["Allegramente", "명랑하게"], ["Adagio assai", "아주 느리게"], ["Presto", "매우 빠르게"]],
+    bg: "1932년 파리에서 마르그리트 롱의 독주와 라벨의 지휘로 초연되었습니다. 라벨은 협주곡이 ‘모차르트와 생상스의 정신으로 쓴, 가볍고 화려한 음악이어야 한다’고 말했습니다. 미국 순회에서 들은 재즈의 영향이 곳곳에 녹아 있습니다. 같은 시기에 왼손만을 위한 피아노 협주곡 D장조도 썼습니다.",
+    points: ["1악장은 채찍 소리 한 번으로 시작합니다. 블루스 음정, 트롬본 글리산도 등 재즈의 흔적을 찾아보세요.", "2악장: 피아노 혼자 3분 가까이 끝없이 이어지는 선율을 부릅니다. 라벨은 이 선율을 ‘한 마디씩 겨우’ 썼다고 고백했습니다. 뒤이어 잉글리시 호른이 같은 선율을 받습니다.", "3악장: 서커스처럼 질주하는 짧고 화려한 피날레."],
+    recs: [
+      { p: ["argerich", "abbado"], label: "DG", year: "1967", why: "베를린 필. 폭발적인 리듬감과 생기로 이 곡의 대표 녹음으로 꼽힙니다." },
+      { p: ["michelangeli"], label: "EMI", year: "1957", why: "에토레 그라치스 지휘 필하모니아. 극도로 정제된 2악장으로 유명한 전설적 녹음." },
+      { p: ["zimerman", "boulez"], label: "DG", year: "1998", why: "클리블랜드 오케스트라. 정밀하고 투명한 해석." }
+    ],
+    am: "Ravel Piano Concerto in G major Adagio assai", related: ["mozart-pc21", "rachmaninoff-pc2"], terms: ["glissando"]
+  },
+  {
+    id: "ravel-gaspard", composer: "ravel", ko: "밤의 가스파르", en: "Gaspard de la nuit",
+    year: "1908", key: "", keyNote: "곡마다 다름", genre: [], cat: [{ s: "m", t: "M. 55" }],
+    instr: "피아노 독주",
+    movements: [["Ondine", "물의 요정"], ["Le Gibet", "교수대"], ["Scarbo", "스카르보 — 밤의 악마 난쟁이"]],
+    bg: "알로이시우스 베르트랑의 산문시집 〈밤의 가스파르〉에서 세 편을 골라 그린 피아노 모음곡입니다. 라벨은 마지막 곡 〈스카르보〉를 당시 가장 어렵다고 여겨진 발라키레프의 〈이슬라메이〉보다 더 어렵게 쓰려 했다고 말했고, 지금도 피아노 문헌에서 가장 어려운 곡 중 하나로 꼽힙니다.",
+    points: ["〈옹딘〉: 오른손의 가늘게 떨리는 화음이 물결과 빛을 그립니다.", "〈교수대〉: 같은 음(B♭)이 처음부터 끝까지 종소리처럼 반복됩니다. 그 위로 어둡고 정지된 화음이 흐릅니다.", "〈스카르보〉: 반복음과 갑작스러운 도약으로 어둠 속에서 나타났다 사라지는 악마."],
+    recs: [
+      { p: ["argerich"], label: "DG", year: "1974", why: "불꽃 같은 에너지의 〈스카르보〉." },
+      { p: ["pogorelich"], label: "DG", year: "1983", why: "극단적으로 섬세한 음색과 템포로 논쟁과 찬사를 함께 받은 녹음." },
+      { p: ["perlemuter"], label: "Nimbus", why: "작곡가와 함께 이 곡을 공부한 피아니스트의 증언 같은 연주." }
+    ],
+    am: "Ravel Gaspard de la nuit Ondine", related: ["liszt-la-campanella", "debussy-preludes-1"], terms: ["ostinato"]
+  },
+  {
+    id: "ravel-quartet", composer: "ravel", ko: "현악 4중주 F장조", en: "String Quartet in F major",
+    year: "1902–1903", key: "F major", genre: ["string-quartet", "chamber"], cat: [{ s: "m", t: "M. 35" }],
+    instr: "바이올린 2 · 비올라 · 첼로",
+    movements: [["Allegro moderato – Très doux", "보통 빠르게 – 아주 부드럽게"], ["Assez vif – Très rythmé", "꽤 생기 있게 – 리듬을 살려"], ["Très lent", "아주 느리게"], ["Vif et agité", "생기 있고 격하게"]],
+    bg: "20대 후반의 라벨이 스승 포레에게 헌정한 유일한 현악 4중주입니다. 포레는 마지막 악장을 탐탁지 않아 했지만, 드뷔시는 ‘음 하나도 고치지 말라’고 격려했다고 전해집니다. 10년 앞서 나온 드뷔시의 현악 4중주와 함께 음반에 자주 실립니다.",
+    points: ["2악장: 네 악기가 모두 현을 뜯는 [[t:pizzicato|피치카토]]로 시작해 기타나 가믈란 같은 울림을 만듭니다.", "1악장의 주제가 다른 악장에서 모습을 바꿔 다시 나타나는 순환 형식."],
+    recs: [
+      { p: ["quartetto-italiano"], label: "Philips", year: "1965", why: "따뜻하고 노래하는 음색. 오랫동안 이 곡의 기준으로 꼽힌 녹음." },
+      { p: ["alban-berg"], label: "EMI", why: "정밀한 앙상블과 선명한 대비." }
+    ],
+    am: "Ravel String Quartet in F major Assez vif", related: ["mozart-eine-kleine", "debussy-la-mer"], terms: ["pizzicato"]
+  },
+  {
+    id: "ravel-daphnis", composer: "ravel", ko: "발레 〈다프니스와 클로에〉", en: "Daphnis et Chloé",
+    year: "1909–1912", key: "", keyNote: "조성이 유동적", genre: ["ballet"], cat: [{ s: "m", t: "M. 57" }],
+    instr: "대편성 오케스트라 · 가사 없는 합창",
+    movements: [["Partie 1", "1부"], ["Partie 2", "2부"], ["Partie 3: Lever du jour – Pantomime – Danse générale", "3부: 해돋이 – 팬터마임 – 전원의 춤"]],
+    bg: "디아길레프의 발레 뤼스를 위해 고대 그리스의 목가 소설을 바탕으로 쓴 라벨의 가장 큰 작품입니다. 1912년 파리에서 [[p:monteux|피에르 몽퇴]]의 지휘, 포킨의 안무, 니진스키의 춤으로 초연되었습니다. 라벨은 ‘무용 교향곡’이라 불렀고, 연주회에서는 3부를 중심으로 한 〈모음곡 2번〉이 자주 연주됩니다.",
+    points: ["‘해돋이’: 목관과 현악기의 물결치는 음형 위로 서서히 떠오르는 선율 — 관현악으로 그린 새벽.", "가사 없이 ‘아-’로만 부르는 합창이 오케스트라의 한 색깔처럼 쓰입니다.", "‘전원의 춤’: 5/4박자로 휘몰아치는 피날레."],
+    recs: [
+      { p: ["monteux"], label: "Decca", year: "1959", why: "초연 지휘자가 런던 심포니와 남긴 전곡 녹음." },
+      { p: ["dutoit"], label: "Decca", year: "1980", why: "몬트리올 심포니. 화려하고 섬세한 음색의 전곡 녹음." },
+      { p: ["boulez"], label: "DG", year: "1994", why: "베를린 필. 투명하고 정밀한 해석." }
+    ],
+    am: "Ravel Daphnis et Chloé Lever du jour", related: ["stravinsky-firebird", "debussy-faune"], terms: ["orchestration"]
+  },
+
+  /* ---------------- STRAVINSKY ---------------- */
+  {
+    id: "stravinsky-firebird", composer: "stravinsky", ko: "발레 〈불새〉", en: "The Firebird (L'Oiseau de feu)",
+    year: "1909–1910", key: "", keyNote: "B장조로 끝남", genre: ["ballet", "suite"], cat: [],
+    instr: "대편성 오케스트라 — 연주회용 모음곡(1911, 1919, 1945년판)",
+    movements: [["Introduction", "서주"], ["Danse infernale du roi Kastchei", "카셰이 왕의 지옥의 춤"], ["Berceuse", "자장가"], ["Finale", "피날레"]],
+    bg: "28세의 무명 작곡가였던 스트라빈스키를 하룻밤 사이에 유명하게 만든 첫 발레입니다. 1910년 파리 오페라 극장에서 발레 뤼스가 초연했습니다. 마법사 카셰이에게 붙잡힌 공주들을 왕자가 불새의 도움으로 구하는 러시아 민담이 바탕입니다. 스승 림스키코르사코프의 화려한 색채가 아직 짙게 남아 있습니다.",
+    points: ["‘지옥의 춤’: 갑작스러운 강타와 당김음으로 몰아치는 리듬 — 이후 〈봄의 제전〉을 예고합니다.", "‘자장가’의 바순 독주에서 피날레의 호른 선율로 — 러시아 민요가 점점 커져 거대한 찬가가 됩니다.", "같은 음악이라도 전곡판과 세 가지 모음곡판의 편성·길이가 다릅니다. 음반의 판본 표기를 확인하세요."],
+    recs: [
+      { p: ["stravinsky-p"], label: "Columbia", why: "작곡가 자신이 지휘한 녹음. 템포와 표현에 대한 귀중한 기록." },
+      { p: ["boulez"], label: "Columbia", year: "1975", why: "뉴욕 필하모닉과의 전곡판. 투명하고 정밀한 해석." },
+      { p: ["gergiev"], label: "Philips", why: "마린스키(키로프) 오케스트라. 러시아적 색채와 강렬함." }
+    ],
+    am: "Stravinsky The Firebird Infernal Dance", related: ["stravinsky-petrushka", "tchaikovsky-swan-lake"], terms: ["syncopation"]
+  },
+  {
+    id: "stravinsky-petrushka", composer: "stravinsky", ko: "발레 〈페트루슈카〉", en: "Petrushka",
+    year: "1910–1911 (1947 개정)", key: "", keyNote: "다조성", genre: ["ballet"], cat: [],
+    instr: "대편성 오케스트라 (피아노 비중이 큼)",
+    movements: [["The Shrovetide Fair", "사육제 장터"], ["Petrushka's Room", "페트루슈카의 방"], ["The Moor's Room", "무어인의 방"], ["The Shrovetide Fair (towards evening)", "사육제 장터 (저녁 무렵)"]],
+    bg: "생명을 얻은 꼭두각시 인형 페트루슈카의 슬픈 사랑과 죽음을 그린 발레로, 1911년 파리에서 초연되었습니다. 원래 피아노 협주곡처럼 구상한 작품이라 피아노가 매우 중요한 역할을 합니다.",
+    points: ["‘페트루슈카 화음’: C장조와 F♯장조 화음을 동시에 울리는 [[t:polytonality|다조성]] — 인형의 기괴하고 분열된 마음을 나타냅니다.", "사육제 장터 장면: 여러 무리의 음악이 동시에 겹치는 소란스러운 군중의 소리.", "1911년판과 1947년 개정판의 편성이 다르니 음반의 판본을 확인하세요."],
+    recs: [
+      { p: ["boulez"], label: "Columbia", year: "1971", why: "뉴욕 필하모닉. 겹겹의 층을 선명하게 드러내는 해석." },
+      { p: ["stravinsky-p"], label: "Columbia", why: "작곡가 자신의 지휘(1947년판)." }
+    ],
+    am: "Stravinsky Petrushka Shrovetide Fair", related: ["stravinsky-firebird", "stravinsky-rite"], terms: ["polytonality"]
+  },
+  {
+    id: "stravinsky-rite", composer: "stravinsky", ko: "봄의 제전", en: "The Rite of Spring (Le Sacre du printemps)",
+    year: "1911–1913", key: "", keyNote: "조성이 불안정 · 다조성", genre: ["ballet"], cat: [],
+    instr: "4관 편성 이상의 거대한 오케스트라",
+    movements: [["Part I: L'Adoration de la Terre", "1부: 대지에 대한 경배 — 서주, 봄의 징조, …"], ["Part II: Le Sacrifice", "2부: 희생 — …, 희생의 춤"]],
+    bg: "고대 러시아 이교도들이 봄의 신에게 처녀를 제물로 바치는 의식을 그린 발레입니다. 1913년 5월 29일 파리 샹젤리제 극장에서 피에르 몽퇴의 지휘, 니진스키의 안무로 초연되었는데, 객석에서 야유와 고함이 터지며 공연 중에 큰 소동이 벌어진 것으로 유명합니다. 오늘날에는 20세기 음악의 출발점 중 하나로 꼽힙니다.",
+    points: ["서주: 바순이 낼 수 있는 가장 높은 음역에서 혼자 부르는 리투아니아 민요 — 처음 들으면 무슨 악기인지 알기 어렵습니다.", "‘봄의 징조’: 같은 화음을 현악기가 계속 두드리는데, 강세가 예측할 수 없는 곳에 떨어집니다. 박을 세어 보세요.", "‘희생의 춤’: 2/16, 3/16, 5/16 … 마디마다 박자가 바뀌는 리듬의 폭발."],
+    recs: [
+      { p: ["boulez"], label: "Columbia", year: "1969", why: "클리블랜드 오케스트라. 리듬의 구조를 엑스레이처럼 드러낸 기념비적 녹음." },
+      { p: ["stravinsky-p"], label: "Columbia", year: "1960", why: "작곡가 자신의 지휘." },
+      { p: ["bernstein"], label: "Columbia", year: "1958", why: "뉴욕 필하모닉. 원초적 에너지가 넘치는 연주." },
+      { p: ["currentzis"], label: "Sony Classical", year: "2015", why: "무지카 에테르나. 날카롭고 거친 음색의 현대적 해석." }
+    ],
+    am: "Stravinsky The Rite of Spring Augurs of Spring", related: ["stravinsky-petrushka", "beethoven-symphony-5"], terms: ["ostinato", "polytonality", "syncopation"]
+  },
+  {
+    id: "stravinsky-pulcinella", composer: "stravinsky", ko: "발레 〈풀치넬라〉", en: "Pulcinella",
+    year: "1919–1920", key: "", keyNote: "곡마다 다름", genre: ["ballet", "suite"], cat: [],
+    instr: "실내 오케스트라 · 소프라노 · 테너 · 베이스 — 연주회용 모음곡(1922 · 개정 1949)",
+    movements: [["Sinfonia", "신포니아"], ["Serenata", "세레나타"], ["Tarantella", "타란텔라"], ["Toccata", "토카타"], ["Gavotta con due variazioni", "가보트와 두 개의 변주"], ["Finale", "피날레"]],
+    bg: "18세기 이탈리아 작곡가 페르골레시의 작품으로 알려진 악보를 바탕으로, 디아길레프의 의뢰를 받아 만든 발레입니다. 1920년 파리에서 피카소의 무대 미술, 마신의 안무로 초연되었습니다. 원곡의 상당수는 나중에 도메니코 갈로 등 다른 작곡가의 곡으로 밝혀졌습니다. 스트라빈스키는 이 작품을 ‘과거의 발견’이라 불렀고, 이후 30년 가까운 [[t:neoclassicism|신고전주의]] 시기가 시작되었습니다.",
+    points: ["바로크 선율과 화성은 그대로 두면서, 엇나간 강세·뜻밖의 불협화음·독특한 악기 조합으로 20세기의 옷을 입혔습니다.", "트롬본과 더블베이스가 익살스럽게 주고받는 이중주.", "같은 바로크 음악을 다룬 [[w:bach-brandenburg-3|바흐 협주곡]]과 나란히 들어 보세요."],
+    recs: [],
+    am: "Stravinsky Pulcinella Suite Sinfonia", related: ["stravinsky-psalms", "bach-orchestral-suite-3"], terms: ["neoclassicism"]
+  },
+  {
+    id: "stravinsky-psalms", composer: "stravinsky", ko: "시편 교향곡", en: "Symphony of Psalms",
+    year: "1930", key: "", keyNote: "E단조 화음으로 시작 · C장조로 끝남", genre: ["symphony", "requiem"], cat: [],
+    instr: "합창 · 바이올린·비올라·클라리넷이 없는 오케스트라 (피아노 2대 포함)",
+    movements: [["Psalm 38 (39)", "시편 39편 — 내 기도를 들으소서"], ["Psalm 39 (40)", "시편 40편 — 이중 푸가"], ["Psalm 150", "시편 150편 — 할렐루야"]],
+    bg: "보스턴 심포니 오케스트라 창립 50주년 위촉곡으로 쓰였고, 스트라빈스키는 악보에 ‘하느님의 영광과 보스턴 심포니에게’라고 적었습니다. 라틴어 성경(불가타)의 시편 세 편을 가사로 씁니다.",
+    points: ["바이올린과 비올라를 빼 버린 편성: 목관·금관과 피아노, 낮은 현악기만으로 차갑고 단단한 울림을 만듭니다.", "1악장 첫머리에서 E단조 화음이 짧게 ‘딱’ 하고 끊기는 소리.", "3악장 끝: 같은 음형이 천천히 반복되며 종소리처럼 고요하게 마무리됩니다."],
+    recs: [
+      { p: ["stravinsky-p"], label: "Columbia", why: "작곡가 자신의 지휘." }
+    ],
+    am: "Stravinsky Symphony of Psalms", related: ["brahms-requiem", "bach-wtc-1"], terms: ["subject"]
   }
 ];

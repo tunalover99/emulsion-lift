@@ -107,6 +107,22 @@ OA.composers = [
     orderNote: "서정적인 〈사랑의 꿈〉과 〈위안〉에서 시작해 화려한 기교의 곡들을 거쳐 B단조 소나타라는 거대한 단일 악장으로 들어가세요."
   },
   {
+    id: "brahms", ko: "요하네스 브람스", short: "브람스", en: "Johannes Brahms", latin: "Brahms",
+    born: 1833, died: 1897, era: "romantic", country: "독일 (함부르크)", places: "함부르크 · 빈",
+    instruments: ["관현악", "피아노", "실내악", "성악(가곡·합창)"], genres: ["symphony", "concerto", "chamber", "lied", "requiem", "variations"],
+    catalog: "op",
+    tagline: "낭만주의 한가운데서 고전의 형식을 지킨 ‘3B’의 마지막 B.",
+    life: [
+      "함부르크의 가난한 음악가 집안에서 태어났습니다. 10대 시절 항구 근처 술집에서 피아노를 치며 생계를 도왔다는 이야기가 전해지지만, 오늘날에는 과장되었다는 견해도 있습니다.",
+      "1853년 바이올리니스트 요제프 요아힘의 소개로 로베르트·클라라 슈만 부부를 만났고, 슈만은 평론 〈새로운 길〉에서 스무 살의 브람스를 ‘시대가 기다려 온 인물’로 소개했습니다. 이듬해 슈만이 정신병으로 쓰러지자 브람스는 클라라와 가족을 도왔고, 클라라와의 깊은 우정은 평생 이어졌습니다.",
+      "1862년부터 빈에 정착해 결혼하지 않고 살았습니다. 베토벤의 그늘을 의식해 첫 교향곡을 20년 넘게 다듬었습니다. 1896년 클라라가 세상을 떠나고 1년도 지나지 않은 1897년 빈에서 세상을 떠났습니다."
+    ],
+    style: ["베토벤을 잇는 견고한 형식과 [[g:variations|변주]] 기법", "바흐에게서 배운 치밀한 [[t:counterpoint|대위법]]", "두텁고 따뜻한 중저음, 2박과 3박이 엇갈리는 리듬", "격정 아래 숨은 절제와 우수"],
+    order: ["brahms-hungarian-5", "brahms-intermezzo-op118-2", "brahms-violin-concerto", "brahms-symphony-1", "brahms-requiem", "brahms-symphony-4"],
+    orderNote: "흥겨운 헝가리 무곡과 내밀한 피아노 소품에서 시작해, 바이올린 협주곡과 교향곡 1번을 거쳐 〈독일 레퀴엠〉과 교향곡 4번으로 들어가세요.",
+    note: "지휘자 한스 폰 뷜로는 바흐·베토벤·브람스를 묶어 ‘3B’라고 불렀습니다. 19세기 후반에는 바그너·리스트의 ‘신독일악파’와 대립하는 보수파의 상징처럼 여겨지기도 했습니다."
+  },
+  {
     id: "tchaikovsky", ko: "표트르 일리치 차이콥스키", short: "차이콥스키", en: "Pyotr Ilyich Tchaikovsky", latin: "Tchaikovsky",
     born: 1840, died: 1893, era: "romantic", country: "러시아", places: "상트페테르부르크 · 모스크바",
     instruments: ["관현악", "발레", "피아노"], genres: ["ballet", "symphony", "concerto"],
@@ -152,5 +168,37 @@ OA.composers = [
     order: ["debussy-clair-de-lune", "debussy-arabesque-1", "debussy-preludes-1", "debussy-faune", "debussy-la-mer"],
     orderNote: "〈달빛〉과 〈아라베스크〉로 드뷔시의 피아노 음색에 익숙해진 뒤, 관현악곡 〈목신의 오후〉와 〈바다〉로 넘어가세요.",
     note: "드뷔시 자신은 ‘인상주의’라는 꼬리표를 좋아하지 않았습니다."
+  },
+  {
+    id: "ravel", ko: "모리스 라벨", short: "라벨", en: "Maurice Ravel", latin: "Ravel",
+    born: 1875, died: 1937, era: "impressionism", country: "프랑스", places: "파리 · 몽포르라모리",
+    instruments: ["관현악", "피아노", "실내악", "발레"], genres: ["ballet", "concerto", "string-quartet", "chamber"],
+    catalog: "m",
+    tagline: "스위스 시계공처럼 정교했던 ‘관현악의 마술사’.",
+    life: [
+      "스페인 국경과 가까운 바스크 지방 시부르에서 바스크인 어머니와 스위스 출신 기술자 아버지 사이에서 태어나, 곧 파리로 이주했습니다. 파리 음악원에서 가브리엘 포레에게 작곡을 배웠습니다.",
+      "작곡가의 등용문인 로마 대상에 다섯 번 도전해 모두 실패했고, 1905년 이미 이름이 알려진 그가 예선에서 탈락하자 ‘라벨 사건’이라는 스캔들이 일어나 음악원장이 물러났습니다.",
+      "제1차 세계대전 때는 트럭 운전병으로 복무했습니다. 1928년 미국 순회 연주에서 재즈와 거슈윈을 만났고, 그 영향은 [[w:ravel-concerto-g|피아노 협주곡 G장조]]에 남았습니다. 말년에는 뇌 질환으로 작곡을 할 수 없게 되었고 1937년 수술 후 세상을 떠났습니다."
+    ],
+    style: ["악기의 음색을 극한까지 활용하는 [[t:orchestration|관현악법]] — 무소륵스키 〈전람회의 그림〉 편곡으로도 유명", "드뷔시와 화성 언어를 공유하지만 더 명료한 형식과 선율", "스페인·바스크 리듬, 재즈, 옛 프랑스 춤곡의 결합", "감정을 드러내기보다 정교하게 세공하는 태도"],
+    order: ["ravel-pavane", "ravel-bolero", "ravel-quartet", "ravel-concerto-g", "ravel-daphnis", "ravel-gaspard"],
+    orderNote: "〈죽은 왕녀를 위한 파반〉과 〈볼레로〉로 시작해 현악 4중주와 피아노 협주곡을 거쳐, 〈다프니스와 클로에〉, 그리고 피아노의 극한 〈밤의 가스파르〉로 가 보세요.",
+    note: "드뷔시와 함께 인상주의로 묶이지만, 라벨 자신은 고전적 형식을 중시했고 신고전주의적 작품도 많이 썼습니다."
+  },
+  {
+    id: "stravinsky", ko: "이고르 스트라빈스키", short: "스트라빈스키", en: "Igor Stravinsky", latin: "Stravinsky",
+    born: 1882, died: 1971, era: "modern", country: "러시아 (이후 프랑스·미국)", places: "상트페테르부르크 · 파리 · 스위스 · 로스앤젤레스",
+    instruments: ["관현악", "발레"], genres: ["ballet", "symphony"],
+    catalog: null,
+    tagline: "리듬으로 20세기 음악을 뒤흔들고, 평생 스타일을 바꾼 카멜레온.",
+    life: [
+      "상트페테르부르크 근교 오라니엔바움에서 마린스키 극장 베이스 가수의 아들로 태어났습니다. 대학에서 법학을 공부하면서 림스키코르사코프에게 개인적으로 작곡을 배웠습니다.",
+      "발레 뤼스의 흥행사 디아길레프에게 발탁되어 파리에서 [[w:stravinsky-firebird|〈불새〉]](1910), [[w:stravinsky-petrushka|〈페트루슈카〉]](1911), [[w:stravinsky-rite|〈봄의 제전〉]](1913)을 잇달아 초연하며 단숨에 시대의 중심에 섰습니다.",
+      "혁명 이후 러시아로 돌아가지 않고 스위스와 프랑스를 거쳐 1939년 미국으로 이주했습니다. 1920년대부터는 [[t:neoclassicism|신고전주의]], 1950년대부터는 12음 기법까지 받아들이며 계속 변신했습니다. 1971년 뉴욕에서 세상을 떠나 베네치아의 디아길레프 묘 곁에 묻혔습니다."
+    ],
+    style: ["불규칙한 박자와 강렬한 강세, [[t:ostinato|오스티나토]]로 만든 원초적 리듬", "두 조성을 동시에 겹치는 [[t:polytonality|다조성]]", "러시아 민요 조각을 잘게 자르고 다시 짜 맞추는 기법", "시기마다 전혀 다른 양식: 러시아 시기 → 신고전주의 → 음렬주의"],
+    order: ["stravinsky-firebird", "stravinsky-petrushka", "stravinsky-rite", "stravinsky-pulcinella", "stravinsky-psalms"],
+    orderNote: "아직 낭만적인 색채가 짙은 〈불새〉에서 시작해 3대 발레를 연대순으로 들은 뒤, 신고전주의 〈풀치넬라〉와 〈시편 교향곡〉으로 변신을 따라가 보세요.",
+    note: "스트라빈스키에게는 쾨헬·도이치 같은 표준 작품 목록이 없습니다. 작품은 제목과 작곡 연도(필요하면 판본 연도)로 구별합니다."
   }
 ];

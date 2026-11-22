@@ -84,6 +84,11 @@ OA.glossary = [
   { id: "leitmotif", term: "Leitmotiv", ko: "라이트모티프 (유도동기)", lang: "de", cat: "tex", def: "특정 인물·사물·생각과 연결된 짧은 음악 동기. 바그너 악극의 핵심 기법이며 영화음악에 큰 영향을 주었습니다." },
   { id: "ostinato", term: "Ostinato", ko: "오스티나토", lang: "it", cat: "tex", def: "‘고집스러운’. 같은 음형을 계속 반복하는 것." },
   { id: "syncopation", term: "당김음", ko: "Syncopation", lang: "ko", cat: "tex", def: "약박이나 박과 박 사이에 강세를 두어 규칙적인 강약을 비트는 리듬." },
+  { id: "orchestration", term: "관현악법", ko: "Orchestration", lang: "ko", cat: "tex", def: "어떤 선율과 화음을 어느 악기에 맡길지 정해 오케스트라의 음색을 설계하는 기술. 라벨, 림스키코르사코프가 대가로 꼽힙니다.", ex: "[[w:ravel-bolero|라벨 〈볼레로〉]]" },
+  { id: "passacaglia", term: "Passacaglia", ko: "파사칼리아", lang: "it", cat: "form", def: "짧은 저음 주제(또는 화성 진행)를 계속 반복하며 그 위에서 변주를 쌓아 가는 바로크 시대의 변주 형식. 샤콘과 비슷합니다.", ex: "[[w:brahms-symphony-4|브람스 교향곡 4번]] 4악장" },
+  { id: "polytonality", term: "다조성", ko: "Polytonality", lang: "ko", cat: "tex", def: "서로 다른 두 개 이상의 조성을 동시에 울리는 기법. 두 조성의 화음을 겹치면 낯설고 날카로운 울림이 납니다.", ex: "[[w:stravinsky-petrushka|〈페트루슈카〉]]의 C장조 + F♯장조 화음" },
+  { id: "neoclassicism", term: "신고전주의", ko: "Neoclassicism", lang: "ko", cat: "form", def: "1920년대 무렵 낭만주의의 과잉에 반발해 바로크·고전주의의 형식과 명료함을 20세기 어법으로 되살린 흐름.", ex: "[[w:stravinsky-pulcinella|스트라빈스키 〈풀치넬라〉]]" },
+  { id: "glissando", term: "glissando (gliss.)", ko: "글리산도", lang: "it", cat: "inst", def: "한 음에서 다른 음으로 미끄러지듯 연속적으로 이동하는 연주. 피아노에서는 건반 위를 손톱으로 훑습니다." },
   { id: "temperament", term: "조율법 · 평균율", ko: "Temperament", lang: "ko", cat: "tex", def: "건반 악기의 12음 높이를 정하는 방식. 오늘날의 12평균율은 옥타브를 정확히 12등분합니다." },
   { id: "timbre", term: "음색", ko: "Timbre", lang: "ko", cat: "tex", def: "같은 높이·세기라도 악기마다 다르게 들리는 소리의 색깔." },
   /* performance */

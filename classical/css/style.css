@@ -319,7 +319,7 @@ a.card:hover { border-color: var(--rule-2); box-shadow: var(--shadow); transform
 .ccard p { margin-top: 8px; }
 
 /* Lifespan timeline */
-.lifeline { position: relative; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--card); padding: 18px 18px 34px; overflow: hidden; }
+.lifeline { position: relative; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--card); padding: 26px 18px 34px; overflow: hidden; }
 .lifeline .bands { position: absolute; inset: 0; }
 .lifeline .band { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--era) 9%, transparent); border-left: 1px dashed color-mix(in srgb, var(--era) 45%, transparent); }
 .lifeline .band span { position: absolute; bottom: 8px; left: 6px; font-size: 11px; color: var(--era); font-weight: 500; white-space: nowrap; }

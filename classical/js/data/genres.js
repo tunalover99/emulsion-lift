@@ -16,7 +16,7 @@ OA.genres = [
     history: "18세기 이탈리아 오페라 서곡(신포니아)에서 발전해, [[c:mozart|모차르트]]와 하이든이 형식을 다듬고 [[c:beethoven|베토벤]]이 규모와 표현을 크게 확장했습니다. 19세기 후반 말러와 브루크너의 교향곡은 연주 시간이 한 시간을 넘기도 합니다.",
     deep: "‘교향곡 = 4악장’은 고전주의의 관습일 뿐입니다. 베토벤 9번은 합창을 넣었고, 베를리오즈 〈환상 교향곡〉은 5악장에 이야기를 담았으며, 시벨리우스 7번은 단일 악장입니다.",
     listen: "1악장 처음에 나오는 두 개의 대조적인 주제를 찾아보세요. 나중에 다시 돌아올 때(재현부) ‘아, 그 주제다’ 하고 알아채는 것이 교향곡 감상의 첫 즐거움입니다.",
-    works: ["beethoven-symphony-5", "mozart-symphony-40", "tchaikovsky-symphony-6", "beethoven-symphony-9", "schubert-unfinished"]
+    works: ["beethoven-symphony-5", "mozart-symphony-40", "brahms-symphony-1", "tchaikovsky-symphony-6", "beethoven-symphony-9", "schubert-unfinished", "brahms-symphony-4", "stravinsky-psalms"]
   },
   {
     id: "concerto", ko: "협주곡", en: "Concerto", family: "orch",
@@ -25,7 +25,7 @@ OA.genres = [
     history: "바로크 시대 [[c:vivaldi|비발디]]가 독주 협주곡의 틀(리토르넬로 형식)을 정립했고, 바흐의 〈브란덴부르크 협주곡〉처럼 여러 독주 악기가 함께하는 합주협주곡(콘체르토 그로소)도 있었습니다. 고전주의 이후에는 한 명의 독주자와 오케스트라가 맞서는 형태가 중심이 되었습니다.",
     deep: "모차르트·베토벤 시대에는 카덴차를 독주자가 즉흥으로 연주하는 경우가 많았지만, 점차 작곡가가 직접 써넣는 쪽으로 바뀌었습니다.",
     listen: "1악장에서 오케스트라가 먼저 주제를 소개한 뒤 독주자가 들어오는 순간, 그리고 악장 끝 무렵 오케스트라가 멈추고 독주자 혼자 펼치는 카덴차에 귀 기울여 보세요.",
-    works: ["rachmaninoff-pc2", "tchaikovsky-pc1", "mozart-pc21", "beethoven-violin-concerto", "chopin-pc1", "vivaldi-spring"]
+    works: ["rachmaninoff-pc2", "tchaikovsky-pc1", "mozart-pc21", "beethoven-violin-concerto", "brahms-violin-concerto", "chopin-pc1", "ravel-concerto-g", "vivaldi-spring"]
   },
   {
     id: "sonata", ko: "소나타", en: "Sonata", family: "keyboard",
@@ -43,7 +43,7 @@ OA.genres = [
     history: "귀족의 거실(‘방’ = chamber)에서 친구와 애호가들이 함께 연주하던 음악에서 이름이 왔습니다. 연주자끼리 서로 듣고 맞추는 대화가 핵심입니다.",
     deep: "편성 이름은 악기 구성을 그대로 따릅니다. ‘피아노 5중주’는 피아노 + 현악 4중주, [[w:schubert-trout|슈베르트 〈송어〉]]는 피아노 + 바이올린·비올라·첼로·더블베이스라는 특이한 편성입니다.",
     listen: "한 악기에서 다른 악기로 선율이 넘어가는 순간을 쫓아가 보세요. 실내악은 ‘대화’를 듣는 음악입니다.",
-    works: ["schubert-trout", "mozart-eine-kleine"]
+    works: ["schubert-trout", "mozart-eine-kleine", "ravel-quartet"]
   },
   {
     id: "string-quartet", ko: "현악 4중주", en: "String Quartet", family: "chamber",
@@ -52,7 +52,7 @@ OA.genres = [
     history: "하이든이 68곡 가량의 현악 4중주로 장르를 확립했습니다. 베토벤의 후기 4중주(Op. 127, 130–132, 135)는 서양 음악사에서 가장 심오한 작품군 중 하나로 꼽힙니다.",
     deep: "괴테는 현악 4중주를 ‘네 명의 지적인 사람이 나누는 대화’에 비유했다고 전해집니다. 20세기에는 쇼스타코비치가 15곡의 4중주에 개인적인 고백을 담았습니다.",
     listen: "네 악기가 각자 다른 선율을 연주하는지, 한 악기가 노래하고 나머지가 반주하는지 짜임새의 변화를 들어 보세요.",
-    works: ["mozart-eine-kleine"]
+    works: ["ravel-quartet", "mozart-eine-kleine"]
   },
   {
     id: "opera", ko: "오페라", en: "Opera", family: "vocal",
@@ -106,7 +106,7 @@ OA.genres = [
     history: "바로크 시대의 샤콘·파사칼리아에서 [[w:bach-goldberg|〈골드베르크 변주곡〉]], 베토벤 〈디아벨리 변주곡〉, [[w:rachmaninoff-paganini|라흐마니노프 〈파가니니 랩소디〉]]까지 이어지는 오랜 전통입니다.",
     deep: "변주의 기준이 선율일 수도, 저음과 화성일 수도 있습니다. 〈골드베르크 변주곡〉은 아리아의 선율이 아니라 저음 진행을 바탕으로 변주합니다.",
     listen: "[[w:mozart-k331|모차르트 소나타 K. 331]]의 1악장은 짧은 주제와 여섯 개의 변주로 되어 있어 변주 형식을 처음 듣기에 좋습니다.",
-    works: ["bach-goldberg", "mozart-k331", "rachmaninoff-paganini"]
+    works: ["bach-goldberg", "mozart-k331", "rachmaninoff-paganini", "brahms-symphony-4"]
   },
   {
     id: "nocturne", ko: "녹턴 (야상곡)", en: "Nocturne", family: "piano",
@@ -193,19 +193,19 @@ OA.genres = [
     id: "ballet", ko: "발레 음악", en: "Ballet", family: "vocal",
     short: "춤과 무대를 위해 쓰인 관현악 음악.",
     features: ["장면과 춤 동작에 맞춘 짧은 곡들의 연속", "연주회에서는 모음곡으로 자주 연주"],
-    history: "프랑스 궁정에서 발전한 발레는 19세기 러시아에서 정점에 이르렀습니다. [[c:tchaikovsky|차이콥스키]]의 3대 발레는 춤의 반주에 그치던 발레 음악을 교향곡 수준의 예술로 끌어올렸다는 평가를 받습니다. 20세기에는 스트라빈스키 〈봄의 제전〉이 큰 충격을 주었습니다.",
+    history: "프랑스 궁정에서 발전한 발레는 19세기 러시아에서 정점에 이르렀습니다. [[c:tchaikovsky|차이콥스키]]의 3대 발레는 춤의 반주에 그치던 발레 음악을 교향곡 수준의 예술로 끌어올렸다는 평가를 받습니다. 20세기에는 [[c:stravinsky|스트라빈스키]]의 [[w:stravinsky-rite|〈봄의 제전〉]]이 큰 충격을 주었고, [[c:ravel|라벨]]의 [[w:ravel-daphnis|〈다프니스와 클로에〉]]처럼 교향곡 같은 규모의 발레도 나왔습니다.",
     deep: "발레 음악은 무용수의 움직임에 맞춰 템포와 길이가 정해지므로, 같은 곡이라도 연주회용과 공연용 연주의 템포가 다를 수 있습니다.",
     listen: "〈호두까기 인형〉의 ‘사탕 요정의 춤’에서 첼레스타라는 악기의 반짝이는 음색을 찾아보세요.",
-    works: ["tchaikovsky-swan-lake", "tchaikovsky-nutcracker"]
+    works: ["tchaikovsky-swan-lake", "tchaikovsky-nutcracker", "stravinsky-firebird", "stravinsky-petrushka", "stravinsky-rite", "ravel-daphnis", "ravel-bolero"]
   },
   {
     id: "requiem", ko: "미사 · 레퀴엠", en: "Mass & Requiem", family: "vocal",
     short: "가톨릭 미사 전례문에 곡을 붙인 성악곡. 레퀴엠은 죽은 이를 위한 미사.",
     features: ["라틴어 전례문(키리에, 글로리아, 크레도…)", "레퀴엠에는 ‘디에스 이레(진노의 날)’ 같은 고유 부분", "독창·합창·오케스트라"],
-    history: "중세 그레고리오 성가부터 바흐 〈B단조 미사〉, [[w:mozart-requiem|모차르트 〈레퀴엠〉]], 베르디·포레의 레퀴엠까지 천 년이 넘는 전통입니다.",
+    history: "중세 그레고리오 성가부터 바흐 〈B단조 미사〉, [[w:mozart-requiem|모차르트 〈레퀴엠〉]], [[w:brahms-requiem|브람스 〈독일 레퀴엠〉]], 베르디·포레의 레퀴엠까지 천 년이 넘는 전통입니다.",
     deep: "[[w:vivaldi-gloria|비발디 〈글로리아〉]]처럼 미사 통상문의 한 부분만 독립된 곡으로 쓰기도 합니다.",
     listen: "가사 번역을 함께 보면서, 같은 전례문을 시대마다 어떻게 다르게 표현했는지 비교해 보세요.",
-    works: ["mozart-requiem", "vivaldi-gloria"]
+    works: ["mozart-requiem", "brahms-requiem", "vivaldi-gloria"]
   },
   {
     id: "symphonic-poem", ko: "교향시 · 표제음악", en: "Symphonic Poem", family: "orch",

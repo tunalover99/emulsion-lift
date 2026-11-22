@@ -39,7 +39,7 @@
     const acc = m[2] === "b" ? "내림" : m[2] === "#" ? "올림" : "";
     return { ko: acc + KEY_LETTER[m[1]] + (m[3] === "major" ? "장조" : "단조"), en: m[1] + (m[2] === "b" ? "♭" : m[2] === "#" ? "♯" : "") + " " + m[3], mode: m[3] };
   }
-  const catText = (w) => w.cat.map((c) => c.t).join(" · ");
+  const catText = (w) => w.cat.length ? w.cat.map((c) => c.t).join(" · ") : "작품 번호 없음";
   const yrs = (c) => `${c.born}–${c.died}`;
   const compact = (s) => String(s || "").toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[\s.\-·,'’()〈〉《》「」‘’“”:;/]/g, "");
 
@@ -75,7 +75,8 @@
       case "rv": return `리옴 목록 ${t.replace("RV ", "")}번`;
       case "s": return (m = t.match(/S\. (\d+)\/(\d+)/)) ? `설 목록 ${m[1]}번 작품집의 ${m[2]}번째 곡` : `설 목록 ${t.replace("S. ", "")}번`;
       case "l": return `레쥐르 목록(1977년판) ${t.replace("L. ", "")}번`;
-      case "woo": return `작품번호 없는 작품 목록 ${t.replace("WoO ", "")}번`;
+      case "woo": return (m = t.match(/WoO (\d+) No\. (\d+)/)) ? `작품번호 없는 작품 목록 ${m[1]}번 묶음의 ${m[2]}번째 곡` : `작품번호 없는 작품 목록 ${t.replace("WoO ", "")}번`;
+      case "m": return `마르나 목록 ${t.replace("M. ", "")}번`;
     }
     return "";
   }
@@ -196,7 +197,7 @@
             ["시대 · Era", eraTag(c.era), E[c.era].range + " · " + OA.axes[0].desc],
             ["장르·형식 · Genre", w.genre.length ? w.genre.map((g) => `<a href="#/genres/${g}">${G[g].ko}</a>`).join(", ") : "소품", OA.axes[1].desc],
             ["음악 이론 · Theory", k ? `<a href="#/theory/key">${k.ko}</a><div class="small muted latin" style="font-size:15px">${k.en}${w.meter ? " · " + w.meter : ""}</div>` : esc(w.keyNote || "—"), OA.axes[2].desc],
-            ["작품 식별 · ID", `<span class="mono">${w.cat.map((x) => `<a href="#/catalog/${x.s}">${esc(x.t)}</a>`).join(" / ")}</span>`, readCat(w.cat[0])]
+            ["작품 식별 · ID", w.cat.length ? `<span class="mono">${w.cat.map((x) => `<a href="#/catalog/${x.s}">${esc(x.t)}</a>`).join(" / ")}</span>` : "표준 번호 없음", w.cat.length ? readCat(w.cat[0]) : "제목과 작곡 연도로 구별합니다."]
           ];
           $("[data-axcells]", root).innerHTML = cells.map(([kk, v, d]) => `<div class="axcell"><div class="k">${kk}</div><div class="v">${v}</div><div class="d">${d}</div></div>`).join("");
         };
@@ -324,7 +325,7 @@
   /* --- Eras --- */
   function lifeline(composers, from, to) {
     const pct = (y) => ((y - from) / (to - from)) * 100;
-    const bands = OA.eras.filter((e) => e.end > from && e.start < to).map((e) => `<div class="band" data-era="${e.id}" style="left:${Math.max(0, pct(e.start))}%;width:${pct(Math.min(e.end, to)) - Math.max(0, pct(e.start))}%"><span>${e.ko}</span></div>`).join("");
+    const bands = OA.eras.filter((e) => e.end > from && e.start < to).map((e, i) => `<div class="band" data-era="${e.id}" style="left:${Math.max(0, pct(e.start))}%;width:${pct(Math.min(e.end, to)) - Math.max(0, pct(e.start))}%"><span${i % 2 ? ' style="bottom:auto;top:4px"' : ""}>${e.ko}</span></div>`).join("");
     const ticks = []; for (let y = Math.ceil(from / 50) * 50; y <= to; y += 50) ticks.push(`<span style="left:${pct(y)}%">${y}</span>`);
     return `<div class="scroll-x"><div class="lifeline"><div class="bands">${bands}</div><div class="rows">
       ${composers.map((c) => `<div class="row"><a class="life" data-era="${c.era}" href="#/composers/${c.id}" style="left:${pct(c.born)}%;width:${pct(c.died) - pct(c.born)}%">${c.short} <span style="opacity:.75">${c.born}–${c.died}</span></a></div>`).join("")}
@@ -335,7 +336,7 @@
     return {
       title: "음악사",
       html: `<div class="wrap">${pageHead([[null, "음악사"]], "History", "시대별 음악사", "중세 교회의 단선율 성가에서 오늘날의 현대음악까지. 시대 구분 연도는 대략적인 기준이며, 같은 시기에도 지역과 작곡가에 따라 양식이 겹칩니다.")}
-      <section class="block"><div class="block-head"><h2>작곡가 연대표</h2><span class="count">1650 – 1950</span></div>${lifeline(OA.composers, 1650, 1950)}</section>
+      <section class="block"><div class="block-head"><h2>작곡가 연대표</h2><span class="count">1650 – 1975</span></div>${lifeline(OA.composers, 1650, 1975)}</section>
       <section class="block"><div class="block-head"><h2>일곱 개의 시대</h2></div><div class="grid g2">
         ${OA.eras.map((e, i) => `<a class="card era-edge" data-era="${e.id}" href="#/eras/${e.id}"><span class="idx">${String(i + 1).padStart(2, "0")} · ${e.range}</span><h3>${e.ko}</h3><div class="en">${e.en}</div><p>${e.lede}</p>
           ${e.composers.length ? `<div class="card-foot"><span class="small muted">${e.composers.map((c) => C[c].short).join(" · ")}</span></div>` : ""}</a>`).join("")}
@@ -370,7 +371,7 @@
     return {
       title: "작곡가 사전",
       html: `<div class="wrap">${pageHead([[null, "작곡가"]], "Composers", "작곡가 사전", "생애와 음악적 특징, 대표 작품, 작품 번호 체계, 추천 감상 순서를 정리했습니다.")}
-        <section class="block">${lifeline(OA.composers, 1650, 1950)}</section>
+        <section class="block">${lifeline(OA.composers, 1650, 1975)}</section>
         <div class="filters" data-filters>
           <div class="fg"><span class="fl">시대</span><div class="chips">${["all", ...new Set(OA.composers.map((c) => c.era))].map((e) => `<button class="chip${e === "all" ? " on" : ""}" data-f="era" data-v="${e}" ${e !== "all" ? `data-era="${e}"` : ""}>${e === "all" ? "전체" : `<span class="dot"></span>${E[e].ko}`}</button>`).join("")}</div></div>
           <div class="fg"><span class="fl">국가</span><select data-f="country"><option value="">전체</option>${countries.map((c) => `<option>${c}</option>`).join("")}</select></div>
@@ -394,7 +395,7 @@
   function composerDetail(c) {
     const ws = OA.works.filter((w) => w.composer === c.id);
     const recs = ws.flatMap((w) => w.recs.slice(0, 1).map((r) => ({ w, r })));
-    const cat = CAT[c.catalog];
+    const cat = c.catalog ? CAT[c.catalog] : null;
     return {
       title: c.ko,
       html: `<div class="wrap" data-era="${c.era}">
@@ -416,7 +417,7 @@
       <aside>
         <dl class="facts"><div><dt>생몰</dt><dd>${yrs(c)}</dd></div><div><dt>국적</dt><dd>${esc(c.country)}</dd></div><div><dt>활동 지역</dt><dd>${esc(c.places)}</dd></div>
           <div><dt>시대</dt><dd>${eraTag(c.era)}</dd></div><div><dt>주요 분야</dt><dd>${c.instruments.join(", ")}</dd></div>
-          <div><dt>작품 번호</dt><dd><a href="#/catalog/${cat.id}"><span class="mono">${cat.abbr}</span></a><small>${cat.origin}</small></dd></div></dl>
+          <div><dt>작품 번호</dt><dd>${cat ? `<a href="#/catalog/${cat.id}"><span class="mono">${cat.abbr}</span></a><small>${cat.origin}</small>` : `표준 목록 없음<small>제목과 작곡 연도로 구별</small>`}</dd></div></dl>
         <div class="side-box" style="margin-top:16px"><h4>대표 장르</h4><div class="chips">${c.genres.map((g) => `<a class="chip" href="#/genres/${g}">${G[g].ko}</a>`).join("")}</div></div>
         <div class="side-box"><h4>작품 목록 (${ws.length})</h4><ul>${ws.map((w) => `<li><a href="#/works/${w.id}">${esc(w.ko)}</a><br><span class="mono small muted">${esc(catText(w))}</span></li>`).join("")}</ul></div>
       </aside></div></div>`
@@ -477,7 +478,7 @@
         <div class="eyebrow" style="margin-top:22px">${eraTag(era)} <span>·</span> <a href="#/composers/${c.id}" style="text-decoration:none">${c.ko}</a></div>
         <h1 class="work-title">${esc(w.ko)}</h1>
         <div class="work-en">${esc(w.en)}${w.nick ? ` — “${esc(w.nick)}”` : ""}</div>
-        <div class="work-cat">${w.cat.map((x) => `<a href="#/catalog/${x.s}" title="${esc(CAT[x.s].origin)}">${esc(x.t)}</a>`).join("")}</div>
+        <div class="work-cat">${w.cat.length ? w.cat.map((x) => `<a href="#/catalog/${x.s}" title="${esc(CAT[x.s].origin)}">${esc(x.t)}</a>`).join("") : `<span class="small muted" style="font-family:var(--f-sans)">표준 작품 번호 없음 · 제목과 연도로 구별</span>`}</div>
         <div class="actions">
           ${listenBtn(workQueries(w), `${c.short} · ${w.ko}`, "Apple Music으로 듣기").replace('class="listen"', 'class="btn"')}
           <button class="btn ghost${fav ? " on" : ""}" data-fav="${w.id}">${fav ? I.starF : I.star}<span>${fav ? "즐겨찾기됨" : "즐겨찾기"}</span></button>
@@ -504,7 +505,7 @@
           <div><dt>조성</dt><dd>${k ? `<a href="#/theory/key">${k.ko}</a><small>${k.en}${w.keyNote ? " · " + esc(w.keyNote) : ""}</small>` : esc(w.keyNote || "—")}</dd></div>
           ${w.meter ? `<div><dt>박자</dt><dd><a href="#/theory/time-signature">${w.meter}</a></dd></div>` : ""}
           <div><dt>편성</dt><dd>${esc(w.instr)}</dd></div>
-          <div><dt>작품 번호</dt><dd>${w.cat.map((x) => `<span class="mono">${esc(x.t)}</span><small>${readCat(x)} — <a href="#/catalog/${x.s}">${CAT[x.s].abbr} 설명</a></small>`).join("")}</dd></div>
+          <div><dt>작품 번호</dt><dd>${w.cat.length ? "" : `없음<small>${esc(C[w.composer].short)}에게는 표준 작품 목록이 없어 제목과 작곡 연도로 구별합니다. <a href="#/catalog">작품 번호 사전</a></small>`}${w.cat.map((x) => `<span class="mono">${esc(x.t)}</span><small>${readCat(x)} — <a href="#/catalog/${x.s}">${CAT[x.s].abbr} 설명</a></small>`).join("")}</dd></div>
         </dl>
         ${terms.length ? `<div class="side-box" style="margin-top:16px"><h4>관련 용어</h4><div class="chips">${terms.map((t) => `<button type="button" class="chip term" data-term="${t}" style="text-decoration:none">${T[t].term}</button>`).join("")}</div></div>` : ""}
         ${w.related.length ? `<div class="side-box"><h4>관련 작품</h4><ul>${w.related.map((r) => `<li><a href="#/works/${r}">${esc(W[r].ko)}</a><br><span class="small muted">${C[W[r].composer].short} · <span class="mono">${esc(catText(W[r]))}</span></span></li>`).join("")}</ul></div>` : ""}
@@ -553,6 +554,9 @@
     } else if ((m = s.match(/^l\.?\s*(\d+)/i))) {
       sys = "l"; seg("L.", "레쥐르 목록 · 드뷔시", true); seg(m[1], `${m[1]}번`);
       text = `드뷔시 작품 목록(레쥐르) ${m[1]}번. 1977년판과 2003년판 번호가 다르니 자료의 기준을 확인하세요.`;
+    } else if ((m = s.match(/^m\.?\s*(\d+)/i))) {
+      sys = "m"; seg("M.", "마르나 목록 · 라벨", true); seg(m[1], `${m[1]}번`);
+      text = `라벨 작품 목록(마르나) ${m[1]}번. 라벨은 Op. 번호를 쓰지 않아 자료에 따라 이 번호 없이 제목만 표기하기도 합니다.`;
     } else if ((m = s.match(/^hwv\s*(\d+)/i))) {
       sys = "hwv"; seg("HWV", "헨델 작품 목록", true); seg(m[1], `${m[1]}번`); text = `헨델 작품 목록 ${m[1]}번.`;
     }
@@ -566,7 +570,7 @@
       <section class="block"><div class="decoder">
         <div class="eyebrow plain" style="margin-bottom:12px">작품 번호 해독기</div>
         <label class="bigsearch">${I.search}<input type="text" data-dec value="Op. 27 No. 2" placeholder="예: Op. 9 No. 2, K. 525, D. 960, BWV 1007, Hob. I:94" aria-label="작품 번호 입력" autocomplete="off" spellcheck="false"></label>
-        <div class="chips" style="margin-top:12px">${["Op. 9 No. 2", "K. 331 (300i)", "D. 899", "BWV 1007", "Hob. I:94", "WoO 59", "RV 269", "S. 541/3", "L. 75"].map((x) => `<button class="chip mono" data-ex="${x}">${x}</button>`).join("")}</div>
+        <div class="chips" style="margin-top:12px">${["Op. 9 No. 2", "K. 331 (300i)", "D. 899", "BWV 1007", "Hob. I:94", "WoO 59", "RV 269", "S. 541/3", "L. 75", "M. 81"].map((x) => `<button class="chip mono" data-ex="${x}">${x}</button>`).join("")}</div>
         <div class="decoded" data-segs></div><div class="decode-out" data-out></div>
       </div></section>
       <section class="block"><div class="block-head"><h2>약어 사전</h2></div>
@@ -582,13 +586,13 @@
       const draw = () => {
         const r = decodeSegs(inp.value);
         $("[data-segs]", root).innerHTML = r.segs || "";
-        $("[data-out]", root).innerHTML = (r.text ? `<p>${r.text} ${r.sys && CAT[r.sys] ? `<a class="lk" href="#/catalog/${r.sys}" data-jump="${r.sys}">${CAT[r.sys].abbr} 설명 ↓</a>` : ""}</p>` : inp.value.trim() ? `<p class="muted">알아볼 수 있는 작품 번호 형식이 아닙니다. Op. / K. / D. / BWV / Hob. / WoO / RV / S. / L. / HWV 로 시작해 보세요.</p>` : "") +
+        $("[data-out]", root).innerHTML = (r.text ? `<p>${r.text} ${r.sys && CAT[r.sys] ? `<a class="lk" href="#/catalog/${r.sys}" data-jump="${r.sys}">${CAT[r.sys].abbr} 설명 ↓</a>` : ""}</p>` : inp.value.trim() ? `<p class="muted">알아볼 수 있는 작품 번호 형식이 아닙니다. Op. / K. / D. / BWV / Hob. / WoO / RV / S. / L. / M. / HWV 로 시작해 보세요.</p>` : "") +
           (r.matches.length ? `<div class="wlist" style="margin-top:12px">${r.matches.map(wrow).join("")}</div>` : r.text ? `<p class="small muted">이 사이트에 정리된 작품 중 일치하는 번호는 없습니다.</p>` : "");
       };
       inp.addEventListener("input", draw);
       root.addEventListener("click", (e) => { const b = e.target.closest("[data-ex]"); if (b) { inp.value = b.dataset.ex; draw(); } });
       draw();
-      if (id && $("#cat-" + id, root)) setTimeout(() => $("#cat-" + id).scrollIntoView({ block: "start" }), 30);
+      if (id && $("#cat-" + id, root)) setTimeout(() => $("#cat-" + id)?.scrollIntoView({ block: "start" }), 30);
     }
   });
 
@@ -645,7 +649,7 @@
       $("[data-gq]", root).oninput = (e) => { q = e.target.value; draw(); };
       root.addEventListener("click", (e) => { const b = e.target.closest("[data-gc]"); if (!b) return; cat = b.dataset.gc; $$("[data-gc]", root).forEach((x) => x.classList.toggle("on", x === b)); draw(); });
       draw();
-      if (id && $("#term-" + id, root)) setTimeout(() => $("#term-" + id).scrollIntoView({ block: "center" }), 30);
+      if (id && $("#term-" + id, root)) setTimeout(() => $("#term-" + id)?.scrollIntoView({ block: "center" }), 30);
     }
   });
 
@@ -661,9 +665,9 @@
   };
   const Q = {
     catalog: [
-      () => { const sys = pick(["k", "d", "bwv", "rv", "s", "l", "woo"], 1)[0]; const map = { k: "mozart", d: "schubert", bwv: "bach", rv: "vivaldi", s: "liszt", l: "debussy", woo: "beethoven" }; const right = C[map[sys]].ko; const { opts, ans } = mcq(right, OA.composers.map((c) => c.ko)); return { text: `작품 번호 <span class="mono">${CAT[sys].abbr}</span>는 주로 어느 작곡가의 작품 목록에 쓰일까요?`, opts, ans, why: `${CAT[sys].abbr} — ${CAT[sys].origin}. ${rich(CAT[sys].desc)}`, link: `#/catalog/${sys}` }; },
-      () => { const w = pick(OA.works.filter((w) => w.cat[0].s !== "op"), 1)[0]; const { opts, ans } = mcq(C[w.composer].ko, OA.composers.map((c) => c.ko)); return { text: `<span class="mono">${esc(w.cat[0].t)}</span> — 이 번호가 붙은 작품의 작곡가는?`, opts, ans, why: `${esc(w.cat[0].t)}는 ${C[w.composer].short}의 〈${esc(w.ko)}〉입니다. ${readCat(w.cat[0])}.`, link: `#/works/${w.id}` }; },
-      () => { const w = pick(OA.works.filter((w) => w.cat[0].s === "op" && /No\./.test(w.cat[0].t)), 1)[0]; const m = w.cat[0].t.match(/Op\. (\d+) No\. (\d+)/); const right = `작품번호 ${m[1]}로 묶인 곡들 중 ${m[2]}번째 곡`; const opts0 = [right, `${m[2]}번째로 작곡된 작품 ${m[1]}개 중 하나`, `작곡가의 ${m[1]}번째 작품의 ${m[2]}악장`, `${m[1]}년에 출판된 ${m[2]}번째 작품`]; const opts = shuffle(opts0); return { text: `${C[w.composer].short}의 〈${esc(w.ko)}〉에 붙은 <span class="mono">${w.cat[0].t}</span>의 뜻으로 가장 알맞은 것은?`, opts, ans: opts.indexOf(right), why: `Op. 번호는 주로 출판과 관련된 작품번호이고, No.는 그 묶음 안의 곡 번호입니다. 작곡 순서나 악장 번호가 아닙니다.`, link: "#/catalog/op" }; },
+      () => { const sys = pick(["k", "d", "bwv", "rv", "s", "l", "woo", "m"], 1)[0]; const map = { k: "mozart", d: "schubert", bwv: "bach", rv: "vivaldi", s: "liszt", l: "debussy", woo: "beethoven", m: "ravel" }; const right = C[map[sys]].ko; const { opts, ans } = mcq(right, OA.composers.map((c) => c.ko)); return { text: `작품 번호 <span class="mono">${CAT[sys].abbr}</span>는 주로 어느 작곡가의 작품 목록에 쓰일까요?`, opts, ans, why: `${CAT[sys].abbr} — ${CAT[sys].origin}. ${rich(CAT[sys].desc)}`, link: `#/catalog/${sys}` }; },
+      () => { const w = pick(OA.works.filter((w) => w.cat[0] && w.cat[0].s !== "op"), 1)[0]; const { opts, ans } = mcq(C[w.composer].ko, OA.composers.map((c) => c.ko)); return { text: `<span class="mono">${esc(w.cat[0].t)}</span> — 이 번호가 붙은 작품의 작곡가는?`, opts, ans, why: `${esc(w.cat[0].t)}는 ${C[w.composer].short}의 〈${esc(w.ko)}〉입니다. ${readCat(w.cat[0])}.`, link: `#/works/${w.id}` }; },
+      () => { const w = pick(OA.works.filter((w) => w.cat[0] && w.cat[0].s === "op" && /No\./.test(w.cat[0].t)), 1)[0]; const m = w.cat[0].t.match(/Op\. (\d+) No\. (\d+)/); const right = `작품번호 ${m[1]}로 묶인 곡들 중 ${m[2]}번째 곡`; const opts0 = [right, `${m[2]}번째로 작곡된 작품 ${m[1]}개 중 하나`, `작곡가의 ${m[1]}번째 작품의 ${m[2]}악장`, `${m[1]}년에 출판된 ${m[2]}번째 작품`]; const opts = shuffle(opts0); return { text: `${C[w.composer].short}의 〈${esc(w.ko)}〉에 붙은 <span class="mono">${w.cat[0].t}</span>의 뜻으로 가장 알맞은 것은?`, opts, ans: opts.indexOf(right), why: `Op. 번호는 주로 출판과 관련된 작품번호이고, No.는 그 묶음 안의 곡 번호입니다. 작곡 순서나 악장 번호가 아닙니다.`, link: "#/catalog/op" }; },
       () => { const right = "Opus 번호가 없는 작품을 분류하는 표기"; const opts = shuffle([right, "작곡가가 가치가 낮다고 본 습작", "작곡가 사후에 발견된 위작", "오페라 작품만 따로 모은 번호"]); return { text: `베토벤 〈엘리제를 위하여〉의 <span class="mono">WoO 59</span>에서 WoO가 뜻하는 것은?`, opts, ans: opts.indexOf(right), why: "Werk ohne Opuszahl — ‘작품번호 없는 작품’. 가치와는 무관합니다.", link: "#/catalog/woo" }; }
     ],
     era: [

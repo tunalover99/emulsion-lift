@@ -77,9 +77,9 @@ OA.eras = [
       "문학·회화·자연에서 영감을 얻은 표제음악",
       "[[t:rubato|루바토]] 등 자유로운 템포 표현"
     ],
-    people: ["로베르트 슈만 (1810–1856)", "펠릭스 멘델스존 (1809–1847)", "요하네스 브람스 (1833–1897)", "리하르트 바그너 (1813–1883)", "주세페 베르디 (1813–1901)", "구스타프 말러 (1860–1911)"],
-    landmarks: ["[[w:schubert-winterreise|슈베르트 〈겨울 나그네〉]]", "[[w:chopin-ballade-1|쇼팽 발라드 1번]]", "바그너 〈트리스탄과 이졸데〉", "[[w:tchaikovsky-symphony-6|차이콥스키 교향곡 6번 〈비창〉]]"],
-    composers: ["schubert", "chopin", "liszt", "tchaikovsky", "rachmaninoff"],
+    people: ["로베르트 슈만 (1810–1856)", "펠릭스 멘델스존 (1809–1847)", "리하르트 바그너 (1813–1883)", "주세페 베르디 (1813–1901)", "구스타프 말러 (1860–1911)"],
+    landmarks: ["[[w:schubert-winterreise|슈베르트 〈겨울 나그네〉]]", "[[w:chopin-ballade-1|쇼팽 발라드 1번]]", "바그너 〈트리스탄과 이졸데〉", "[[w:brahms-symphony-4|브람스 교향곡 4번]]", "[[w:tchaikovsky-symphony-6|차이콥스키 교향곡 6번 〈비창〉]]"],
+    composers: ["schubert", "chopin", "liszt", "brahms", "tchaikovsky", "rachmaninoff"],
     note: "슈베르트는 생몰 연대상 베토벤과 겹치지만 가곡과 화성 감각 때문에 초기 낭만주의로 분류하는 경우가 많습니다. 라흐마니노프는 20세기까지 활동했지만 후기 낭만주의 어법을 지켰습니다."
   },
   {
@@ -93,9 +93,9 @@ OA.eras = [
       "음색(악기의 색깔) 자체가 중요한 재료",
       "자연·풍경·시에서 가져온 표제"
     ],
-    people: ["모리스 라벨 (1875–1937)", "에릭 사티 (1866–1925)"],
-    landmarks: ["[[w:debussy-faune|드뷔시 〈목신의 오후에의 전주곡〉]] (1894)", "[[w:debussy-la-mer|드뷔시 〈바다〉]]", "라벨 〈볼레로〉 (1928)"],
-    composers: ["debussy"],
+    people: ["에릭 사티 (1866–1925)", "가브리엘 포레 (1845–1924) — 라벨의 스승"],
+    landmarks: ["[[w:debussy-faune|드뷔시 〈목신의 오후에의 전주곡〉]] (1894)", "[[w:debussy-la-mer|드뷔시 〈바다〉]]", "[[w:ravel-bolero|라벨 〈볼레로〉]] (1928)", "[[w:ravel-daphnis|라벨 〈다프니스와 클로에〉]] (1912)"],
+    composers: ["debussy", "ravel"],
     note: "‘인상주의’는 독립된 시대라기보다 후기 낭만주의와 20세기 사이에 걸친 양식 이름에 가깝습니다."
   },
   {
@@ -110,9 +110,9 @@ OA.eras = [
       "미니멀리즘: 짧은 패턴의 반복과 점진적 변화",
       "전자음악·확장 기법 등 새로운 소리의 탐구"
     ],
-    people: ["이고르 스트라빈스키 (1882–1971)", "아르놀트 쇤베르크 (1874–1951)", "세르게이 프로코피예프 (1891–1953)", "드미트리 쇼스타코비치 (1906–1975)", "올리비에 메시앙 (1908–1992)", "윤이상 (1917–1995)", "스티브 라이히 (1936– )", "아르보 패르트 (1935– )", "진은숙 (1961– )"],
-    landmarks: ["스트라빈스키 〈봄의 제전〉 (1913)", "쇤베르크 〈달에 홀린 피에로〉 (1912)", "메시앙 〈시간의 종말을 위한 4중주〉 (1941)", "라이히 〈18인의 음악가를 위한 음악〉 (1976)"],
-    composers: []
+    people: ["아르놀트 쇤베르크 (1874–1951)", "세르게이 프로코피예프 (1891–1953)", "드미트리 쇼스타코비치 (1906–1975)", "올리비에 메시앙 (1908–1992)", "윤이상 (1917–1995)", "스티브 라이히 (1936– )", "아르보 패르트 (1935– )", "진은숙 (1961– )"],
+    landmarks: ["[[w:stravinsky-rite|스트라빈스키 〈봄의 제전〉]] (1913)", "쇤베르크 〈달에 홀린 피에로〉 (1912)", "메시앙 〈시간의 종말을 위한 4중주〉 (1941)", "라이히 〈18인의 음악가를 위한 음악〉 (1976)"],
+    composers: ["stravinsky"]
   }
 ];
 
@@ -148,6 +148,9 @@ OA.catalogs = [
   { id: "l", abbr: "L.", origin: "Lesure 목록", read: "레쥐르", who: "[[c:debussy|드뷔시]]",
     desc: "프랑수아 레쥐르가 정리한 드뷔시 작품 목록입니다. 1977년판과 2003년 개정판의 번호가 달라서, 같은 작품도 자료마다 L. 번호가 다르게 보일 수 있습니다. 이 사이트는 1977년판 번호를 씁니다.",
     example: "[[w:debussy-clair-de-lune|〈달빛〉 — 〈베르가마스크 모음곡〉, L. 75]]" },
+  { id: "m", abbr: "M.", origin: "Marnat 목록 (마르나 목록)", read: "엠 / 마르나", who: "[[c:ravel|라벨]]",
+    desc: "음악학자 마르셀 마르나가 1986년 정리한 라벨 작품 목록입니다. 라벨은 생전에 Op. 번호를 쓰지 않았기 때문에, 자료에 따라 M. 번호를 붙이거나 번호 없이 제목만 쓰기도 합니다.",
+    example: "[[w:ravel-bolero|〈볼레로〉, M. 81]]" },
   { id: "hwv", abbr: "HWV", origin: "Händel-Werke-Verzeichnis", read: "하-베-파우", who: "헨델",
     desc: "헨델 작품 목록입니다. 오라토리오 〈메시아〉는 HWV 56입니다.", example: "헨델 〈메시아〉, HWV 56" },
   { id: "posth", abbr: "Op. posth.", origin: "라틴어 posthumus (사후의)", read: "오푸스 포스투뭄 / 유작", who: "쇼팽, 슈베르트 등",
@@ -160,7 +163,8 @@ OA.catalogNotes = [
   "같은 작품에 Op. 번호와 별도 목록 번호가 함께 붙을 수 있습니다. 예: 슈베르트 즉흥곡 D. 899 / Op. 90.",
   "K.와 KV는 같은 쾨헬 목록을 가리키는 표기입니다.",
   "WoO는 작품의 가치가 낮다는 뜻이 아니라, Opus 번호가 없는 작품을 구분하는 표기입니다.",
-  "작품 번호 체계와 표기 관습은 작곡가와 시대, 목록의 판본에 따라 다를 수 있습니다."
+  "작품 번호 체계와 표기 관습은 작곡가와 시대, 목록의 판본에 따라 다를 수 있습니다.",
+  "[[c:stravinsky|스트라빈스키]]처럼 표준 작품 목록이 없는 작곡가도 있습니다. 이때는 제목과 작곡 연도(필요하면 개정판 연도)로 작품을 구별합니다."
 ];
 
 /* ---------- Four axes (brief §3) ---------- */
@@ -342,6 +346,6 @@ OA.path = [
   { id: "start", ko: "완전 초보", desc: "클래식을 나누는 네 가지 축 이해하기", route: "#/map", check: ["map"] },
   { id: "theory", ko: "음악 이론 기초", desc: "장·단조, 조성, 박자, 템포", route: "#/theory", check: ["theory/major-minor", "theory/key", "theory/time-signature", "theory/tempo"] },
   { id: "history", ko: "시대별 음악사", desc: "바로크부터 20세기까지", route: "#/eras", check: ["eras/baroque", "eras/classical", "eras/romantic"] },
-  { id: "works", ko: "작곡가별 작품", desc: "작품 번호를 읽고 대표작 듣기", route: "#/composers", check: ["catalog", "composers/bach", "composers/mozart", "composers/chopin"] },
+  { id: "works", ko: "작곡가별 작품", desc: "작품 번호를 읽고 대표작 듣기", route: "#/composers", check: ["catalog", "composers/bach", "composers/mozart", "composers/beethoven", "composers/chopin", "composers/brahms"] },
   { id: "perf", ko: "명연주 감상", desc: "같은 곡, 다른 연주 비교하기", route: "#/recordings", check: ["recordings"] }
 ];
