@@ -1,0 +1,1182 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>어제 뭐 입었지</title>
+<meta name="description" content="매일 입은 옷을 캘린더에 기록하고, 옷 피스를 하나씩 모아 옷장을 만들고, 그걸로 코디해 보는 웹앱.">
+<meta name="theme-color" content="#f7f5f0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="어제 뭐 입었지">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --paper:#f7f5f0;
+  --card:#ffffff;
+  --ink:#1b1a18;
+  --muted:#8b877f;
+  --faint:#d9d5cc;
+  --red:#d42a1f;
+  --red-soft:#fbe9e6;
+  --f-sans:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+  --f-serif:"Instrument Serif","Times New Roman",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-sans);font-size:14px;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+img{display:block;-webkit-user-drag:none;user-select:none}
+.mono{font-family:var(--f-mono);font-size:11px;letter-spacing:.02em}
+.serif{font-family:var(--f-serif);font-weight:400}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:20px;padding:14px 24px;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--red)}
+.brand{font-family:var(--f-serif);font-size:26px;line-height:1;white-space:nowrap}
+.brand i{color:var(--red)}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tab{padding:7px 14px;border-radius:999px;font-weight:500;color:var(--muted)}
+.tab[aria-selected=true]{background:var(--ink);color:#fff}
+.iconbtn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center}
+.iconbtn:hover{background:#0000000d}
+.menu{position:absolute;right:16px;top:58px;background:#fff;border:1px solid var(--faint);border-radius:12px;padding:6px;box-shadow:0 12px 30px #0002;min-width:190px;z-index:40}
+.menu button{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:8px}
+.menu button:hover{background:var(--paper)}
+.menu .danger{color:var(--red)}
+
+main{max-width:1440px;margin:0 auto;padding:20px 24px 40px}
+.view{display:none}
+.view.on{display:block}
+
+/* ---------- calendar ---------- */
+.cal-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,1fr);gap:32px;align-items:start}
+.cal-head{display:flex;align-items:flex-end;gap:12px;margin-bottom:12px}
+.cal-title{font-family:var(--f-serif);font-size:56px;line-height:.9;letter-spacing:-.01em}
+.cal-title small{font-size:22px;color:var(--muted);margin-left:6px}
+.cal-nav{margin-left:auto;display:flex;gap:4px;align-items:center}
+.pill{border:1px solid var(--ink);border-radius:999px;padding:6px 12px;font-weight:500;white-space:nowrap}
+.pill.red{border-color:var(--red);color:var(--red)}
+.pill.solid{background:var(--ink);color:#fff}
+.pill.red.solid{background:var(--red);color:#fff}
+.tagbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 12px;min-height:28px}
+.chip{border:1px solid var(--faint);background:#fff;border-radius:999px;padding:4px 10px;font-size:12px;white-space:nowrap}
+.chip.on{border-color:var(--red);background:var(--red);color:#fff}
+.taghint{font-size:12px;color:var(--red);margin-left:4px}
+.taghint button{text-decoration:underline;color:inherit}
+
+.weekdays,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.weekdays div{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--red);padding:0 0 6px 6px}
+.grid{border-top:1px solid var(--red);border-left:1px solid var(--red)}
+.cell{position:relative;aspect-ratio:4/5;border-right:1px solid var(--red);border-bottom:1px solid var(--red);text-align:left;overflow:hidden;background:transparent;transition:background .12s}
+.cell:hover{background:#ffffff90}
+.cell .num{position:absolute;left:6px;top:5px;font-family:var(--f-mono);font-size:11px;z-index:2;min-width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%}
+.cell.today .num{background:var(--red);color:#fff}
+.cell.out{color:var(--faint)}
+.cell.out .thumb{opacity:.35}
+.cell.sel{background:var(--red-soft)}
+.cell.sel::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 2px var(--red);pointer-events:none}
+.cell.dim .thumb,.cell.dim .tagmark{opacity:.15}
+.cell .thumb{position:absolute;inset:14% 6% 12%;width:88%;height:74%;object-fit:contain;filter:drop-shadow(0 3px 3px #0002)}
+.cell .thumb.photo{inset:0;width:100%;height:100%;object-fit:cover;filter:none}
+.cell .tagmark{position:absolute;left:6px;right:6px;bottom:4px;font-size:10px;color:var(--red);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2}
+.cell .thumb.photo~.tagmark{color:#fff;text-shadow:0 1px 2px #0008}
+.cell .thumb.photo~.num{color:#fff;text-shadow:0 1px 2px #0008}
+.cell.today .thumb.photo~.num{text-shadow:none}
+
+/* ---------- day pane ---------- */
+.day-pane{position:sticky;top:84px;background:var(--card);border:1px solid var(--faint);border-radius:18px;padding:20px;max-height:calc(100vh - 104px);overflow:auto}
+.dp-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dp-date{font-family:var(--f-serif);font-size:44px;line-height:1}
+.dp-dow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em}
+.dp-rel{color:var(--red);font-weight:600;font-size:13px}
+.dp-close{margin-left:auto;display:none}
+.dp-figs{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0}
+.dp-figs.two{grid-template-columns:1fr 1fr}
+.dp-fig{position:relative;aspect-ratio:4/5;border-radius:12px;background:var(--paper);overflow:hidden}
+.dp-fig img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 8px #0002)}
+.dp-fig img.photo{object-fit:cover;filter:none}
+.dp-fig .lbl{position:absolute;left:10px;top:8px}
+.empty-fig{aspect-ratio:4/5;border:1px dashed var(--red);border-radius:12px;display:grid;place-items:center;text-align:center;color:var(--red);padding:20px;margin:14px 0}
+.empty-fig .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.warn{background:var(--red-soft);color:var(--red);border-radius:10px;padding:10px 12px;font-size:13px;margin:0 0 12px;line-height:1.45}
+.ok{background:#eef3ea;color:#3c6a2e;border-radius:10px;padding:10px 12px;font-size:13px;margin:0 0 12px}
+.plist{list-style:none;padding:0;margin:0 0 14px;border-top:1px solid var(--faint)}
+.plist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--faint)}
+.plist img{width:38px;height:38px;object-fit:contain}
+.plist .n{font-family:var(--f-mono);font-size:11px;color:var(--red);width:26px}
+.plist .meta{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
+.sec-label{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);margin:14px 0 6px;text-transform:uppercase}
+.tagrow{display:flex;gap:6px;flex-wrap:wrap}
+.tagrow input{border:1px dashed var(--faint);border-radius:999px;padding:4px 10px;font-size:12px;width:96px;background:transparent;outline:none}
+textarea.memo{width:100%;min-height:70px;border:1px solid var(--faint);border-radius:10px;padding:10px;resize:vertical;background:var(--paper);outline:none}
+textarea.memo:focus{border-color:var(--ink)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.yhint{margin-top:16px;padding-top:12px;border-top:1px solid var(--faint);display:flex;gap:12px;align-items:center}
+.yhint img{width:70px;height:88px;object-fit:contain;background:var(--paper);border-radius:8px}
+.backdrop{position:fixed;inset:0;background:#0004;z-index:29}
+
+/* ---------- closet ---------- */
+.v-head{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--red);padding-bottom:12px}
+.v-title{font-family:var(--f-serif);font-size:56px;line-height:.9}
+.v-title small{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-left:8px;vertical-align:middle}
+.v-tools{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+select.sel{border:1px solid var(--faint);border-radius:999px;padding:6px 10px;background:#fff}
+.catbar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.catbar::-webkit-scrollbar{display:none}
+.closet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0;border-top:1px solid var(--faint);border-left:1px solid var(--faint)}
+.piece{position:relative;border-right:1px solid var(--faint);border-bottom:1px solid var(--faint);aspect-ratio:1/1.15;padding:10px;text-align:left;display:flex;flex-direction:column}
+.piece:hover{background:#fff}
+.piece .idx{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+.piece img{flex:1;min-height:0;width:100%;object-fit:contain;filter:drop-shadow(0 5px 6px #0002);padding:6px 4px}
+.piece .nm{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.piece .st{font-size:11px;color:var(--muted)}
+.piece .st b{color:var(--red);font-weight:600}
+.piece.add{align-items:center;justify-content:center;color:var(--red);gap:6px}
+.piece.add .plus{font-family:var(--f-serif);font-size:56px;line-height:1}
+.empty-state{padding:60px 20px;text-align:center;color:var(--muted)}
+.empty-state svg{width:120px;height:120px;margin:0 auto 10px;display:block}
+
+/* looks */
+.looks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.look{background:#fff;border:1px solid var(--faint);border-radius:14px;padding:10px;text-align:left}
+.look .img{aspect-ratio:4/5;background:var(--paper);border-radius:10px;overflow:hidden}
+.look img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 6px #0002)}
+.look .nm{margin-top:8px;font-weight:500}
+.look .st{font-size:11px;color:var(--muted)}
+.look.add{display:grid;place-items:center;color:var(--red);border:1px dashed var(--red);background:transparent;min-height:260px}
+
+/* ---------- full-screen modal ---------- */
+.modal{position:fixed;inset:0;z-index:50;background:var(--paper);display:flex;flex-direction:column}
+.m-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--red);background:var(--paper)}
+.m-bar h2{margin:0;font-family:var(--f-serif);font-weight:400;font-size:28px;line-height:1}
+.m-bar .sp{flex:1}
+.m-bar input[type=date],.m-bar input[type=text]{border:1px solid var(--faint);border-radius:999px;padding:6px 10px;background:#fff}
+.m-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 380px}
+.stage-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;min-height:0;gap:10px}
+.stage{position:relative;aspect-ratio:4/5;height:min(100%,calc((100vw - 420px) * 1.25));max-height:calc(100vh - 170px);max-width:100%;background:#fff;border:1px solid var(--red);border-radius:6px;overflow:hidden;touch-action:none}
+.stage .hint{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);text-align:center;padding:30px;pointer-events:none}
+.stage .sp{position:absolute;transform:translate(-50%,-50%);touch-action:none;cursor:grab}
+.stage .sp img{width:100%;filter:drop-shadow(0 6px 7px #0003);pointer-events:none}
+.stage .sp.sel{outline:1px dashed var(--red);outline-offset:4px}
+.stage-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;min-height:36px}
+.stage-tools input[type=range]{width:120px;accent-color:var(--red)}
+.drawer{border-left:1px solid var(--faint);background:#fff;display:flex;flex-direction:column;min-height:0}
+.drawer .catbar{padding:12px 12px 4px;margin:0}
+.drawer-grid{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 12px 16px;align-content:start}
+.dp{position:relative;aspect-ratio:1;border-radius:10px;background:var(--paper);padding:6px;border:1px solid transparent}
+.dp img{width:100%;height:100%;object-fit:contain}
+.dp.in{border-color:var(--red);background:var(--red-soft)}
+.dp .badge{position:absolute;left:4px;top:4px;background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:999px;font-weight:600}
+.dp .check{position:absolute;right:5px;top:4px;color:var(--red);font-weight:700}
+.drawer-foot{padding:10px 12px calc(10px + var(--safe-b));border-top:1px solid var(--faint);display:flex;gap:8px;align-items:center;font-size:12px}
+.drawer-foot label{display:flex;gap:6px;align-items:center}
+
+/* piece editor */
+.ed-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 340px}
+.ed-canvas-wrap{display:grid;place-items:center;padding:16px;min-height:0;overflow:hidden}
+.checker{background-color:#fff;background-image:linear-gradient(45deg,#eee 25%,transparent 25%),linear-gradient(-45deg,#eee 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eee 75%),linear-gradient(-45deg,transparent 75%,#eee 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+#edCanvas{max-width:100%;max-height:calc(100vh - 110px);border-radius:6px;touch-action:none;box-shadow:0 0 0 1px var(--faint)}
+.ed-side{border-left:1px solid var(--faint);background:#fff;padding:16px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.ed-side .sec-label{margin-top:10px}
+.field{width:100%;border:1px solid var(--faint);border-radius:10px;padding:9px 10px;background:var(--paper);outline:none}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--ink);border-radius:999px;overflow:hidden}
+.seg button{padding:7px 0;font-size:13px}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+.rangerow{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+.rangerow input{flex:1;accent-color:var(--red)}
+.ed-pick{display:grid;place-items:center;text-align:center;color:var(--muted);gap:12px}
+.catpick{display:flex;flex-wrap:wrap;gap:6px}
+
+/* sheet (item detail / look detail) */
+.sheet{position:fixed;z-index:45;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 60px);overflow:auto;background:#fff;border-radius:18px;padding:20px;box-shadow:0 30px 80px #0003}
+.sheet .big{aspect-ratio:1;background:var(--paper);border-radius:12px;padding:20px;margin-bottom:12px}
+.sheet .big img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px #0002)}
+.dates{display:flex;gap:6px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(84px + var(--safe-b));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;z-index:90;font-size:13px;pointer-events:none;opacity:0;transition:opacity .2s}
+.toast.on{opacity:1}
+
+.bottombar{display:none}
+
+/* ---------- mobile ---------- */
+@media (max-width:860px){
+  .top{padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top,0px))}
+  .brand{font-size:22px}
+  .tabs{display:none}
+  .top .sp{flex:1}
+  main{padding:12px 16px calc(90px + var(--safe-b))}
+  .cal-layout{display:block}
+  .cal-title{font-size:40px}
+  .cal-title small{font-size:16px}
+  .cell{aspect-ratio:3/4}
+  .cell .num{font-size:10px;left:3px;top:3px;min-width:18px;height:18px;line-height:18px}
+  .cell .tagmark{font-size:9px;left:3px;bottom:2px}
+  .cell .thumb{inset:17% 4% 17%;width:92%;height:66%}
+  .day-pane{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:30;border-radius:20px 20px 0 0;max-height:88vh;padding:16px 16px calc(24px + var(--safe-b));transform:translateY(105%);transition:transform .25s ease;border:0;box-shadow:0 -10px 40px #0002}
+  .day-pane.open{transform:none}
+  .day-pane::before{content:"";display:block;width:40px;height:4px;border-radius:4px;background:var(--faint);margin:-6px auto 10px}
+  .dp-close{display:grid}
+  .dp-date{font-size:36px}
+  .dp-figs:not(.two){max-width:300px;margin-left:auto;margin-right:auto}
+  .empty-fig{aspect-ratio:auto;min-height:200px}
+  .v-title{font-size:40px}
+  .closet-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .piece{padding:6px}
+  .piece .nm{font-size:12px}
+  .looks-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .bottombar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:25;background:#fffffff2;backdrop-filter:blur(8px);border-top:1px solid var(--red);padding:6px 6px calc(6px + var(--safe-b))}
+  .bottombar button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted);padding:4px 0}
+  .bottombar button[aria-selected=true]{color:var(--red)}
+  .bottombar .rec{color:#fff}
+  .bottombar .rec span.c{width:44px;height:44px;border-radius:50%;background:var(--red);display:grid;place-items:center;margin-top:-18px;box-shadow:0 4px 12px #d42a1f55}
+  .bottombar .rec span.t{color:var(--red)}
+  .m-body,.ed-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .stage-wrap{padding:10px 10px 6px}
+  .stage{height:auto;width:min(100%,calc(38vh * .8));max-height:none}
+  .drawer{border-left:0;border-top:1px solid var(--faint)}
+  .drawer-grid{grid-template-columns:repeat(4,1fr)}
+  .m-bar h2{font-size:22px;white-space:nowrap}
+  .m-bar{padding:8px 12px;padding-top:calc(8px + env(safe-area-inset-top,0px));gap:6px}
+  .m-bar .sp{display:none}
+  .m-bar input[type=date],.m-bar input[type=text]{flex:1;min-width:0;font-size:13px;padding:5px 8px}
+  #composer .m-bar h2{display:none}
+  .ed-canvas-wrap{padding:10px;max-height:50vh}
+  #edCanvas{max-height:calc(50vh - 20px)}
+  .ed-side{border-left:0;border-top:1px solid var(--faint);padding-bottom:calc(16px + var(--safe-b))}
+  .sheet{left:0;right:0;bottom:0;top:auto;transform:none;width:auto;border-radius:20px 20px 0 0;max-height:88vh;padding-bottom:calc(20px + var(--safe-b))}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">어제 뭐 <i>입었지</i></div>
+  <span class="sp"></span>
+  <nav class="tabs" role="tablist">
+    <button class="tab" data-view="cal" role="tab">캘린더</button>
+    <button class="tab" data-view="closet" role="tab">옷장</button>
+    <button class="tab" data-view="looks" role="tab">코디</button>
+  </nav>
+  <button class="iconbtn" id="menuBtn" aria-label="메뉴">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+  </button>
+  <div class="menu" id="menu" hidden>
+    <button data-act="export">백업 파일 내보내기</button>
+    <button data-act="import">백업 파일 가져오기</button>
+    <button data-act="demo">예시 옷장 채워 보기</button>
+    <button data-act="wipe" class="danger">모든 기록 지우기</button>
+  </div>
+</header>
+
+<main>
+  <!-- CALENDAR -->
+  <section class="view" id="view-cal">
+    <div class="cal-layout">
+      <div>
+        <div class="cal-head">
+          <div class="cal-title" id="calTitle"></div>
+          <div class="cal-nav">
+            <button class="iconbtn" id="prevM" aria-label="이전 달">‹</button>
+            <button class="pill" id="todayBtn">오늘</button>
+            <button class="iconbtn" id="nextM" aria-label="다음 달">›</button>
+          </div>
+        </div>
+        <div class="tagbar" id="tagbar"></div>
+        <div class="weekdays"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>
+        <div class="grid" id="grid"></div>
+      </div>
+      <aside class="day-pane" id="dayPane"></aside>
+    </div>
+  </section>
+
+  <!-- CLOSET -->
+  <section class="view" id="view-closet">
+    <div class="v-head">
+      <div class="v-title">Closet<small id="closetCount"></small></div>
+      <div class="v-tools">
+        <select class="sel" id="sortSel">
+          <option value="new">최근 추가순</option>
+          <option value="stale">안 입은 지 오래된 순</option>
+          <option value="most">많이 입은 순</option>
+          <option value="least">적게 입은 순</option>
+        </select>
+        <button class="pill red solid" id="addPieceBtn">+ 옷 추가</button>
+      </div>
+    </div>
+    <div class="catbar" id="closetCats"></div>
+    <div id="closetBody"></div>
+  </section>
+
+  <!-- LOOKS -->
+  <section class="view" id="view-looks">
+    <div class="v-head">
+      <div class="v-title">Looks<small id="looksCount"></small></div>
+      <div class="v-tools"><button class="pill red solid" id="newLookBtn">+ 새 코디</button></div>
+    </div>
+    <div id="looksBody"></div>
+  </section>
+</main>
+
+<nav class="bottombar" role="tablist">
+  <button data-view="cal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>캘린더</button>
+  <button data-view="closet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 6a2 2 0 1 0-2-2M12 6v2L3 15h18l-9-7"/></svg>옷장</button>
+  <button class="rec" id="recBtn"><span class="c"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></span><span class="t">오늘 기록</span></button>
+  <button data-view="looks"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>코디</button>
+</nav>
+
+<div class="backdrop" id="backdrop" hidden></div>
+
+<!-- COMPOSER -->
+<div class="modal" id="composer" hidden>
+  <div class="m-bar">
+    <button class="iconbtn" data-close aria-label="닫기">✕</button>
+    <h2 id="cmpTitle">코디</h2>
+    <span class="sp"></span>
+    <input type="date" id="cmpDate">
+    <input type="text" id="cmpName" placeholder="코디 이름" hidden>
+    <button class="pill red solid" id="cmpSave">저장</button>
+  </div>
+  <div class="m-body">
+    <div class="stage-wrap">
+      <div class="stage" id="stage"><div class="hint" id="stageHint">옆 옷장에서 오늘 입은 피스를 눌러 담아 주세요.<br>끌어서 위치를 옮길 수 있어요.</div></div>
+      <div class="stage-tools">
+        <span id="selTools" hidden style="display:contents">
+          <span class="mono">크기</span><input type="range" id="selSize" min="8" max="90">
+          <button class="pill" id="selFront">앞으로</button>
+          <button class="pill red" id="selRemove">빼기</button>
+        </span>
+        <span id="stageTools" style="display:contents">
+          <button class="pill" id="autoArrange">자동 정렬</button>
+          <button class="pill" id="clearStage">비우기</button>
+        </span>
+      </div>
+    </div>
+    <div class="drawer">
+      <div class="catbar" id="drawerCats"></div>
+      <div class="drawer-grid" id="drawerGrid"></div>
+      <div class="drawer-foot">
+        <label id="alsoLookWrap"><input type="checkbox" id="alsoLook"> 코디 목록에도 저장</label>
+        <span class="sp" style="flex:1"></span>
+        <button class="pill" id="drawerAdd">+ 옷 추가</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PIECE EDITOR -->
+<div class="modal" id="editor" hidden>
+  <div class="m-bar">
+    <button class="iconbtn" data-close aria-label="닫기">✕</button>
+    <h2>새 피스</h2>
+    <span class="sp"></span>
+    <button class="pill red solid" id="edSave" disabled>옷장에 넣기</button>
+  </div>
+  <div class="ed-body">
+    <div class="ed-canvas-wrap checker" id="edWrap">
+      <div class="ed-pick" id="edPick">
+        <svg width="90" height="90" viewBox="0 0 100 100"><path fill="#d42a1f" d="M30 15 L42 10 Q50 16 58 10 L70 15 L88 30 L78 42 L70 36 L70 90 L30 90 L30 36 L22 42 L12 30 Z"/></svg>
+        <div>옷을 바닥이나 벽에 펼쳐 두고<br>한 장 찍어 주세요. 배경을 지워 피스로 만들어요.</div>
+        <button class="pill red solid" id="edChoose">사진 고르기 / 찍기</button>
+      </div>
+      <canvas id="edCanvas" hidden></canvas>
+    </div>
+    <div class="ed-side">
+      <div class="sec-label">배경 지우기</div>
+      <div class="rangerow">민감도 <input type="range" id="edTol" min="8" max="120" value="42"> <span id="edTolV" class="mono">42</span></div>
+      <div style="display:flex;gap:6px">
+        <button class="pill red" id="edAuto" style="flex:1">자동으로 지우기</button>
+        <button class="pill" id="edReset">원본</button>
+      </div>
+      <div class="sec-label">손으로 다듬기</div>
+      <div class="seg" id="edTool">
+        <button data-t="none" aria-pressed="true">보기</button>
+        <button data-t="erase">지우개</button>
+        <button data-t="restore">되살리기</button>
+      </div>
+      <div class="rangerow">브러시 <input type="range" id="edBrush" min="4" max="80" value="24"></div>
+      <div class="sec-label">이름</div>
+      <input class="field" id="edName" placeholder="예) 회색 니트, 와이드 데님">
+      <div class="sec-label">종류</div>
+      <div class="catpick" id="edCats"></div>
+      <div class="sec-label">메모 (브랜드·구매처 등)</div>
+      <input class="field" id="edNote" placeholder="선택">
+      <button class="pill" id="edAnother" style="margin-top:12px">다른 사진으로</button>
+    </div>
+  </div>
+</div>
+
+<div id="sheetHost"></div>
+<input type="file" id="fileIn" accept="image/*" hidden>
+<input type="file" id="photoIn" accept="image/*" hidden>
+<input type="file" id="importIn" accept="application/json,.json" hidden>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== basics ===================== */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const pad = n => String(n).padStart(2, '0');
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseKey = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); };
+const diffDays = (a, b) => Math.round((parseKey(a) - parseKey(b)) / 864e5);
+const todayKey = () => keyOf(new Date());
+const addDays = (k, n) => { const d = parseKey(k); d.setDate(d.getDate() + n); return keyOf(d); };
+const DOW = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const fmtMD = k => { const d = parseKey(k); return `${d.getMonth()+1}.${pad(d.getDate())}`; };
+function relLabel(k){
+  const n = diffDays(todayKey(), k);
+  if (n === 0) return '오늘'; if (n === 1) return '어제'; if (n === 2) return '그저께';
+  if (n === -1) return '내일'; if (n > 0) return `${n}일 전`; return `${-n}일 후`;
+}
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 1800); }
+
+const CATS = [['top','상의'],['outer','아우터'],['bottom','하의'],['dress','원피스'],['shoes','신발'],['bag','가방'],['acc','액세서리'],['etc','기타']];
+const CAT = Object.fromEntries(CATS);
+const DEFAULT_TAGS = ['알바','학교','출근','약속','데이트','집콕'];
+
+/* ===================== storage (IndexedDB) ===================== */
+const DB = (() => {
+  let dbp;
+  const open = () => dbp ||= new Promise((res, rej) => {
+    const r = indexedDB.open('ootd-log', 1);
+    r.onupgradeneeded = () => { for (const s of ['items','days','looks','blobs']) if (!r.result.objectStoreNames.contains(s)) r.result.createObjectStore(s); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+  async function run(store, mode, fn){
+    const d = await open();
+    return new Promise((res, rej) => {
+      const t = d.transaction(store, mode); const req = fn(t.objectStore(store));
+      t.oncomplete = () => res(req && 'result' in req ? req.result : undefined);
+      t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+    });
+  }
+  return {
+    get: (s,k) => run(s,'readonly', st => st.get(k)),
+    put: (s,k,v) => run(s,'readwrite', st => st.put(v,k)),
+    del: (s,k) => run(s,'readwrite', st => st.delete(k)),
+    clear: s => run(s,'readwrite', st => st.clear()),
+    async all(s){
+      const d = await open();
+      return new Promise((res, rej) => {
+        const t = d.transaction(s); const st = t.objectStore(s); const ks = st.getAllKeys(), vs = st.getAll();
+        t.oncomplete = () => res(ks.result.map((k,i) => [k, vs.result[i]])); t.onerror = () => rej(t.error);
+      });
+    }
+  };
+})();
+
+const S = { items: new Map(), days: new Map(), looks: new Map(), view: 'cal', month: new Date(), sel: todayKey(), tag: null, closetCat: 'all', sort: 'new' };
+const URLS = new Map();
+const U = id => URLS.get(id) || '';
+async function putBlob(blob){ const id = 'b_' + uid(); await DB.put('blobs', id, blob); URLS.set(id, URL.createObjectURL(blob)); return id; }
+async function delBlob(id){ if (!id) return; await DB.del('blobs', id); const u = URLS.get(id); if (u) URL.revokeObjectURL(u); URLS.delete(id); }
+
+async function loadAll(){
+  for (const [k,v] of await DB.all('blobs')) URLS.set(k, URL.createObjectURL(v));
+  S.items = new Map(await DB.all('items'));
+  S.days = new Map(await DB.all('days'));
+  S.looks = new Map(await DB.all('looks'));
+  for (const [id, it] of S.items) if (!it.ar && U(it.img)){ try { const im = await loadImg(U(it.img)); it.ar = im.naturalHeight / im.naturalWidth; DB.put('items', id, it); } catch {} }
+  reindex();
+}
+
+/* wear index: itemId -> sorted date keys */
+let WORN = new Map();
+function reindex(){
+  WORN = new Map();
+  for (const [k, d] of S.days) for (const p of d.pieces || []) { if (!WORN.has(p.id)) WORN.set(p.id, []); WORN.get(p.id).push(k); }
+  for (const a of WORN.values()) a.sort();
+}
+const wornDates = id => WORN.get(id) || [];
+function lastWornBefore(id, k){ const a = wornDates(id); for (let i = a.length - 1; i >= 0; i--) if (a[i] < k) return a[i]; return null; }
+function lastWorn(id){ const a = wornDates(id).filter(d => d <= todayKey()); return a[a.length-1] || null; }
+
+/* ===================== images ===================== */
+function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+const toBlob = (c, type='image/png', q) => new Promise(r => c.toBlob(r, type, q));
+async function fileToImage(file){ const u = URL.createObjectURL(file); try { return await loadImg(u); } finally { setTimeout(() => URL.revokeObjectURL(u), 1000); } }
+async function downscaleToBlob(file, max=1400){
+  const img = await fileToImage(file);
+  const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth*s); c.height = Math.round(img.naturalHeight*s);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return toBlob(c, 'image/jpeg', .86);
+}
+/* compose pieces onto a 4:5 transparent canvas -> thumbnail blob */
+async function composite(pieces, W=480){
+  const H = W * 1.25, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.shadowColor = 'rgba(0,0,0,.18)'; g.shadowBlur = W*.02; g.shadowOffsetY = W*.012;
+  for (const p of pieces){
+    const it = S.items.get(p.id); if (!it) continue;
+    const img = await loadImg(U(it.img));
+    const dw = p.w*W, dh = dw * img.naturalHeight / img.naturalWidth;
+    g.drawImage(img, p.x*W - dw/2, p.y*H - dh/2, dw, dh);
+  }
+  return toBlob(c);
+}
+
+/* ===================== layout presets ===================== */
+const SLOTS = { outer:{x:.32,y:.33,w:.44}, top:{x:.5,y:.3,w:.46}, dress:{x:.5,y:.42,w:.48}, bottom:{x:.5,y:.68,w:.38}, shoes:{x:.5,y:.91,w:.3}, bag:{x:.82,y:.6,w:.26}, acc:{x:.18,y:.12,w:.2}, etc:{x:.82,y:.16,w:.22} };
+function arrange(pieces){
+  const by = {}; for (const p of pieces){ const c = S.items.get(p.id)?.cat || 'etc'; (by[c] ||= []).push(p); }
+  const hasOuter = by.outer?.length, hasTop = by.top?.length;
+  for (const [c, list] of Object.entries(by)){
+    list.forEach((p, i) => {
+      const s = { ...SLOTS[c] || SLOTS.etc };
+      if (c === 'top' && hasOuter) s.x = .64;
+      if (c === 'outer' && hasTop) s.x = .32;
+      if (c === 'outer' && !hasTop) s.x = .5;
+      const n = list.length;
+      if (n > 1){
+        if (c === 'acc' || c === 'etc'){ s.y += i * .16; }
+        else { s.x += (i - (n-1)/2) * .16; s.y += (i - (n-1)/2) * .04; s.w *= .85; }
+      }
+      Object.assign(p, { x: clamp(s.x,.08,.92), y: clamp(s.y,.06,.94), w: s.w });
+      fitInside(p);
+    });
+  }
+  const order = ['outer','top','dress','bottom','shoes','bag','acc','etc'];
+  pieces.sort((a,b) => order.indexOf(S.items.get(a.id)?.cat||'etc') - order.indexOf(S.items.get(b.id)?.cat||'etc'));
+  // tops drawn over outer only when outer is shown aside; put outer first so top sits on it
+  return pieces;
+}
+
+/* keep a piece fully inside the 4:5 stage (uses the item's aspect ratio) */
+function fitInside(p){
+  const ar = S.items.get(p.id)?.ar || 1;
+  let hh = p.w * ar / 1.25;
+  if (hh > .9){ p.w *= .9 / hh; hh = .9; }
+  p.y = clamp(p.y, hh/2 + .03, 1 - hh/2 - .03);
+  p.x = clamp(p.x, p.w/2 + .02, 1 - p.w/2 - .02);
+}
+
+/* ===================== view switching ===================== */
+function setView(v){
+  S.view = v;
+  $$('.view').forEach(e => e.classList.toggle('on', e.id === 'view-' + v));
+  $$('[data-view]').forEach(b => b.setAttribute('aria-selected', b.dataset.view === v));
+  closeDayPane();
+  render();
+  try { localStorage.setItem('ootd.view', v); } catch {}
+}
+function render(){ if (S.view === 'cal') renderCal(); else if (S.view === 'closet') renderCloset(); else renderLooks(); }
+$$('[data-view]').forEach(b => b.onclick = () => setView(b.dataset.view));
+
+/* ===================== calendar ===================== */
+function allTags(){ const m = new Map(); for (const d of S.days.values()) for (const t of d.tags || []) m.set(t, (m.get(t)||0)+1); return [...m.entries()].sort((a,b) => b[1]-a[1]).map(e => e[0]); }
+const isMobile = () => matchMedia('(max-width:860px)').matches;
+
+function renderCal(){
+  const y = S.month.getFullYear(), m = S.month.getMonth();
+  $('#calTitle').innerHTML = `${m+1}<small>${y}</small>`;
+  // tags
+  const tags = allTags();
+  let hint = '';
+  if (S.tag){
+    const ks = [...S.days.entries()].filter(([k,d]) => (d.tags||[]).includes(S.tag) && k <= todayKey()).map(e => e[0]).sort();
+    const last = ks[ks.length-1];
+    hint = last ? `<span class="taghint">마지막 ‘${esc(S.tag)}’ — <button data-go="${last}">${fmtMD(last)} (${relLabel(last)})</button> · 총 ${ks.length}번</span>` : '';
+  }
+  $('#tagbar').innerHTML = tags.length
+    ? tags.map(t => `<button class="chip ${S.tag===t?'on':''}" data-tag="${esc(t)}">#${esc(t)}</button>`).join('') + hint
+    : `<span class="mono" style="color:var(--muted)">날짜에 #알바 같은 태그를 달면 “지난번 알바 때 뭐 입었지?”를 바로 찾을 수 있어요.</span>`;
+  $$('#tagbar [data-tag]').forEach(b => b.onclick = () => { S.tag = S.tag === b.dataset.tag ? null : b.dataset.tag; renderCal(); });
+  $$('#tagbar [data-go]').forEach(b => b.onclick = () => goDate(b.dataset.go));
+
+  const first = new Date(y, m, 1), off = first.getDay();
+  const dim = new Date(y, m+1, 0).getDate();
+  const total = Math.ceil((off + dim) / 7) * 7;
+  const tk = todayKey(); let html = '';
+  for (let i = 0; i < total; i++){
+    const d = new Date(y, m, 1 - off + i), k = keyOf(d), rec = S.days.get(k);
+    const cls = ['cell']; if (d.getMonth() !== m) cls.push('out'); if (k === tk) cls.push('today'); if (k === S.sel) cls.push('sel');
+    if (S.tag && !(rec?.tags||[]).includes(S.tag)) cls.push('dim');
+    let inner = '';
+    if (rec){
+      if (rec.thumb) inner += `<img class="thumb" src="${U(rec.thumb)}" alt="">`;
+      else if (rec.photo) inner += `<img class="thumb photo" src="${U(rec.photo)}" alt="">`;
+    }
+    inner += `<span class="num">${d.getDate()}</span>`;
+    if (rec?.tags?.length) inner += `<span class="tagmark">#${esc(rec.tags[0])}</span>`;
+    html += `<button class="${cls.join(' ')}" data-k="${k}" aria-label="${k}">${inner}</button>`;
+  }
+  $('#grid').innerHTML = html;
+  $$('#grid .cell').forEach(c => c.onclick = () => {
+    const k = c.dataset.k; S.sel = k;
+    const d = parseKey(k); if (d.getMonth() !== m) S.month = new Date(d.getFullYear(), d.getMonth(), 1);
+    renderCal(); if (isMobile()) openDayPane();
+  });
+  renderDay();
+}
+function goDate(k){ S.sel = k; const d = parseKey(k); S.month = new Date(d.getFullYear(), d.getMonth(), 1); if (S.view !== 'cal') setView('cal'); else renderCal(); if (isMobile()) openDayPane(); }
+$('#prevM').onclick = () => { S.month = new Date(S.month.getFullYear(), S.month.getMonth()-1, 1); renderCal(); };
+$('#nextM').onclick = () => { S.month = new Date(S.month.getFullYear(), S.month.getMonth()+1, 1); renderCal(); };
+$('#todayBtn').onclick = () => goDate(todayKey());
+// swipe months on phone
+(() => { let sx = null, sy = 0; const g = $('#grid');
+  g.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
+  g.addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) (dx < 0 ? $('#nextM') : $('#prevM')).click(); });
+})();
+
+function openDayPane(){ $('#dayPane').classList.add('open'); $('#backdrop').hidden = false; }
+function closeDayPane(){ $('#dayPane').classList.remove('open'); if (!$('.sheet')) $('#backdrop').hidden = true; }
+$('#backdrop').onclick = () => { closeDayPane(); closeSheet(); };
+
+/* overlap with the most recent earlier record within 7 days */
+function overlapInfo(k){
+  const rec = S.days.get(k); if (!rec?.pieces?.length) return null;
+  const ids = new Set(rec.pieces.map(p => p.id));
+  const prev = [...S.days.keys()].filter(x => x < k && diffDays(k, x) <= 7 && S.days.get(x).pieces?.length).sort().pop();
+  if (!prev) return null;
+  const same = S.days.get(prev).pieces.filter(p => ids.has(p.id)).map(p => S.items.get(p.id)).filter(Boolean);
+  return { prev, same, all: same.length && same.length === ids.size && same.length === S.days.get(prev).pieces.length };
+}
+
+function renderDay(){
+  const k = S.sel, rec = S.days.get(k), d = parseKey(k), pane = $('#dayPane');
+  let h = `<div class="dp-head"><span class="dp-date">${d.getMonth()+1}.${pad(d.getDate())}</span><span class="dp-dow">${DOW[d.getDay()]}</span><span class="dp-rel">${relLabel(k)}</span>
+    <button class="iconbtn dp-close" id="dpClose" aria-label="닫기">✕</button></div>`;
+  const hasPieces = rec?.pieces?.length, hasPhoto = !!rec?.photo;
+  if (!rec || (!hasPieces && !hasPhoto)){
+    h += `<div class="empty-fig"><div><div class="serif" style="font-size:26px">아직 기록이 없어요</div>
+      <div style="font-size:12px;margin-top:4px">옷장의 피스로 코디를 만들거나, 거울 셀카 한 장만 올려도 돼요.</div>
+      <div class="row"><button class="pill red solid" id="dpCompose">코디로 기록</button><button class="pill red" id="dpPhoto">사진으로 기록</button></div></div></div>`;
+  } else {
+    h += `<div class="dp-figs ${hasPieces && hasPhoto ? 'two' : ''}">`;
+    if (hasPieces) h += `<div class="dp-fig"><img src="${U(rec.thumb)}" alt="코디"></div>`;
+    if (hasPhoto) h += `<div class="dp-fig"><img class="photo" src="${U(rec.photo)}" alt="사진"></div>`;
+    h += `</div>`;
+    const ov = overlapInfo(k);
+    if (ov){
+      const when = diffDays(k, ov.prev) === 1 ? '전날' : `${fmtMD(ov.prev)}`;
+      if (ov.all) h += `<div class="warn"><b>${when}이랑 완전히 똑같은 코디예요.</b></div>`;
+      else if (ov.same.length) h += `<div class="warn">${when}이랑 겹치는 옷: <b>${ov.same.map(i => esc(i.name)).join(', ')}</b></div>`;
+      else if (diffDays(k, ov.prev) <= 3) h += `<div class="ok">${when}이랑 겹치는 옷 없음 ✓</div>`;
+    }
+    if (hasPieces){
+      h += `<ul class="plist">` + rec.pieces.map((p, i) => {
+        const it = S.items.get(p.id); if (!it) return '';
+        const n = wornDates(p.id).length, lb = lastWornBefore(p.id, k);
+        return `<li><span class="n">(${i+1})</span><img src="${U(it.img)}" alt=""><span>${esc(it.name)}<br><span class="mono" style="color:var(--muted)">${CAT[it.cat]||''}</span></span>
+          <span class="meta">${n}번째 착용${lb ? `<br>직전 ${fmtMD(lb)}` : '<br>첫 착용'}</span></li>`;
+      }).join('') + `</ul>`;
+    }
+  }
+  // tags
+  const cur = rec?.tags || [];
+  const sugg = [...new Set([...cur, ...allTags(), ...DEFAULT_TAGS])].slice(0, 12);
+  h += `<div class="sec-label">태그</div><div class="tagrow">${sugg.map(t => `<button class="chip ${cur.includes(t)?'on':''}" data-t="${esc(t)}">#${esc(t)}</button>`).join('')}<input id="tagIn" placeholder="+ 새 태그" maxlength="12"></div>`;
+  h += `<div class="sec-label">메모</div><textarea class="memo" id="memo" placeholder="날씨, 기분, 들은 말…">${esc(rec?.memo || '')}</textarea>`;
+  if (rec && (hasPieces || hasPhoto)){
+    h += `<div class="actions"><button class="pill solid" id="dpCompose">${hasPieces ? '코디 수정' : '코디 추가'}</button><button class="pill" id="dpPhoto">${hasPhoto ? '사진 바꾸기' : '사진 추가'}</button>
+      ${hasPhoto ? '<button class="pill" id="dpPhotoDel">사진 빼기</button>' : ''}<button class="pill red" id="dpDel">기록 삭제</button></div>`;
+  }
+  // yesterday hint
+  const y = addDays(k, -1), yr = S.days.get(y);
+  if (yr && (yr.thumb || yr.photo)){
+    h += `<div class="yhint"><img src="${U(yr.thumb || yr.photo)}" style="${yr.thumb?'':'object-fit:cover'}" alt=""><div><div class="sec-label" style="margin:0 0 4px">전날 (${fmtMD(y)})</div>
+      <div style="font-size:13px">${(yr.pieces||[]).map(p => esc(S.items.get(p.id)?.name)).filter(Boolean).join(' · ') || '사진 기록'}</div>
+      <button class="pill" style="margin-top:6px;font-size:12px" data-go="${y}">보기</button></div></div>`;
+  }
+  pane.innerHTML = h;
+
+  $('#dpClose').onclick = closeDayPane;
+  pane.querySelectorAll('#dpCompose').forEach(b => b.onclick = () => openComposer({ mode:'day', date:k }));
+  pane.querySelectorAll('#dpPhoto').forEach(b => b.onclick = () => pickPhoto(k));
+  $('#dpPhotoDel') && ($('#dpPhotoDel').onclick = async () => { const r = S.days.get(k); await delBlob(r.photo); r.photo = null; await saveDay(k, r); });
+  $('#dpDel') && ($('#dpDel').onclick = async () => { if (!confirm(`${fmtMD(k)} 기록을 지울까요?`)) return; await deleteDay(k); toast('지웠어요'); });
+  pane.querySelectorAll('[data-go]').forEach(b => b.onclick = () => goDate(b.dataset.go));
+  pane.querySelectorAll('[data-t]').forEach(b => b.onclick = () => toggleTag(k, b.dataset.t));
+  $('#tagIn').onkeydown = e => { if (e.key === 'Enter' && !e.isComposing){ const v = e.target.value.trim().replace(/^#/, ''); if (v) toggleTag(k, v, true); } };
+  let mt; $('#memo').oninput = e => { clearTimeout(mt); mt = setTimeout(() => setMemo(k, e.target.value), 400); };
+}
+
+function blankDay(k){ return { date:k, pieces:[], photo:null, thumb:null, tags:[], memo:'' }; }
+async function saveDay(k, rec, rerender = true){
+  const empty = !rec.pieces?.length && !rec.photo && !rec.tags?.length && !rec.memo?.trim();
+  if (empty){ S.days.delete(k); await DB.del('days', k); } else { rec.updated = Date.now(); S.days.set(k, rec); await DB.put('days', k, rec); }
+  reindex(); if (rerender && S.view === 'cal') renderCal();
+}
+async function deleteDay(k){ const r = S.days.get(k); if (!r) return; await delBlob(r.thumb); await delBlob(r.photo); S.days.delete(k); await DB.del('days', k); reindex(); renderCal(); }
+async function toggleTag(k, t, forceOn){
+  const r = S.days.get(k) || blankDay(k); r.tags ||= [];
+  if (r.tags.includes(t) && !forceOn) r.tags = r.tags.filter(x => x !== t); else if (!r.tags.includes(t)) r.tags.push(t);
+  await saveDay(k, r);
+}
+async function setMemo(k, v){ const r = S.days.get(k) || blankDay(k); r.memo = v; await saveDay(k, r, false); }
+
+let photoTarget = null;
+function pickPhoto(k){ photoTarget = k; $('#photoIn').value = ''; $('#photoIn').click(); }
+$('#photoIn').onchange = async e => {
+  const f = e.target.files[0]; if (!f || !photoTarget) return;
+  const k = photoTarget, blob = await downscaleToBlob(f, 1400), r = S.days.get(k) || blankDay(k);
+  if (r.photo) await delBlob(r.photo);
+  r.photo = await putBlob(blob); await saveDay(k, r); toast('사진을 기록했어요');
+};
+$('#recBtn').onclick = () => { S.sel = todayKey(); const d = new Date(); S.month = new Date(d.getFullYear(), d.getMonth(), 1); openComposer({ mode:'day', date: todayKey() }); };
+
+/* ===================== closet ===================== */
+function catChips(host, cur, onPick, counts){
+  host.innerHTML = [['all','전체'], ...CATS].filter(([c]) => !counts || c === 'all' || counts[c])
+    .map(([c, n]) => `<button class="chip ${cur===c?'on':''}" data-c="${c}">${n}${counts ? ` <span style="opacity:.6">${c==='all' ? counts.all : counts[c]}</span>` : ''}</button>`).join('');
+  host.querySelectorAll('[data-c]').forEach(b => b.onclick = () => onPick(b.dataset.c));
+}
+function itemCounts(){ const c = { all: S.items.size }; for (const it of S.items.values()) c[it.cat] = (c[it.cat]||0)+1; return c; }
+function sortedItems(cat){
+  let list = [...S.items.entries()].map(([id, it]) => ({ id, ...it }));
+  if (cat !== 'all') list = list.filter(i => i.cat === cat);
+  const lw = i => lastWorn(i.id) || '0000';
+  const by = { new:(a,b) => b.created - a.created, stale:(a,b) => lw(a).localeCompare(lw(b)), most:(a,b) => wornDates(b.id).length - wornDates(a.id).length, least:(a,b) => wornDates(a.id).length - wornDates(b.id).length };
+  return list.sort(by[S.sort] || by.new);
+}
+function wearLine(id){
+  const lw = lastWorn(id), n = wornDates(id).length;
+  if (!lw) return '아직 안 입음';
+  const dd = diffDays(todayKey(), lw);
+  return `${n}회 · ${dd === 0 ? '<b>오늘</b>' : dd === 1 ? '<b>어제</b>' : dd + '일 전'}`;
+}
+function renderCloset(){
+  const counts = itemCounts();
+  $('#closetCount').textContent = `${S.items.size} pieces`;
+  catChips($('#closetCats'), S.closetCat, c => { S.closetCat = c; renderCloset(); }, counts);
+  $('#sortSel').value = S.sort;
+  const list = sortedItems(S.closetCat);
+  if (!S.items.size){
+    $('#closetBody').innerHTML = `<div class="empty-state">${SIL_SVG}<div class="serif" style="font-size:28px;color:var(--ink)">옷장이 비어 있어요</div>
+      <p>오늘 입은 옷부터 한 피스씩 찍어 모아 보세요.<br>모으다 보면 어느새 진짜 옷장이랑 똑같아져요.</p>
+      <div style="display:flex;gap:8px;justify-content:center"><button class="pill red solid" data-add>+ 첫 피스 추가</button><button class="pill" data-demo>예시로 둘러보기</button></div></div>`;
+  } else {
+    $('#closetBody').innerHTML = `<div class="closet-grid"><button class="piece add" data-add><span class="plus">+</span><span>옷 추가</span></button>` +
+      list.map((it, i) => `<button class="piece" data-id="${it.id}"><span class="idx">${pad(i+1)} · ${CAT[it.cat]}</span><img src="${U(it.img)}" alt="" loading="lazy"><span class="nm">${esc(it.name)}</span><span class="st">${wearLine(it.id)}</span></button>`).join('') + `</div>`;
+  }
+  $$('#closetBody [data-add]').forEach(b => b.onclick = () => openEditor());
+  $$('#closetBody [data-demo]').forEach(b => b.onclick = loadDemo);
+  $$('#closetBody [data-id]').forEach(b => b.onclick = () => openItemSheet(b.dataset.id));
+}
+$('#sortSel').onchange = e => { S.sort = e.target.value; renderCloset(); };
+$('#addPieceBtn').onclick = () => openEditor();
+
+function closeSheet(){ $('#sheetHost').innerHTML = ''; if (!$('#dayPane').classList.contains('open')) $('#backdrop').hidden = true; }
+function openSheet(html){ $('#sheetHost').innerHTML = `<div class="sheet">${html}</div>`; $('#backdrop').hidden = false; return $('#sheetHost .sheet'); }
+
+function openItemSheet(id){
+  const it = S.items.get(id); if (!it) return;
+  const ds = wornDates(id).slice().reverse();
+  const sh = openSheet(`<div style="display:flex;align-items:center;margin-bottom:10px"><span class="mono" style="color:var(--red)">${CAT[it.cat]}</span><span style="flex:1"></span><button class="iconbtn" data-x>✕</button></div>
+    <div class="big"><img src="${U(it.img)}" alt=""></div>
+    <input class="field" id="isName" value="${esc(it.name)}">
+    <div class="catpick" id="isCats" style="margin:10px 0"></div>
+    <input class="field" id="isNote" value="${esc(it.note||'')}" placeholder="메모 (브랜드·구매처 등)">
+    <div class="sec-label">입은 날 ${ds.length}번</div>
+    <div class="dates">${ds.length ? ds.map(k => `<button class="chip" data-go="${k}">${fmtMD(k)}${k.slice(0,4)!==todayKey().slice(0,4)?` '${k.slice(2,4)}`:''}</button>`).join('') : '<span style="color:var(--muted);font-size:13px">아직 기록 없음</span>'}</div>
+    <div class="actions"><button class="pill solid" data-wear>오늘 이걸로 코디 시작</button><span style="flex:1"></span><button class="pill red" data-del>옷장에서 빼기</button></div>`);
+  let cat = it.cat;
+  const drawCats = () => { sh.querySelector('#isCats').innerHTML = CATS.map(([c,n]) => `<button class="chip ${c===cat?'on':''}" data-c="${c}">${n}</button>`).join('');
+    sh.querySelectorAll('#isCats [data-c]').forEach(b => b.onclick = async () => { cat = b.dataset.c; it.cat = cat; await DB.put('items', id, it); drawCats(); renderCloset(); }); };
+  drawCats();
+  const saveMeta = async () => { it.name = sh.querySelector('#isName').value.trim() || it.name; it.note = sh.querySelector('#isNote').value.trim(); await DB.put('items', id, it); renderCloset(); };
+  sh.querySelector('#isName').onchange = saveMeta; sh.querySelector('#isNote').onchange = saveMeta;
+  sh.querySelector('[data-x]').onclick = closeSheet;
+  sh.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { closeSheet(); goDate(b.dataset.go); });
+  sh.querySelector('[data-wear]').onclick = () => { closeSheet(); openComposer({ mode:'day', date: todayKey(), add: id }); };
+  sh.querySelector('[data-del]').onclick = async () => {
+    const n = wornDates(id).length;
+    if (!confirm(n ? `이 옷은 ${n}번의 기록에 들어 있어요. 기록에서도 빠지게 돼요. 지울까요?` : '옷장에서 뺄까요?')) return;
+    await deleteItem(id); closeSheet(); renderCloset(); toast('뺐어요');
+  };
+}
+async function deleteItem(id){
+  const it = S.items.get(id); if (!it) return;
+  for (const [k, r] of S.days) if (r.pieces?.some(p => p.id === id)){
+    r.pieces = r.pieces.filter(p => p.id !== id);
+    await delBlob(r.thumb); r.thumb = r.pieces.length ? await putBlob(await composite(r.pieces)) : null;
+    await saveDay(k, r, false);
+  }
+  for (const [lid, l] of S.looks) if (l.pieces.some(p => p.id === id)){
+    l.pieces = l.pieces.filter(p => p.id !== id); await delBlob(l.thumb);
+    if (l.pieces.length){ l.thumb = await putBlob(await composite(l.pieces)); await DB.put('looks', lid, l); } else { S.looks.delete(lid); await DB.del('looks', lid); }
+  }
+  await delBlob(it.img); S.items.delete(id); await DB.del('items', id); reindex();
+}
+
+/* ===================== looks ===================== */
+function renderLooks(){
+  $('#looksCount').textContent = `${S.looks.size} looks`;
+  const list = [...S.looks.entries()].sort((a,b) => b[1].created - a[1].created);
+  const used = id => [...S.days.entries()].filter(([,d]) => d.look === id).map(e => e[0]).sort();
+  $('#looksBody').innerHTML = `<div class="looks-grid"><button class="look add" id="lookAdd"><div><div class="serif" style="font-size:48px;line-height:1">+</div>옷장 피스로<br>코디 짜 보기</div></button>` +
+    list.map(([id, l]) => { const u = used(id); return `<button class="look" data-id="${id}"><div class="img"><img src="${U(l.thumb)}" alt=""></div><div class="nm">${esc(l.name || '이름 없는 코디')}</div>
+      <div class="st">${l.pieces.length} pieces · ${u.length ? `${u.length}번 입음, 마지막 ${fmtMD(u[u.length-1])}` : '아직 안 입음'}</div></button>`; }).join('') + `</div>`;
+  $('#lookAdd').onclick = () => openComposer({ mode:'look' });
+  $$('#looksBody [data-id]').forEach(b => b.onclick = () => openLookSheet(b.dataset.id));
+}
+$('#newLookBtn').onclick = () => openComposer({ mode:'look' });
+function openLookSheet(id){
+  const l = S.looks.get(id);
+  const sh = openSheet(`<div style="display:flex;align-items:center;margin-bottom:10px"><span class="serif" style="font-size:26px">${esc(l.name || '이름 없는 코디')}</span><span style="flex:1"></span><button class="iconbtn" data-x>✕</button></div>
+    <div class="big" style="aspect-ratio:4/5"><img src="${U(l.thumb)}" alt=""></div>
+    <div class="sec-label">이 코디 입기</div>
+    <div style="display:flex;gap:8px;align-items:center"><input type="date" class="field" id="lsDate" value="${todayKey()}" style="flex:1"><button class="pill red solid" data-wear>이 날짜에 기록</button></div>
+    <div class="actions"><button class="pill" data-edit>수정</button><span style="flex:1"></span><button class="pill red" data-del>삭제</button></div>`);
+  sh.querySelector('[data-x]').onclick = closeSheet;
+  sh.querySelector('[data-edit]').onclick = () => { closeSheet(); openComposer({ mode:'look', lookId:id }); };
+  sh.querySelector('[data-del]').onclick = async () => { if (!confirm('이 코디를 지울까요? (캘린더 기록은 남아요)')) return; await delBlob(l.thumb); S.looks.delete(id); await DB.del('looks', id); closeSheet(); renderLooks(); };
+  sh.querySelector('[data-wear]').onclick = async () => {
+    const k = sh.querySelector('#lsDate').value || todayKey();
+    const r = S.days.get(k) || blankDay(k);
+    if (r.pieces?.length && !confirm(`${fmtMD(k)}에 이미 코디가 있어요. 바꿀까요?`)) return;
+    r.pieces = l.pieces.map(p => ({...p})); r.look = id; await delBlob(r.thumb); r.thumb = await putBlob(await composite(r.pieces));
+    await saveDay(k, r, false); closeSheet(); goDate(k); toast(`${fmtMD(k)}에 기록했어요`);
+  };
+}
+
+/* ===================== composer ===================== */
+const C = { mode:'day', date:null, lookId:null, pieces:[], sel:null, cat:'all' };
+function openComposer(o){
+  Object.assign(C, { mode:o.mode, date:o.date || todayKey(), lookId:o.lookId || null, sel:null, cat:'all' });
+  if (o.mode === 'day'){ const r = S.days.get(C.date); C.pieces = (r?.pieces || []).map(p => ({...p})); }
+  else { const l = o.lookId && S.looks.get(o.lookId); C.pieces = (l?.pieces || []).map(p => ({...p})); $('#cmpName').value = l?.name || ''; }
+  if (o.add && !C.pieces.some(p => p.id === o.add)){ C.pieces.push({ id:o.add }); arrange(C.pieces); }
+  $('#cmpTitle').textContent = o.mode === 'day' ? '오늘 입은 옷' : '코디 짜기';
+  $('#cmpDate').hidden = o.mode !== 'day'; $('#cmpDate').value = C.date;
+  $('#cmpName').hidden = o.mode !== 'look';
+  $('#alsoLookWrap').hidden = o.mode !== 'day'; $('#alsoLook').checked = false;
+  $('#composer').hidden = false; document.body.style.overflow = 'hidden';
+  if (!S.items.size) setTimeout(() => toast('먼저 옷장에 피스를 추가해 주세요'), 200);
+  drawStage(); drawDrawer();
+}
+function closeComposer(){ $('#composer').hidden = true; document.body.style.overflow = ''; }
+$('#composer [data-close]').onclick = closeComposer;
+$('#cmpDate').onchange = e => {
+  const k = e.target.value; if (!k) return;
+  if (C.pieces.length === 0){ const r = S.days.get(k); C.pieces = (r?.pieces || []).map(p => ({...p})); }
+  C.date = k; drawStage(); drawDrawer();
+};
+
+function drawStage(){
+  const st = $('#stage');
+  st.querySelectorAll('.sp').forEach(e => e.remove());
+  $('#stageHint').hidden = C.pieces.length > 0;
+  C.pieces.forEach((p, i) => {
+    const it = S.items.get(p.id); if (!it) return;
+    const el = document.createElement('div'); el.className = 'sp' + (C.sel === p ? ' sel' : '');
+    el.innerHTML = `<img src="${U(it.img)}" alt="">`; place(el, p); el.style.zIndex = i + 1;
+    el.onpointerdown = e => {
+      e.preventDefault(); C.sel = p; st.querySelectorAll('.sp').forEach(x => x.classList.toggle('sel', x === el)); syncSelTools();
+      el.setPointerCapture(e.pointerId); el.style.cursor = 'grabbing';
+      const r = st.getBoundingClientRect(), sx = e.clientX, sy = e.clientY, ox = p.x, oy = p.y;
+      el.onpointermove = ev => { p.x = clamp(ox + (ev.clientX - sx) / r.width, 0, 1); p.y = clamp(oy + (ev.clientY - sy) / r.height, 0, 1); place(el, p); };
+      el.onpointerup = el.onpointercancel = () => { el.onpointermove = null; el.style.cursor = ''; };
+    };
+    el.onwheel = e => { e.preventDefault(); p.w = clamp(p.w * (e.deltaY < 0 ? 1.06 : .94), .08, .9); place(el, p); syncSelTools(); };
+    st.appendChild(el);
+  });
+  syncSelTools();
+}
+function place(el, p){ el.style.left = p.x*100 + '%'; el.style.top = p.y*100 + '%'; el.style.width = p.w*100 + '%'; }
+$('#stage').addEventListener('pointerdown', e => { if (e.target.id === 'stage' || e.target.id === 'stageHint'){ C.sel = null; $$('#stage .sp').forEach(x => x.classList.remove('sel')); syncSelTools(); } });
+function syncSelTools(){
+  const on = !!C.sel && C.pieces.includes(C.sel);
+  $('#selTools').hidden = !on; $('#stageTools').hidden = on;
+  if (on) $('#selSize').value = Math.round(C.sel.w * 100);
+}
+$('#selSize').oninput = e => { if (!C.sel) return; C.sel.w = e.target.value / 100; const i = C.pieces.indexOf(C.sel); place($$('#stage .sp')[i], C.sel); };
+$('#selFront').onclick = () => { if (!C.sel) return; C.pieces = C.pieces.filter(p => p !== C.sel).concat(C.sel); drawStage(); };
+$('#selRemove').onclick = () => { C.pieces = C.pieces.filter(p => p !== C.sel); C.sel = null; drawStage(); drawDrawer(); };
+$('#autoArrange').onclick = () => { arrange(C.pieces); drawStage(); };
+$('#clearStage').onclick = () => { C.pieces = []; C.sel = null; drawStage(); drawDrawer(); };
+
+function drawDrawer(){
+  const counts = itemCounts();
+  catChips($('#drawerCats'), C.cat, c => { C.cat = c; drawDrawer(); }, counts);
+  const inSet = new Set(C.pieces.map(p => p.id));
+  const list = sortedItems(C.cat);
+  $('#drawerGrid').innerHTML = list.length ? list.map(it => {
+    let badge = '';
+    if (C.mode === 'day'){ const lb = lastWornBefore(it.id, C.date); if (lb){ const dd = diffDays(C.date, lb); if (dd <= 3) badge = `<span class="badge">${dd===1?'어제 입음':dd+'일 전'}</span>`; } }
+    return `<button class="dp ${inSet.has(it.id)?'in':''}" data-id="${it.id}" title="${esc(it.name)}"><img src="${U(it.img)}" alt="${esc(it.name)}" loading="lazy">${badge}${inSet.has(it.id)?'<span class="check">✓</span>':''}</button>`;
+  }).join('') : `<div style="grid-column:1/-1;color:var(--muted);padding:20px 0;text-align:center">피스가 없어요</div>`;
+  $$('#drawerGrid [data-id]').forEach(b => b.onclick = () => {
+    const id = b.dataset.id, ex = C.pieces.find(p => p.id === id);
+    if (ex){ C.pieces = C.pieces.filter(p => p !== ex); if (C.sel === ex) C.sel = null; }
+    else { const p = { id }; C.pieces.push(p); placeNew(p); C.sel = p; }
+    drawStage(); drawDrawer();
+  });
+}
+function placeNew(p){
+  const cat = S.items.get(p.id)?.cat || 'etc', s = SLOTS[cat] || SLOTS.etc;
+  const same = C.pieces.filter(q => q !== p && S.items.get(q.id)?.cat === cat).length;
+  Object.assign(p, { x: clamp(s.x + same*.08, .08, .92), y: clamp(s.y + same*.05, .06, .94), w: s.w });
+  fitInside(p);
+}
+$('#drawerAdd').onclick = () => openEditor({ thenAdd:true });
+
+$('#cmpSave').onclick = async () => {
+  const btn = $('#cmpSave'); btn.disabled = true;
+  try {
+    const pieces = C.pieces.map(p => ({ id:p.id, x:+p.x.toFixed(4), y:+p.y.toFixed(4), w:+p.w.toFixed(4) }));
+    if (C.mode === 'day'){
+      const k = $('#cmpDate').value || C.date, r = S.days.get(k) || blankDay(k);
+      await delBlob(r.thumb); r.pieces = pieces; r.thumb = pieces.length ? await putBlob(await composite(pieces)) : null;
+      if ($('#alsoLook').checked && pieces.length){
+        const lid = 'l_' + uid(); const l = { name: `${fmtMD(k)} 코디`, pieces, thumb: await putBlob(await composite(pieces)), created: Date.now() };
+        S.looks.set(lid, l); await DB.put('looks', lid, l); r.look = lid;
+      }
+      await saveDay(k, r, false); closeComposer(); goDate(k);
+      const ov = overlapInfo(k);
+      toast(ov?.all ? '저장! 근데 전날이랑 똑같아요 👀' : ov?.same.length && diffDays(k, ov.prev) === 1 ? `저장! 전날이랑 ${ov.same.length}개 겹쳐요` : '저장했어요');
+    } else {
+      if (!pieces.length){ toast('피스를 하나 이상 담아 주세요'); return; }
+      const lid = C.lookId || 'l_' + uid(), old = S.looks.get(lid);
+      if (old) await delBlob(old.thumb);
+      const l = { name: $('#cmpName').value.trim() || old?.name || `코디 ${S.looks.size + (old?0:1)}`, pieces, thumb: await putBlob(await composite(pieces)), created: old?.created || Date.now() };
+      S.looks.set(lid, l); await DB.put('looks', lid, l); closeComposer(); setView('looks'); toast('코디를 저장했어요');
+    }
+  } finally { btn.disabled = false; }
+};
+
+/* ===================== piece editor (background removal) ===================== */
+const E = { w:0, h:0, orig:null, mask:null, tool:'none', cat:'top', thenAdd:false, ctx:null, img:null };
+function openEditor(o = {}){
+  Object.assign(E, { thenAdd: !!o.thenAdd, orig:null, mask:null, tool:'none' });
+  $('#edName').value = ''; $('#edNote').value = '';
+  $('#edCanvas').hidden = true; $('#edPick').hidden = false; $('#edSave').disabled = true;
+  setTool('none'); drawEdCats();
+  $('#editor').hidden = false; document.body.style.overflow = 'hidden';
+}
+function closeEditor(){ $('#editor').hidden = true; if ($('#composer').hidden) document.body.style.overflow = ''; }
+$('#editor [data-close]').onclick = closeEditor;
+function drawEdCats(){ $('#edCats').innerHTML = CATS.map(([c,n]) => `<button class="chip ${c===E.cat?'on':''}" data-c="${c}">${n}</button>`).join('');
+  $$('#edCats [data-c]').forEach(b => b.onclick = () => { E.cat = b.dataset.c; drawEdCats(); }); }
+$('#edChoose').onclick = $('#edAnother').onclick = () => { $('#fileIn').value = ''; $('#fileIn').click(); };
+$('#fileIn').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const img = await fileToImage(f);
+  const s = Math.min(1, 900 / Math.max(img.naturalWidth, img.naturalHeight));
+  const cv = $('#edCanvas'); cv.width = E.w = Math.round(img.naturalWidth * s); cv.height = E.h = Math.round(img.naturalHeight * s);
+  E.ctx = cv.getContext('2d', { willReadFrequently:true });
+  E.ctx.drawImage(img, 0, 0, E.w, E.h);
+  E.orig = E.ctx.getImageData(0, 0, E.w, E.h);
+  E.mask = new Uint8ClampedArray(E.w * E.h).fill(255);
+  cv.hidden = false; $('#edPick').hidden = true; $('#edSave').disabled = false;
+  autoRemove(); edRender();
+};
+function edRender(){
+  const out = new ImageData(new Uint8ClampedArray(E.orig.data), E.w, E.h), d = out.data, m = E.mask;
+  for (let i = 0; i < m.length; i++) d[i*4+3] = m[i];
+  E.ctx.putImageData(out, 0, 0);
+}
+function autoRemove(){
+  const tol = +$('#edTol').value, { w, h } = E, d = E.orig.data, N = w*h;
+  // median border colour
+  const br = [], bg = [], bb = [];
+  const pushPx = i => { br.push(d[i*4]); bg.push(d[i*4+1]); bb.push(d[i*4+2]); };
+  for (let x = 0; x < w; x += 2){ pushPx(x); pushPx((h-1)*w + x); }
+  for (let y = 0; y < h; y += 2){ pushPx(y*w); pushPx(y*w + w-1); }
+  const med = a => a.sort((p,q) => p-q)[a.length >> 1];
+  const M = [med(br), med(bg), med(bb)];
+  const dist = (i, r, g, b) => { const dr = d[i*4]-r, dg = d[i*4+1]-g, db = d[i*4+2]-b; return Math.sqrt(dr*dr*.3 + dg*dg*.59 + db*db*.11) * 1.7; };
+  const vis = new Uint8Array(N), q = new Int32Array(N), seed = new Int32Array(N); let qh = 0, qt = 0;
+  const tryPush = (j, s) => { vis[j] = 1; seed[j] = s; q[qt++] = j; };
+  for (let x = 0; x < w; x++) for (const y of [0, h-1]){ const i = y*w+x; if (!vis[i] && dist(i, ...M) < tol*1.6) tryPush(i, i); }
+  for (let y = 0; y < h; y++) for (const x of [0, w-1]){ const i = y*w+x; if (!vis[i] && dist(i, ...M) < tol*1.6) tryPush(i, i); }
+  const mask = new Uint8ClampedArray(N).fill(255);
+  while (qh < qt){
+    const i = q[qh++]; mask[i] = 0;
+    const x = i % w, y = (i / w) | 0, s = seed[i];
+    const sr = d[s*4], sg = d[s*4+1], sb = d[s*4+2], ir = d[i*4], ig = d[i*4+1], ib = d[i*4+2];
+    const nb = [x > 0 ? i-1 : -1, x < w-1 ? i+1 : -1, y > 0 ? i-w : -1, y < h-1 ? i+w : -1];
+    for (const j of nb){
+      if (j < 0 || vis[j]) continue;
+      if (dist(j, ir, ig, ib) < tol * .45 && dist(j, sr, sg, sb) < tol) tryPush(j, s);
+    }
+  }
+  // remove small foreground specks + soften edge (3x3 box on mask)
+  const soft = new Uint8ClampedArray(N);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){
+    let s = 0, n = 0;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++){ const xx = x+dx, yy = y+dy; if (xx>=0 && yy>=0 && xx<w && yy<h){ s += mask[yy*w+xx]; n++; } }
+    soft[y*w+x] = s / n;
+  }
+  E.mask = soft;
+}
+$('#edTol').oninput = e => { $('#edTolV').textContent = e.target.value; };
+$('#edTol').onchange = () => { if (E.orig){ autoRemove(); edRender(); } };
+$('#edAuto').onclick = () => { if (E.orig){ autoRemove(); edRender(); toast('배경을 지웠어요. 남은 곳은 지우개로 다듬어 주세요'); } };
+$('#edReset').onclick = () => { if (E.orig){ E.mask.fill(255); edRender(); } };
+function setTool(t){ E.tool = t; $$('#edTool button').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === t)); $('#edCanvas').style.cursor = t === 'none' ? 'default' : 'crosshair'; }
+$$('#edTool button').forEach(b => b.onclick = () => setTool(b.dataset.t));
+(() => {
+  const cv = $('#edCanvas'); let down = false, last = null;
+  const pt = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * E.w / r.width, (e.clientY - r.top) * E.h / r.height, E.w / r.width]; };
+  const dab = (x, y, scale) => {
+    const rad = +$('#edBrush').value * scale / 2, v = E.tool === 'erase' ? 0 : 255;
+    const x0 = Math.max(0, x-rad|0), x1 = Math.min(E.w-1, x+rad|0), y0 = Math.max(0, y-rad|0), y1 = Math.min(E.h-1, y+rad|0);
+    for (let yy = y0; yy <= y1; yy++) for (let xx = x0; xx <= x1; xx++){ const dd = (xx-x)**2 + (yy-y)**2; if (dd <= rad*rad) E.mask[yy*E.w+xx] = v; }
+  };
+  const stroke = e => {
+    const [x, y, sc] = pt(e);
+    if (last){ const steps = Math.max(1, Math.hypot(x-last[0], y-last[1]) / 3); for (let s = 1; s <= steps; s++) dab(last[0] + (x-last[0])*s/steps, last[1] + (y-last[1])*s/steps, sc); }
+    else dab(x, y, sc);
+    last = [x, y]; edRender();
+  };
+  cv.addEventListener('pointerdown', e => { if (E.tool === 'none' || !E.orig) return; down = true; last = null; cv.setPointerCapture(e.pointerId); stroke(e); });
+  cv.addEventListener('pointermove', e => { if (down) stroke(e); });
+  const up = () => { down = false; last = null; };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+})();
+$('#edSave').onclick = async () => {
+  if (!E.orig) return;
+  const { w, h } = E; let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (E.mask[y*w+x] > 20){ if (x<x0) x0=x; if (x>x1) x1=x; if (y<y0) y0=y; if (y>y1) y1=y; }
+  if (x1 < 0){ toast('남은 부분이 없어요. 원본으로 되돌려 주세요'); return; }
+  edRender();
+  const P = 6; x0 = Math.max(0, x0-P); y0 = Math.max(0, y0-P); x1 = Math.min(w-1, x1+P); y1 = Math.min(h-1, y1+P);
+  const cw = x1-x0+1, ch = y1-y0+1, s = Math.min(1, 700 / Math.max(cw, ch));
+  const c = document.createElement('canvas'); c.width = Math.round(cw*s); c.height = Math.round(ch*s);
+  c.getContext('2d').drawImage($('#edCanvas'), x0, y0, cw, ch, 0, 0, c.width, c.height);
+  const imgId = await putBlob(await toBlob(c));
+  const id = 'i_' + uid(), n = [...S.items.values()].filter(i => i.cat === E.cat).length + 1;
+  const it = { name: $('#edName').value.trim() || `${CAT[E.cat]} ${pad(n)}`, cat: E.cat, note: $('#edNote').value.trim(), img: imgId, ar: c.height / c.width, created: Date.now() };
+  S.items.set(id, it); await DB.put('items', id, it);
+  closeEditor(); toast(`‘${it.name}’ 옷장에 넣었어요`);
+  if (E.thenAdd && !$('#composer').hidden){ const p = { id }; C.pieces.push(p); placeNew(p); C.sel = p; drawStage(); drawDrawer(); }
+  else if (S.view === 'closet') renderCloset(); else setView('closet');
+};
+
+/* ===================== menu: backup / demo / wipe ===================== */
+$('#menuBtn').onclick = e => { e.stopPropagation(); $('#menu').hidden = !$('#menu').hidden; };
+document.addEventListener('click', e => { if (!e.target.closest('#menu')) $('#menu').hidden = true; });
+$('#menu').onclick = async e => {
+  const a = e.target.dataset.act; if (!a) return; $('#menu').hidden = true;
+  if (a === 'export') exportAll();
+  if (a === 'import'){ $('#importIn').value = ''; $('#importIn').click(); }
+  if (a === 'demo') loadDemo();
+  if (a === 'wipe' && confirm('옷장, 기록, 코디를 전부 지울까요? 되돌릴 수 없어요.')){ for (const s of ['items','days','looks','blobs']) await DB.clear(s); URLS.clear(); await loadAll(); render(); toast('전부 지웠어요'); }
+};
+const blobToDataURL = b => new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(b); });
+async function exportAll(){
+  const blobs = {}; for (const [k, v] of await DB.all('blobs')) blobs[k] = await blobToDataURL(v);
+  const data = { app:'ootd-log', version:1, exported:new Date().toISOString(), items:[...S.items], days:[...S.days], looks:[...S.looks], blobs };
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type:'application/json' }));
+  a.download = `ootd-backup-${todayKey()}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('백업 파일을 저장했어요');
+}
+$('#importIn').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text()); if (data.app !== 'ootd-log') throw 0;
+    if (!confirm('지금 기록을 백업 파일 내용으로 바꿀까요?')) return;
+    for (const s of ['items','days','looks','blobs']) await DB.clear(s);
+    for (const [k, v] of Object.entries(data.blobs)) await DB.put('blobs', k, await (await fetch(v)).blob());
+    for (const [k, v] of data.items) await DB.put('items', k, v);
+    for (const [k, v] of data.days) await DB.put('days', k, v);
+    for (const [k, v] of data.looks) await DB.put('looks', k, v);
+    URLS.forEach(u => URL.revokeObjectURL(u)); URLS.clear(); await loadAll(); render(); toast('가져왔어요');
+  } catch { toast('백업 파일을 읽지 못했어요'); }
+};
+
+/* ===================== demo silhouettes ===================== */
+const SIL = {
+  tee:    'M30 15 L42 10 Q50 17 58 10 L70 15 L88 30 L78 42 L70 37 L70 90 L30 90 L30 37 L22 42 L12 30 Z',
+  knit:   'M33 13 Q50 21 67 13 L82 20 L94 80 L82 83 L72 42 L72 90 L28 90 L28 42 L18 83 L6 80 L18 20 Z',
+  cami:   'M36 8 L38 8 L40 26 Q50 30 60 26 L62 8 L64 8 L66 30 L72 90 L28 90 L34 30 Z',
+  jacket: 'M32 10 L50 20 L68 10 L86 18 L95 84 L82 86 L74 44 L74 92 L26 92 L26 44 L18 86 L5 84 L14 18 Z',
+  jeans:  'M28 6 H72 L78 94 H58 L50 34 L42 94 H22 Z',
+  skirt:  'M34 14 H66 L86 86 Q50 94 14 86 Z',
+  shorts: 'M24 22 H76 L84 74 H56 L50 46 L44 74 H16 Z',
+  dress:  'M38 6 L42 6 L44 22 Q50 25 56 22 L58 6 L62 6 L64 24 L60 40 L82 92 Q50 98 18 92 L40 40 L36 24 Z',
+  sneaker:'M8 62 Q9 44 24 44 L40 47 Q55 58 76 60 Q92 62 92 74 L92 80 H8 Z',
+  boot:   'M30 6 H58 L60 62 Q86 64 90 80 L90 88 H28 Z',
+  bag:    'M32 42 Q32 14 50 14 Q68 14 68 42 L62 42 Q62 21 50 21 Q38 21 38 42 Z M18 40 H82 L88 88 H12 Z',
+  cap:    'M18 62 Q18 26 52 26 Q82 26 82 62 Z M74 56 H98 Q98 66 82 66 H74 Z',
+  scarf:  'M20 10 H80 V30 H62 L66 92 H50 L46 30 H20 Z',
+};
+const SIL_SVG = `<svg viewBox="0 0 100 100"><path fill="#d42a1f" d="${SIL.knit}"/></svg>`;
+const DEMO_ITEMS = [
+  ['top','회색 니트','knit','#9a9a96','M30 50 H70 M30 60 H70'],
+  ['top','화이트 티','tee','#f4f1ea',''],
+  ['top','하늘색 캐미솔','cami','#4f9bb5',''],
+  ['top','스트라이프 티','tee','#1f3a63','M30 30 H70 M30 44 H70 M30 58 H70 M30 72 H70'],
+  ['outer','데님 재킷','jacket','#5d7fa8','M50 22 V92'],
+  ['outer','브라운 가디건','knit','#7a5236','M50 21 V90'],
+  ['bottom','와이드 데님','jeans','#3f5f8a',''],
+  ['bottom','블랙 슬랙스','jeans','#222','M50 34 V38'],
+  ['bottom','체크 미니스커트','skirt','#b8b2a6','M40 14 L30 88 M60 14 L70 88 M22 40 H78 M18 64 H82'],
+  ['bottom','차콜 쇼츠','shorts','#3a3a3c',''],
+  ['dress','레드 원피스','dress','#c9231a',''],
+  ['shoes','흰 스니커즈','sneaker','#efece6','M40 52 L48 60 M46 50 L54 58'],
+  ['shoes','레인부츠','boot','#e7e3d6',''],
+  ['bag','레드 숄더백','bag','#c9231a',''],
+  ['acc','스트라이프 캡','cap','#8a5a3c','M30 40 Q52 30 76 44'],
+];
+async function svgToBlob(path, color, detail){
+  const stroke = color === '#f4f1ea' || color === '#efece6' || color === '#e7e3d6' ? '#cfc9bc' : 'rgba(0,0,0,.25)';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="400" height="400"><path d="${path}" fill="${color}" stroke="${stroke}" stroke-width="1" fill-rule="evenodd"/>${detail ? `<path d="${detail}" stroke="${color === '#1f3a63' ? '#f4f1ea' : 'rgba(0,0,0,.22)'}" stroke-width="${color === '#1f3a63' ? 5 : 1.2}" fill="none"/>` : ''}</svg>`;
+  const img = await loadImg('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+  const c = document.createElement('canvas'); c.width = c.height = 400; c.getContext('2d').drawImage(img, 0, 0, 400, 400);
+  // trim
+  const g = c.getContext('2d'), d = g.getImageData(0,0,400,400).data; let x0=400,y0=400,x1=0,y1=0;
+  for (let y=0;y<400;y++) for (let x=0;x<400;x++) if (d[(y*400+x)*4+3] > 8){ x0=Math.min(x0,x); x1=Math.max(x1,x); y0=Math.min(y0,y); y1=Math.max(y1,y); }
+  const t = document.createElement('canvas'); t.width = x1-x0+9; t.height = y1-y0+9; t.getContext('2d').drawImage(c, x0-4, y0-4, t.width, t.height, 0, 0, t.width, t.height);
+  const blob = await toBlob(t); blob.ar = t.height / t.width; return blob;
+}
+async function loadDemo(){
+  if (S.items.size && !confirm('지금 옷장에 예시 피스 15개와 지난 2주 기록을 더할까요?')) return;
+  toast('예시 옷장을 채우는 중…');
+  const ids = {};
+  for (const [cat, name, shape, color, detail] of DEMO_ITEMS){
+    const id = 'i_' + uid(), bl = await svgToBlob(SIL[shape], color, detail); const it = { name, cat, note:'예시', img: await putBlob(bl), ar: bl.ar, created: Date.now() };
+    S.items.set(id, it); await DB.put('items', id, it); ids[name] = id;
+  }
+  const outfits = [
+    ['회색 니트','와이드 데님','흰 스니커즈'], ['화이트 티','데님 재킷','블랙 슬랙스','흰 스니커즈','레드 숄더백'],
+    ['스트라이프 티','체크 미니스커트','레인부츠'], ['레드 원피스','브라운 가디건','흰 스니커즈'],
+    ['하늘색 캐미솔','차콜 쇼츠','레인부츠','스트라이프 캡'], ['회색 니트','블랙 슬랙스','흰 스니커즈'],
+    ['화이트 티','와이드 데님','레드 숄더백','흰 스니커즈'], ['스트라이프 티','데님 재킷','차콜 쇼츠','흰 스니커즈'],
+    ['브라운 가디건','화이트 티','체크 미니스커트','레인부츠'], ['회색 니트','와이드 데님','흰 스니커즈','스트라이프 캡'],
+  ];
+  const tagsFor = [['알바'],[ '학교'],['알바'],['데이트'],[],['알바'],['학교'],['약속'],['알바'],[]];
+  const memos = ['손님 많았음. 니트 따뜻했다','','비 와서 부츠','','','','','','다리 추웠다',''];
+  const skip = new Set([3, 8, 11]); let oi = 0;
+  for (let back = 13; back >= 1; back--){
+    if (skip.has(back)) continue;
+    const k = addDays(todayKey(), -back); if (S.days.has(k)) { oi++; continue; }
+    const names = outfits[oi % outfits.length], pieces = arrange(names.map(n => ({ id: ids[n] })));
+    const r = { date:k, pieces, photo:null, thumb: await putBlob(await composite(pieces)), tags: tagsFor[oi % tagsFor.length], memo: memos[oi % memos.length] };
+    S.days.set(k, r); await DB.put('days', k, r); oi++;
+  }
+  const look = arrange(['레드 원피스','데님 재킷','레인부츠','레드 숄더백'].map(n => ({ id: ids[n] })));
+  const lid = 'l_' + uid(), l = { name:'비 오는 날 빨강', pieces: look, thumb: await putBlob(await composite(look)), created: Date.now() };
+  S.looks.set(lid, l); await DB.put('looks', lid, l);
+  reindex(); render(); toast('예시를 채웠어요. 자유롭게 지워도 돼요');
+}
+
+/* ===================== boot ===================== */
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ if (!$('#editor').hidden) closeEditor(); else if (!$('#composer').hidden) closeComposer(); else { closeSheet(); closeDayPane(); } } });
+(async () => {
+  try { await loadAll(); } catch (err) { console.error(err); toast('저장소를 열 수 없어요 (사생활 보호 모드?)'); }
+  let v = 'cal'; try { v = localStorage.getItem('ootd.view') || 'cal'; } catch {}
+  const d = new Date(); S.month = new Date(d.getFullYear(), d.getMonth(), 1);
+  setView(['cal','closet','looks'].includes(v) ? v : 'cal');
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
