@@ -22,10 +22,10 @@
  {
   "id": "ex3",
   "file": "ex3.webp",
-  "w": 900,
-  "h": 781,
+  "w": 846,
+  "h": 900,
   "film": "integral",
-  "surface": "flatStone",
+  "surface": "darkSlate",
   "temp": 46,
   "flipped": false
  },
@@ -53,9 +53,9 @@
   "id": "ex6",
   "file": "ex6.webp",
   "w": 900,
-  "h": 688,
+  "h": 738,
   "film": "peel",
-  "surface": "linen",
+  "surface": "granitePebble",
   "temp": 68,
   "flipped": false
  },
@@ -73,10 +73,20 @@
   "id": "ex8",
   "file": "ex8.webp",
   "w": 900,
-  "h": 733,
+  "h": 640,
   "film": "integral",
-  "surface": "brickFragment",
+  "surface": "ochreFlagstone",
   "temp": 48,
+  "flipped": false
+ },
+ {
+  "id": "ex9",
+  "file": "ex9.webp",
+  "w": 900,
+  "h": 515,
+  "film": "peel",
+  "surface": "greyPaper",
+  "temp": 70,
   "flipped": false
  }
 ]
