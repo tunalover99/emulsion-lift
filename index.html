@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>에멀전 리프트</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="즉석사진의 이미지 막을 물에서 떼어 종이, 잎, 돌 위에 옮기는 에멀전 리프트 작업실. An emulsion lift studio in the browser.">
+<meta name="description" content="즉석사진의 이미지 막을 물에서 떼어 종이와 돌, 벽돌 위에 옮기는 에멀전 리프트 작업실. An emulsion lift studio in the browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Gowun+Batang:wght@400;700&display=swap">
@@ -228,7 +228,7 @@ html[lang="en"] .toast { font-size: 16px; }
 <main id="view-home" class="wrap">
   <header class="home-head">
     <h1 data-i18n="home.title">에멀전 리프트</h1>
-    <p class="lede" data-i18n="home.lede">사진 속 얇은 빛의 막을 물 위로 떼어 내, 종이와 잎과 돌 위에 옮겨 둡니다.</p>
+    <p class="lede" data-i18n="home.lede">사진 속 얇은 빛의 막을 물 위로 떼어 내, 종이와 돌 위에 옮겨 둡니다.</p>
   </header>
   <div class="field" id="field" aria-label="works"></div>
   <p class="field-note" id="fieldNote"></p>
@@ -321,6 +321,8 @@ html[lang="en"] .toast { font-size: 16px; }
             <div class="surfaces" id="surfPaper"></div>
             <p class="group-label" data-i18n="s4.objects">물체</p>
             <div class="surfaces" id="surfObject"></div>
+            <div class="row"><label class="box file-box" for="surfUpload"><span data-i18n="s4.upload">표면 사진 올리기 ( + )</span><input type="file" id="surfUpload" accept="image/*"></label></div>
+            <p class="note" data-i18n="s4.uploadNote"></p>
             <label class="check" id="whiteWrap" hidden><input type="checkbox" id="whiteLayer"><span><span data-i18n="s4.white">흰 층 남기기</span><br><span class="note" data-i18n="s4.whiteNote"></span></span></label>
             <div class="field-row">
               <span class="label" data-i18n="s3.tool">도구</span>
@@ -400,7 +402,7 @@ const I18N = {
     'doc.title': '에멀전 리프트',
     'nav.works': '작업들', 'nav.new': '새 리프트 ( + )', 'nav.about': '소개',
     'home.title': '에멀전 리프트',
-    'home.lede': '사진 속 얇은 빛의 막을 물 위로 떼어 내, 종이와 잎과 돌 위에 옮겨 둡니다.',
+    'home.lede': '사진 속 얇은 빛의 막을 물 위로 떼어 내, 종이와 돌 위에 옮겨 둡니다.',
     'home.begin': '새 리프트 시작하기', 'home.upload': '손으로 만든 작업 올리기 ( + )',
     'home.examples': '아직 옮겨 둔 작업이 없어 예시를 놓아 두었습니다. 새 리프트를 말리고 두면 이 자리에 하나씩 쌓입니다.',
     'home.count': '{n}점의 작업. 이 브라우저에만 보관됩니다.',
@@ -424,7 +426,7 @@ const I18N = {
     's3.tool': '도구', 's3.released': '떨어진 면적', 's3.auto': '남은 부분 한꺼번에 떼기', 's3.next': '표면 위로 옮기기',
     'tool.release': '떼어내기', 'tool.push': '밀기', 'tool.pinch': '주름 모으기', 'tool.smooth': '펴기', 'tool.tear': '찢기', 'tool.size': '붓 크기',
     's4.title': '표면에 옮기고 모양 잡기',
-    's4.text': '받을 표면을 막 아래로 밀어 넣고 비스듬히 건져 올립니다. 종이뿐 아니라 마른 잎, 돌, 나무에도 올릴 수 있고, 가장자리를 넘는 막은 표면 모양대로 다듬어집니다. 젖어 있는 동안 <strong>밀고, 모으고, 접고, 찢어</strong> 모양을 만듭니다.',
+    's4.text': '받을 표면을 막 아래로 밀어 넣고 비스듬히 건져 올립니다. 종이뿐 아니라 돌이나 벽돌, 직접 찍은 물체 위에도 올릴 수 있고, 가장자리를 넘는 막은 표면 모양대로 다듬어집니다. 젖어 있는 동안 <strong>밀고, 모으고, 접고, 찢어</strong> 모양을 만듭니다.',
     's4.papers': '종이와 천', 's4.objects': '물체',
     's4.white': '흰 층 남기기', 's4.whiteNote': '인티그럴 필름의 흰 시약층을 씻어내지 않으면 막이 불투명해져, 돌이나 크라프트지처럼 어두운 표면에서도 이미지가 보입니다.',
     's4.flip': '뒤집기', 's4.dip': '담갔다 빼기', 's4.shake': '물에서 흔들기', 's4.undo': '되돌리기', 's4.next': '말리기',
@@ -445,6 +447,9 @@ const I18N = {
     'hint.5': '말리는 동안 젖은 광택이 빠지고 막이 살짝 줄어듭니다.',
     'surf.cold': '수채화지 콜드프레스', 'surf.hot': '수채화지 핫프레스', 'surf.hanji': '한지', 'surf.kraft': '크라프트지', 'surf.linen': '리넨',
     'surf.fig': '무화과 잎', 'surf.leaves': '긴 잎 세 장', 'surf.pebble': '조약돌', 'surf.wood': '나무판',
+    'surf.pebbleWhite': '흰 조약돌', 'surf.flatStone': '납작한 돌', 'surf.brickFragment': '벽돌 조각', 'surf.oldBrick': '오래된 벽돌', 'surf.clayBrick': '흙벽돌', 'surf.custom': '올린 표면',
+    's4.upload': '표면 사진 올리기 ( + )', 's4.uploadNote': '흰 바탕에서 찍은 물체 사진을 올리면 바탕을 지우고 물체 모양대로 옮깁니다. 바탕이 고르지 않으면 사진 전체가 표면이 됩니다.',
+    't.surfaceAdded': '올린 사진을 표면으로 놓았습니다.',
     't.printed': '사진을 즉석필름에 인화했습니다.', 't.notImage': '이미지 파일만 쓸 수 있습니다. JPG나 PNG를 골라 주세요.',
     't.openFail': '이 사진을 열 수 없습니다. JPG나 PNG로 다시 시도해 주세요.',
     't.lukewarm': '물이 미지근해서 가장자리만 조금 들떴습니다. 다음 단계에서 더 오래 문질러야 합니다.',
@@ -460,7 +465,7 @@ const I18N = {
     'doc.title': 'Emulsion Lift',
     'nav.works': 'works', 'nav.new': 'new lift ( + )', 'nav.about': 'about',
     'home.title': 'Emulsion Lift',
-    'home.lede': 'Thin skins of light, eased off a photograph in water and laid down on paper, leaves and stone.',
+    'home.lede': 'Thin skins of light, eased off a photograph in water and laid down on paper, stone and brick.',
     'home.begin': 'begin a new lift', 'home.upload': 'add a hand-made lift ( + )',
     'home.examples': 'Nothing has been laid here yet, so a few examples rest in its place. Each lift you dry and keep will settle here.',
     'home.count': '{n} works, kept only in this browser.',
@@ -484,7 +489,7 @@ const I18N = {
     's3.tool': 'tool', 's3.released': 'released', 's3.auto': 'release the rest', 's3.next': 'lift onto a surface',
     'tool.release': 'release', 'tool.push': 'push', 'tool.pinch': 'gather', 'tool.smooth': 'smooth', 'tool.tear': 'tear', 'tool.size': 'brush size',
     's4.title': 'Lay it down and shape it',
-    's4.text': 'Slide the surface beneath the floating skin and lift it out at an angle. Paper works, and so do dried leaves, stone and wood; whatever hangs past the edge is trimmed to the surface. While it is wet, <strong>push, gather, fold and tear</strong> it into shape.',
+    's4.text': 'Slide the surface beneath the floating skin and lift it out at an angle. Paper works, and so do stone, brick or any object you photograph; whatever hangs past the edge is trimmed to the surface. While it is wet, <strong>push, gather, fold and tear</strong> it into shape.',
     's4.papers': 'paper and cloth', 's4.objects': 'objects',
     's4.white': 'keep the white layer', 's4.whiteNote': 'Leave the white reagent of integral film unwashed and the skin turns opaque, so the image still reads on dark surfaces such as stone or kraft.',
     's4.flip': 'flip over', 's4.dip': 'dip again', 's4.shake': 'swirl in water', 's4.undo': 'undo', 's4.next': 'let it dry',
@@ -505,6 +510,9 @@ const I18N = {
     'hint.5': 'As it dries the wet sheen fades and the skin tightens a little.',
     'surf.cold': 'cold-press watercolor', 'surf.hot': 'hot-press watercolor', 'surf.hanji': 'hanji', 'surf.kraft': 'kraft paper', 'surf.linen': 'linen',
     'surf.fig': 'fig leaf', 'surf.leaves': 'three long leaves', 'surf.pebble': 'pebble', 'surf.wood': 'wood panel',
+    'surf.pebbleWhite': 'white pebble', 'surf.flatStone': 'flat stone', 'surf.brickFragment': 'brick fragment', 'surf.oldBrick': 'old brick', 'surf.clayBrick': 'clay brick', 'surf.custom': 'your own surface',
+    's4.upload': 'add a surface photo ( + )', 's4.uploadNote': 'Photograph an object on a plain white ground and the ground is lifted away, leaving the object’s shape. On a busy background the whole photo becomes the surface.',
+    't.surfaceAdded': 'Your photo is now a surface.',
     't.printed': 'Printed onto instant film.', 't.notImage': 'Only image files work here. Choose a JPG or PNG.',
     't.openFail': 'This photo could not be opened. Try a JPG or PNG.',
     't.lukewarm': 'The water was lukewarm, so only the edges lifted. You will need to work it longer next.',
@@ -1129,127 +1137,69 @@ function genLinen(g, w, h, s) {
   noiseLayer(g, w, h, Math.max(2, 50 * k), Math.max(2, 50 * k), 0.05);
   g.restore();
 }
-function figPath(w, h) {
-  const L = [[0.42, 0.08, 0.15, 0.05, 0.06, 0.24], [-0.01, 0.38, 0.04, 0.55, 0.2, 0.6], [0.27, 0.62, 0.31, 0.6, 0.33, 0.62],
-    [0.35, 0.66, 0.29, 0.7, 0.27, 0.74], [0.24, 0.86, 0.42, 0.93, 0.5, 0.99]];
-  const S = [0.5, 0.17], p = new Path2D();
-  p.moveTo(S[0] * w, S[1] * h);
-  L.forEach(sg => p.bezierCurveTo(sg[0] * w, sg[1] * h, sg[2] * w, sg[3] * h, sg[4] * w, sg[5] * h));
-  const starts = [S].concat(L.map(sg => [sg[4], sg[5]]));
-  for (let i = L.length - 1; i >= 0; i--) {
-    const sg = L[i], a = starts[i];
-    p.bezierCurveTo((1 - sg[2]) * w, sg[3] * h, (1 - sg[0]) * w, sg[1] * h, (1 - a[0]) * w, a[1] * h);
-  }
-  p.closePath();
-  return p;
-}
-function genFig(g, w, h, s) {
-  const k = s / BGS, p = figPath(w, h), seed = 41;
-  g.strokeStyle = '#bda67a'; g.lineWidth = Math.max(1, 7 * k); g.lineCap = 'round';
-  g.beginPath(); g.moveTo(w * 0.5, h * 0.2); g.quadraticCurveTo(w * 0.49, h * 0.08, w * 0.505, 0.004 * h); g.stroke();
-  g.save(); g.clip(p);
-  g.fillStyle = '#ddd0ab'; g.fillRect(0, 0, w, h);
-  mottle(g, 0, 0, w, h, [74, 92, 52], seed, 7, 0.42, 0.72, 0.75);
-  mottle(g, 0, 0, w, h, [150, 120, 70], seed + 9, 14, 0.6, 0.85, 0.35);
-  noiseLayer(g, w, h, 2 * k + 0.5, 2 * k + 0.5, 0.05);
-  const vein = (pts, wd) => {
-    g.lineWidth = Math.max(0.5, wd * k); g.strokeStyle = 'rgba(244,234,205,.75)'; g.beginPath(); g.moveTo(pts[0] * w, pts[1] * h);
-    g.quadraticCurveTo(pts[2] * w, pts[3] * h, pts[4] * w, pts[5] * h); g.stroke();
-    g.lineWidth = Math.max(0.3, wd * 0.4 * k); g.strokeStyle = 'rgba(110,85,50,.25)'; g.beginPath(); g.moveTo(pts[0] * w + k, pts[1] * h + 2 * k);
-    g.quadraticCurveTo(pts[2] * w + k, pts[3] * h + 2 * k, pts[4] * w + k, pts[5] * h + 2 * k); g.stroke();
-  };
-  vein([0.5, 0.17, 0.49, 0.6, 0.5, 0.96], 6);
-  [[0.5, 0.17, 0.3, 0.17, 0.1, 0.26], [0.5, 0.17, 0.7, 0.17, 0.9, 0.26], [0.5, 0.2, 0.34, 0.4, 0.14, 0.5], [0.5, 0.2, 0.66, 0.4, 0.86, 0.5],
-    [0.5, 0.4, 0.38, 0.55, 0.3, 0.7], [0.5, 0.4, 0.62, 0.55, 0.7, 0.7]].forEach(v => vein(v, 3.6));
-  const vr = rng(5);
-  for (let i = 0; i < 26; i++) {
-    const tt = 0.2 + (i % 13) / 13 * 0.72, side = i < 13 ? -1 : 1;
-    vein([0.5, tt, 0.5 + side * 0.08, tt + 0.02, 0.5 + side * (0.18 + vr() * 0.12), tt + 0.07], 1.6);
-  }
-  const rg = g.createRadialGradient(w * 0.42, h * 0.38, 0, w * 0.5, h * 0.5, w * 0.62);
-  rg.addColorStop(0, 'rgba(255,255,255,.12)'); rg.addColorStop(1, 'rgba(60,45,20,.28)');
-  g.fillStyle = rg; g.fillRect(0, 0, w, h);
-  g.restore();
-  g.strokeStyle = 'rgba(120,96,58,.55)'; g.lineWidth = Math.max(0.5, 2 * k); g.stroke(p);
-}
-function genLeaves(g, w, h, s) {
-  const k = s / BGS;
-  const leaves = [[0.2, 0.52, -0.1, 0.93, 0.22], [0.5, 0.5, 0.035, 0.97, 0.25], [0.8, 0.5, 0.11, 0.9, 0.21]];
-  leaves.forEach(([cx, cy, rot, lh, lw], li) => {
-    const L = lh * h, Wd = lw * w;
-    g.save(); g.translate(cx * w, cy * h); g.rotate(rot);
-    const p = new Path2D();
-    p.moveTo(0, -L / 2);
-    p.bezierCurveTo(Wd * 0.62, -L * 0.22, Wd * 0.55, L * 0.22, Wd * 0.06, L * 0.44);
-    p.lineTo(Wd * 0.03, L * 0.5); p.lineTo(-Wd * 0.03, L * 0.5); p.lineTo(-Wd * 0.06, L * 0.44);
-    p.bezierCurveTo(-Wd * 0.55, L * 0.22, -Wd * 0.62, -L * 0.22, 0, -L / 2);
-    p.closePath();
-    g.save(); g.clip(p);
-    const gr = g.createLinearGradient(0, -L / 2, 0, L / 2);
-    gr.addColorStop(0, '#e7dfc4'); gr.addColorStop(0.6, '#d9d6b4'); gr.addColorStop(1, '#a9b88e');
-    g.fillStyle = gr; g.fillRect(-Wd, -L / 2, Wd * 2, L);
-    mottle(g, -Wd / 2, -L / 2, Wd, L, [70, 96, 62], 300 + li * 7, 5, 0.5, 0.78, 0.55);
-    for (let x = -Wd / 2; x < Wd / 2; x += 5 * k + 1) {
-      g.strokeStyle = `rgba(120,110,70,${0.06 + Math.random() * 0.08})`; g.lineWidth = Math.max(0.5, k);
-      g.beginPath(); g.moveTo(x * 0.2, -L / 2); g.quadraticCurveTo(x, 0, x * 0.3, L / 2); g.stroke();
+/* photographed objects: the background is lifted off automatically */
+const OBJ_BOX = { cx: 600, cy: 450, w: 940, h: 720 };
+function cutout(img) {
+  const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+  const sc = Math.min(1, 1400 / Math.max(iw, ih));
+  const w = Math.max(2, Math.round(iw * sc)), h = Math.max(2, Math.round(ih * sc));
+  const c = mk(w, h), g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0, w, h);
+  const id = g.getImageData(0, 0, w, h), d = id.data;
+  const border = [];
+  for (let x = 0; x < w; x += 3) { border.push(x, (h - 1) * w + x); }
+  for (let y = 0; y < h; y += 3) { border.push(y * w, y * w + w - 1); }
+  const ch = [0, 1, 2].map(o => border.map(k => d[k * 4 + o]).sort((a, b) => a - b));
+  const bg = ch.map(a => a[a.length >> 1]);
+  const near = k => { const o = k * 4, r = d[o] - bg[0], gg = d[o + 1] - bg[1], b = d[o + 2] - bg[2]; return r * r + gg * gg + b * b; };
+  const tol = 42 * 42;
+  const uniform = border.filter(k => near(k) < tol).length / border.length;
+  const alpha = new Float32Array(w * h).fill(1);
+  if (uniform > 0.7) {
+    const seen = new Uint8Array(w * h), stack = [];
+    for (let x = 0; x < w; x++) { stack.push(x, (h - 1) * w + x); }
+    for (let y = 0; y < h; y++) { stack.push(y * w, y * w + w - 1); }
+    while (stack.length) {
+      const k = stack.pop();
+      if (seen[k]) continue; seen[k] = 1;
+      if (near(k) >= tol) continue;
+      alpha[k] = 0;
+      const x = k % w, y = (k / w) | 0;
+      if (x > 0) stack.push(k - 1); if (x < w - 1) stack.push(k + 1);
+      if (y > 0) stack.push(k - w); if (y < h - 1) stack.push(k + w);
     }
-    g.strokeStyle = 'rgba(70,88,52,.8)'; g.lineWidth = Math.max(0.6, 3.5 * k);
-    g.beginPath(); g.moveTo(0, -L / 2); g.quadraticCurveTo(Wd * 0.03, 0, 0, L / 2); g.stroke();
-    const sh = g.createLinearGradient(-Wd / 2, 0, Wd / 2, 0);
-    sh.addColorStop(0, 'rgba(60,50,30,.22)'); sh.addColorStop(0.4, 'rgba(255,255,255,.08)'); sh.addColorStop(1, 'rgba(60,50,30,.25)');
-    g.fillStyle = sh; g.fillRect(-Wd, -L / 2, Wd * 2, L);
-    g.restore();
-    g.strokeStyle = 'rgba(110,100,60,.5)'; g.lineWidth = Math.max(0.5, 1.5 * k); g.stroke(p);
-    g.restore();
-  });
+    const blur = (src, horiz) => {
+      const out = new Float32Array(w * h), R = 2;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        let s0 = 0, n = 0;
+        for (let q = -R; q <= R; q++) {
+          const xx = horiz ? x + q : x, yy = horiz ? y : y + q;
+          if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue;
+          s0 += src[yy * w + xx]; n++;
+        }
+        out[y * w + x] = s0 / n;
+      }
+      return out;
+    };
+    const soft = blur(blur(alpha, true), false);
+    for (let k = 0; k < w * h; k++) alpha[k] = smooth(0.45, 0.85, soft[k]);
+  }
+  let x0 = w, y0 = h, x1 = 0, y1 = 0;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const a = alpha[y * w + x];
+    d[(y * w + x) * 4 + 3] = a * 255;
+    if (a > 0.05) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  }
+  if (x1 <= x0 || y1 <= y0) { x0 = 0; y0 = 0; x1 = w - 1; y1 = h - 1; for (let k = 0; k < w * h; k++) d[k * 4 + 3] = 255; }
+  g.putImageData(id, 0, 0);
+  const cw = x1 - x0 + 1, chh = y1 - y0 + 1, out = mk(cw, chh);
+  out.getContext('2d').drawImage(c, x0, y0, cw, chh, 0, 0, cw, chh);
+  return out;
 }
-function genPebble(g, w, h, s) {
-  const k = s / BGS, p = new Path2D(), N = 72, seed = 17;
-  const pts = [];
-  for (let i = 0; i < N; i++) {
-    const a = i / N * Math.PI * 2, rr = 1 + (vnoise(Math.cos(a) * 1.6 + 5, Math.sin(a) * 1.6 + 5, seed) - 0.5) * 0.1;
-    pts.push([w / 2 + Math.cos(a) * w * 0.485 * rr, h / 2 + Math.sin(a) * h * 0.47 * rr * (1 - 0.05 * Math.sin(a))]);
-  }
-  p.moveTo((pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2);
-  for (let i = 1; i <= N; i++) { const a = pts[i % N], b = pts[(i + 1) % N]; p.quadraticCurveTo(a[0], a[1], (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); }
-  p.closePath();
-  g.save(); g.clip(p);
-  g.fillStyle = '#9a8c86'; g.fillRect(0, 0, w, h);
-  mottle(g, 0, 0, w, h, [168, 128, 118], seed, 4, 0.4, 0.75, 0.5);
-  const cols = ['#3a3332', '#6b605e', '#c8b9b0', '#e9ded6', '#a5786c', '#56504e', '#b39a92'];
-  const count = Math.round(w * h / 26);
-  for (let i = 0; i < count; i++) {
-    g.fillStyle = cols[(Math.random() * cols.length) | 0];
-    g.globalAlpha = 0.35 + Math.random() * 0.55;
-    const rr = Math.max(0.4, (0.5 + Math.random() * Math.random() * 3) * k);
-    g.fillRect(Math.random() * w, Math.random() * h, rr, rr * (0.6 + Math.random() * 0.8));
-  }
-  g.globalAlpha = 1;
-  const rg = g.createRadialGradient(w * 0.36, h * 0.3, 0, w * 0.5, h * 0.52, w * 0.56);
-  rg.addColorStop(0, 'rgba(255,255,255,.26)'); rg.addColorStop(0.55, 'rgba(255,255,255,0)'); rg.addColorStop(1, 'rgba(20,15,15,.5)');
-  g.fillStyle = rg; g.fillRect(0, 0, w, h);
-  g.restore();
-}
-function genWood(g, w, h, s) {
-  const k = s / BGS, rr = Math.max(1, 10 * k);
-  g.save(); g.beginPath(); g.moveTo(rr, 0); g.arcTo(w, 0, w, h, rr); g.arcTo(w, h, 0, h, rr); g.arcTo(0, h, 0, 0, rr); g.arcTo(0, 0, w, 0, rr); g.closePath(); g.clip();
-  const cw = Math.max(8, Math.ceil(w / 3)), ch = Math.max(8, Math.ceil(h / 3));
-  const c = mk(cw, ch), x = c.getContext('2d'), id = x.createImageData(cw, ch), d = id.data;
-  for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) {
-    const u = i / cw, v = j / ch;
-    const tt = v * 22 + fbm(u * 2.5, v * 9, 77, 4) * 5 + Math.sin(u * 3) * 0.4;
-    const ring = Math.pow(0.5 + 0.5 * Math.sin(tt * Math.PI), 3);
-    const o = (j * cw + i) * 4, m = ring * 0.55;
-    d[o] = 221 + (178 - 221) * m; d[o + 1] = 198 + (146 - 198) * m; d[o + 2] = 160 + (104 - 160) * m; d[o + 3] = 255;
-  }
-  x.putImageData(id, 0, 0);
-  g.imageSmoothingEnabled = true; g.drawImage(c, 0, 0, w, h);
-  noiseLayer(g, w, h, Math.max(2, 160 * k), 1.2 * k + 0.4, 0.09);
-  noiseLayer(g, w, h, Math.max(2, 30 * k), 3 * k + 0.5, 0.05);
-  const sh = g.createLinearGradient(0, 0, 0, h);
-  sh.addColorStop(0, 'rgba(255,255,255,.1)'); sh.addColorStop(1, 'rgba(70,45,20,.14)');
-  g.fillStyle = sh; g.fillRect(0, 0, w, h);
-  g.restore();
+function fitRect(cw, ch) {
+  const sc = Math.min(OBJ_BOX.w / cw, OBJ_BOX.h / ch);
+  const w = Math.round(cw * sc), h = Math.round(ch * sc);
+  return { x: Math.round(OBJ_BOX.cx - w / 2), y: Math.round(OBJ_BOX.cy - h / 2), w, h };
 }
 const SURFACES = {
   cold: { group: 'paper', rect: PAPER_R, gen: genPaper('cold') },
@@ -1257,17 +1207,31 @@ const SURFACES = {
   hanji: { group: 'paper', rect: PAPER_R, gen: genPaper('hanji') },
   kraft: { group: 'paper', rect: PAPER_R, gen: genPaper('kraft') },
   linen: { group: 'paper', rect: { x: 140, y: 100, w: 920, h: 700 }, gen: genLinen },
-  fig: { group: 'object', rect: { x: 240, y: 36, w: 720, h: 830 }, gen: genFig },
-  leaves: { group: 'object', rect: { x: 150, y: 50, w: 900, h: 800 }, gen: genLeaves },
-  pebble: { group: 'object', rect: { x: 160, y: 130, w: 880, h: 640 }, gen: genPebble },
-  wood: { group: 'object', rect: { x: 100, y: 120, w: 1000, h: 660 }, gen: genWood },
+  pebbleWhite: { group: 'object', photo: 'surfaces/pebble-white.jpg' },
+  flatStone: { group: 'object', photo: 'surfaces/flat-stone.jpg' },
+  brickFragment: { group: 'object', photo: 'surfaces/brick-fragment.jpg' },
+  oldBrick: { group: 'object', photo: 'surfaces/old-brick.jpg' },
+  clayBrick: { group: 'object', photo: 'surfaces/clay-brick.jpg' },
 };
+function surfName(kind) { return SURFACES[kind] && SURFACES[kind].custom ? t('surf.custom') : t('surf.' + kind); }
 const surfCache = {};
+function loadImg(src) {
+  return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
+}
+async function ensureSurface(kind) {
+  const S = SURFACES[kind];
+  if (!S.photo || S.cut) return S;
+  if (!S.loading) S.loading = loadImg(S.photo).then(im => { S.cut = cutout(im); S.rect = fitRect(S.cut.width, S.cut.height); });
+  await S.loading;
+  return S;
+}
 function surfaceCanvas(kind, s) {
   const key = kind + '@' + s;
   if (surfCache[key]) return surfCache[key];
   const S = SURFACES[kind], c = mk(S.rect.w * s, S.rect.h * s);
-  S.gen(c.getContext('2d', { willReadFrequently: true }), c.width, c.height, s);
+  const g = c.getContext('2d', { willReadFrequently: true });
+  if (S.cut) { g.imageSmoothingQuality = 'high'; g.drawImage(S.cut, 0, 0, c.width, c.height); }
+  else S.gen(g, c.width, c.height, s);
   surfCache[key] = c;
   return c;
 }
@@ -1483,7 +1447,7 @@ function updateReadout() {
   else if (ph === 1) s = t('ro.developed', { film: state.film === 'integral' ? (lang === 'ko' ? '인티그럴 · 79×79mm' : 'Integral · 79×79mm') : 'FP-100C · 73×95mm' });
   else if (ph === 2) s = t('ro.hot', { t: state.temp, time: fmtTime(state.soakP * soakRealSeconds()) });
   else if (ph === 3) s = t('ro.cold', { p: Math.round(relFrac * 100) });
-  else if (ph === 4) s = t('ro.wet', { surf: t('surf.' + state.surface) }) + (state.flipped ? t('ro.flipped') : '');
+  else if (ph === 4) s = t('ro.wet', { surf: surfName(state.surface) }) + (state.flipped ? t('ro.flipped') : '');
   else s = state.dryP >= 1 ? t('ro.dry') : t('ro.drying', { h: Math.max(1, Math.round(state.dryP * 24)) });
   if (ro.textContent !== s) ro.textContent = s;
 }
@@ -1518,7 +1482,7 @@ function updateMeta() {
   $('meta1').textContent = state.phase > 1 ? t('meta.' + state.film) : '';
   $('meta2').textContent = state.phase > 2 ? `${state.temp}°C` : '';
   $('meta3').textContent = state.phase > 3 ? t('meta.released') : '';
-  $('meta4').textContent = state.phase > 4 ? t('surf.' + state.surface) : '';
+  $('meta4').textContent = state.phase > 4 ? surfName(state.surface) : '';
 }
 function setFilmNotes() {
   const integ = state.film === 'integral';
@@ -1544,30 +1508,67 @@ function buildSurfaceChips() {
     b.type = 'button'; b.className = 'surf'; b.id = 'surf-' + kind; b.dataset.surface = kind;
     b.setAttribute('aria-pressed', kind === state.surface ? 'true' : 'false');
     const th = document.createElement('span'); th.className = 'th';
-    const lb = document.createElement('span'); lb.className = 'nm'; lb.textContent = t('surf.' + kind);
+    const lb = document.createElement('span'); lb.className = 'nm'; lb.textContent = surfName(kind);
     b.append(th, lb);
     $(S.group === 'paper' ? 'surfPaper' : 'surfObject').appendChild(b);
   });
+}
+function addChip(kind) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'surf'; b.id = 'surf-' + kind; b.dataset.surface = kind; b.setAttribute('aria-pressed', 'false');
+  const th = document.createElement('span'); th.className = 'th';
+  const lb = document.createElement('span'); lb.className = 'nm'; lb.textContent = surfName(kind);
+  b.append(th, lb);
+  $('surfObject').appendChild(b);
+  thumbFor(kind);
+}
+async function thumbFor(kind) {
+  const holder = document.querySelector(`#surf-${kind} .th`);
+  if (!holder || holder.firstChild) return;
+  try { await ensureSurface(kind); } catch (e) { return; }
+  if (holder.firstChild) return;
+  const img = new Image(); img.alt = ''; img.src = surfaceCanvas(kind, 0.14).toDataURL(); holder.appendChild(img);
 }
 let thumbsMade = false;
 function makeThumbs() {
   if (thumbsMade) return; thumbsMade = true;
   const kinds = Object.keys(SURFACES);
-  const next = () => {
+  const next = async () => {
     const kind = kinds.shift(); if (!kind) return;
-    const holder = document.querySelector(`#surf-${kind} .th`);
-    if (holder && !holder.firstChild) { const img = new Image(); img.alt = ''; img.src = surfaceCanvas(kind, 0.14).toDataURL(); holder.appendChild(img); }
+    await thumbFor(kind);
     setTimeout(next, 16);
   };
   setTimeout(next, 16);
 }
-function setSurface(kind) {
+async function setSurface(kind) {
   state.surface = kind;
   document.querySelectorAll('.surf').forEach(b => b.setAttribute('aria-pressed', b.dataset.surface === kind ? 'true' : 'false'));
   if (state.phase >= 4) {
     preparing = true; updateReadout();
-    setTimeout(() => { updateMask(); composeBG(); preparing = false; updateReadout(); }, 30);
+    try { await ensureSurface(kind); } catch (e) { preparing = false; toast(t('t.openFail')); return; }
+    await new Promise(r => setTimeout(r, 20));
+    if (state.surface !== kind) return;
+    recenterOn(kind);
+    updateMask(); composeBG(); preparing = false; updateReadout();
   }
+}
+function recenterOn(kind) {
+  const S = SURFACES[kind].rect, [cx, cy] = centroid(), dx = S.x + S.w / 2 - cx, dy = S.y + S.h / 2 - cy, P = M.P;
+  for (let k = 0; k < M.n; k++) { P[2 * k] += dx; P[2 * k + 1] += dy; }
+}
+let customCount = 0;
+function addCustomSurface(file) {
+  if (!file || !file.type.startsWith('image/')) { toast(t('t.notImage')); return; }
+  const url = URL.createObjectURL(file);
+  loadImg(url).then(im => {
+    URL.revokeObjectURL(url);
+    const kind = 'custom' + (++customCount);
+    const cut = cutout(im);
+    SURFACES[kind] = { group: 'object', custom: true, cut, rect: fitRect(cut.width, cut.height) };
+    addChip(kind);
+    setSurface(kind);
+    toast(t('t.surfaceAdded'));
+  }).catch(() => { URL.revokeObjectURL(url); toast(t('t.openFail')); });
 }
 
 /* phase transitions */
@@ -1631,7 +1632,7 @@ async function renderCutout(maxSide = 1600) {
 let resultURL = null;
 async function finishDry() {
   const r = await renderCutout(1600);
-  state.result = { blob: r.blob, w: r.w, h: r.h, meta: { film: state.film, surface: state.surface, temp: state.temp, flipped: state.flipped } };
+  state.result = { blob: r.blob, w: r.w, h: r.h, meta: { film: state.film, surface: SURFACES[state.surface].custom ? 'custom' : state.surface, temp: state.temp, flipped: state.flipped } };
   if (resultURL) URL.revokeObjectURL(resultURL);
   resultURL = URL.createObjectURL(r.blob);
   $('resultImg').src = resultURL; $('result').hidden = false;
@@ -1841,7 +1842,7 @@ const ABOUT = {
 <li>가장자리에 기포가 생기면 찬물로 옮겨, 손가락이나 부드러운 붓으로 가장자리부터 막을 밀어 떼어 냅니다.</li>
 <li>떠 있는 막 아래로 종이나 잎 같은 표면을 넣어 비스듬히 건져 올리고, 젖은 동안 붓과 물로 모양을 잡습니다. 뒤집어 올리면 좌우가 바뀝니다.</li>
 <li>평평한 곳에서 하루 말리고, 필요하면 무광 미디엄으로 고정합니다.</li></ol></section>
-<section><h2>준비물</h2><ul><li>즉석사진, 트레이 두 개(뜨거운 물, 찬물), 부드러운 붓</li><li>받을 표면: 수채화지, 한지, 천, 마른 잎, 돌, 나무</li><li>투명 시트지(필 어파트), 가위나 커터(인티그럴), 무광 미디엄(선택)</li></ul>
+<section><h2>준비물</h2><ul><li>즉석사진, 트레이 두 개(뜨거운 물, 찬물), 부드러운 붓</li><li>받을 표면: 수채화지, 한지, 천, 마른 잎, 돌, 벽돌, 나무</li><li>투명 시트지(필 어파트), 가위나 커터(인티그럴), 무광 미디엄(선택)</li></ul>
 <div class="layers" aria-label="인티그럴 필름 단면"><div>투명 플라스틱 앞면</div><div class="em">유제층 · 이미지가 있는 막</div><div>흰 시약층 (이산화티타늄)</div><div>검은 뒷판</div></div></section>
 <section><h2>이 작업실이 하는 일</h2><div class="map-wrap"><table class="map"><thead><tr><th>암실에서</th><th>화면에서</th></tr></thead><tbody>
 <tr><td>인화</td><td>사진을 필름 비율로 자르고 FP-100C나 폴라로이드의 색과 입자를 입힙니다.</td></tr>
@@ -1857,7 +1858,7 @@ const ABOUT = {
 <li>When bubbles rise at the edges, move it to cold water and ease the skin off with a fingertip or soft brush, edges first.</li>
 <li>Slide paper, a leaf or another surface beneath the floating skin, lift it out at an angle and shape it with brush and water while wet. Laid face down, the image is mirrored.</li>
 <li>Dry it flat for a day and seal it with matte medium if needed.</li></ol></section>
-<section><h2>What you need</h2><ul><li>Instant prints, two trays (hot and cold water), a soft brush</li><li>Surfaces: watercolor paper, hanji, cloth, dried leaves, stone, wood</li><li>Clear contact paper (peel-apart), scissors or a knife (integral), matte medium (optional)</li></ul>
+<section><h2>What you need</h2><ul><li>Instant prints, two trays (hot and cold water), a soft brush</li><li>Surfaces: watercolor paper, hanji, cloth, dried leaves, stone, brick, wood</li><li>Clear contact paper (peel-apart), scissors or a knife (integral), matte medium (optional)</li></ul>
 <div class="layers" aria-label="cross-section of integral film"><div>clear plastic front</div><div class="em">emulsion · the skin with the image</div><div>white reagent layer (titanium dioxide)</div><div>black backing</div></div></section>
 <section><h2>What this studio does</h2><div class="map-wrap"><table class="map"><thead><tr><th>in the darkroom</th><th>on the screen</th></tr></thead><tbody>
 <tr><td>printing</td><td>Crops your photograph to the film format and gives it the color and grain of FP-100C or Polaroid.</td></tr>
@@ -1879,7 +1880,7 @@ function applyLang() {
   $('aboutBody').innerHTML = ABOUT[lang];
   if (!gl && $('glError')) $('glError').textContent = t('t.noWebgl');
   setFilmNotes(); setTempNote(); updateHint(); updateMeta(); updateReadout();
-  document.querySelectorAll('.surf .nm').forEach(el => el.textContent = t('surf.' + el.parentNode.dataset.surface));
+  document.querySelectorAll('.surf .nm').forEach(el => el.textContent = surfName(el.parentNode.dataset.surface));
   if (state.kept) $('keepBtn').textContent = t('s5.kept');
 }
 $('langBtn').addEventListener('click', async () => {
@@ -1996,6 +1997,7 @@ bindSeg('tool4Seg', 'tool', v => { state.tool4 = v; updateHint(); });
   const b = e.target.closest('.surf'); if (b) setSurface(b.dataset.surface);
 }));
 $('whiteLayer').addEventListener('change', e => { state.whiteLayer = e.target.checked; });
+$('surfUpload').addEventListener('change', e => { addCustomSurface(e.target.files[0]); e.target.value = ''; });
 $('temp').addEventListener('input', e => { state.temp = +e.target.value; setTempNote(); updateReadout(); });
 $('brush3').addEventListener('input', e => { state.brush3 = +e.target.value; $('brush3Out').textContent = e.target.value; });
 $('brush4').addEventListener('input', e => { state.brush4 = +e.target.value; $('brush4Out').textContent = e.target.value; });
@@ -2041,6 +2043,7 @@ window.addEventListener('paste', e => {
    ========================================================= */
 async function autoLift({ scene, film: f = 'peel', surface = 'cold', temp, flip: fl = false, shakes = 1, maxSide = 1000 }) {
   state.film = f; state.temp = temp || (f === 'integral' ? 45 : 70); state.surface = surface;
+  await ensureSurface(surface);
   loadImage(makeScene(scene, 7));
   finishSoak(); enterLift();
   M.rel.fill(1); M.inv.fill(1);

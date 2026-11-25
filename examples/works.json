@@ -2,10 +2,10 @@
  {
   "id": "ex1",
   "file": "ex1.webp",
-  "w": 782,
-  "h": 900,
+  "w": 900,
+  "h": 814,
   "film": "peel",
-  "surface": "fig",
+  "surface": "pebbleWhite",
   "temp": 70,
   "flipped": false
  },
@@ -23,10 +23,10 @@
   "id": "ex3",
   "file": "ex3.webp",
   "w": 900,
-  "h": 801,
-  "film": "peel",
-  "surface": "leaves",
-  "temp": 72,
+  "h": 781,
+  "film": "integral",
+  "surface": "flatStone",
+  "temp": 46,
   "flipped": false
  },
  {
@@ -43,9 +43,9 @@
   "id": "ex5",
   "file": "ex5.webp",
   "w": 900,
-  "h": 658,
+  "h": 422,
   "film": "integral",
-  "surface": "pebble",
+  "surface": "oldBrick",
   "temp": 47,
   "flipped": false
  },
@@ -63,10 +63,20 @@
   "id": "ex7",
   "file": "ex7.webp",
   "w": 900,
-  "h": 598,
+  "h": 519,
   "film": "integral",
-  "surface": "wood",
+  "surface": "clayBrick",
   "temp": 45,
+  "flipped": false
+ },
+ {
+  "id": "ex8",
+  "file": "ex8.webp",
+  "w": 900,
+  "h": 733,
+  "film": "integral",
+  "surface": "brickFragment",
+  "temp": 48,
   "flipped": false
  }
 ]
