@@ -113,14 +113,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* surface choice: things scattered on white, a chevron each side to change kind */
 .pick { width: 100%; max-width: 1920px; display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; align-items: center; gap: 0 max(16px, 3vw); padding-inline: max(16px, 9.6vw); min-height: calc(100vh - 220px); }
 .pick-title { grid-column: 1 / -1; text-align: center; font-size: 13px; color: #9a9a9a; margin: 0 0 10px; }
-.pick-items { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 18px 34px; padding-block: 10px; }
+.pick-items { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 46px 34px; padding-block: 10px 40px; }
 .pick-item { position: relative; display: block; }
 .pick-items .pick-item img { width: 100%; height: 100%; }
 .board { display: none; }
 .pick.as-board { position: fixed; inset: 0; z-index: 10; background: var(--ground); display: block; padding: 0; min-height: 0; }
 .pick.as-board .pick-title, .pick.as-board .pick-note, .pick.as-board .pick-items { display: none; }
 .pick.as-board .board { display: block; position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform: translate(-50%, -50%) scale(var(--s, .5)); transform-origin: center; }
-.board .pick-item { position: absolute; }
+.board .pick-item { position: absolute; pointer-events: none; }
+.board { cursor: default; } .board.over-item { cursor: pointer; }
+.board .pick-item.hover img { transform: translateY(-4px); }
+.board .pick-item.hover .nm, .board .pick-item:focus-visible .nm { opacity: 1; }
+.board .pick-add, .board .chev { pointer-events: auto; }
 .board .pick-item img { width: 100%; height: 100%; display: block; }
 .board .pick-add { position: absolute; left: 1287px; top: 552px; gap: 5px; padding: 0; }
 .board .chev { position: absolute; top: 540px; }
@@ -129,7 +133,8 @@ body.picking-board .topnav { background: transparent; }
 body.picking-board .foot { visibility: hidden; }
 .pick-item img { display: block; width: 100%; height: auto; transition: transform .35s cubic-bezier(.2,.7,.2,1); }
 .pick-item:hover img, .pick-item:focus-visible img { transform: translateY(-4px); }
-.pick-item .nm { position: absolute; left: 50%; bottom: -22px; transform: translateX(-50%); white-space: nowrap; font-size: 12px; color: #9a9a9a; opacity: 0; transition: opacity .2s; }
+.pick-item .nm { position: absolute; left: 50%; bottom: -24px; transform: translateX(-50%); white-space: nowrap; font-size: 12px; color: #9a9a9a; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.board .pick-item .nm { bottom: auto; transform: none; font-size: 16px; z-index: 2; }
 .pick-item:hover .nm, .pick-item:focus-visible .nm { opacity: 1; }
 .pick-add { align-self: center; padding: 20px; }
 .pick-note { grid-column: 1 / -1; text-align: center; font-size: 12px; color: #9a9a9a; margin: 18px auto 0; max-width: 60ch; }
@@ -1536,6 +1541,72 @@ function renderPick() {
     $('pick').insertBefore($('catNext'), $('pickItems').nextSibling);
   }
 }
+/* Put the hover name where it keeps clear of every other object, the arrows and "add image". */
+function placeName(btn) {
+  if (!$('pick').classList.contains('as-board')) return;
+  const nm = btn.querySelector('.nm'), board = $('board'), GAP = 16, PAD = 22;
+  const box = el => ({ x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
+  const me = box(btn), lw = nm.offsetWidth, lh = nm.offsetHeight;
+  const others = [...board.children].filter(el => el !== btn && el.offsetWidth).map(box);
+  const hit = r => others.reduce((a, o) => {
+    const ox = Math.min(r.x + r.w, o.x + o.w + PAD) - Math.max(r.x, o.x - PAD);
+    const oy = Math.min(r.y + r.h, o.y + o.h + PAD) - Math.max(r.y, o.y - PAD);
+    return a + (ox > 0 && oy > 0 ? ox * oy : 0);
+  }, 0);
+  const cx = me.x + me.w / 2 - lw / 2, cy = me.y + me.h / 2 - lh / 2;
+  const spots = [
+    { x: cx, y: me.y + me.h + GAP }, { x: cx, y: me.y - GAP - lh },
+    { x: me.x + me.w + GAP, y: cy }, { x: me.x - GAP - lw, y: cy },
+    { x: me.x, y: me.y + me.h + GAP }, { x: me.x + me.w - lw, y: me.y + me.h + GAP },
+    { x: me.x, y: me.y - GAP - lh }, { x: me.x + me.w - lw, y: me.y - GAP - lh },
+  ].map(p => ({ ...p, x: Math.max(8, Math.min(1912 - lw, p.x)), y: Math.max(120, Math.min(1072 - lh, p.y)) }));
+  let best = spots[0], bestHit = Infinity;
+  for (const p of spots) { const h = hit({ x: p.x, y: p.y, w: lw, h: lh }); if (h < bestHit) { best = p; bestHit = h; } if (h === 0) break; }
+  nm.style.left = (best.x - me.x) + 'px'; nm.style.top = (best.y - me.y) + 'px';
+}
+$('board').addEventListener('focusin', e => { const b = e.target.closest('.pick-item'); if (b) placeName(b); });
+/* Boxes from the design overlap (driftwood over the slab), so only painted pixels count as the object. */
+const hitMaps = new WeakMap();
+function hitMap(img) {
+  if (hitMaps.has(img)) return hitMaps.get(img);
+  if (!img.complete || !img.naturalWidth) return null;
+  const sc = Math.min(1, 200 / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = mk(img.naturalWidth * sc, img.naturalHeight * sc), g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0, c.width, c.height);
+  let m = null;
+  try { m = { w: c.width, h: c.height, d: g.getImageData(0, 0, c.width, c.height).data }; } catch (e) { m = { w: 0 }; }
+  hitMaps.set(img, m);
+  return m;
+}
+function solidAt(btn, bx, by) {
+  const img = btn.querySelector('img'), m = hitMap(img);
+  const x0 = btn.offsetLeft, y0 = btn.offsetTop, bw = btn.offsetWidth, bh = btn.offsetHeight;
+  if (bx < x0 || by < y0 || bx > x0 + bw || by > y0 + bh) return false;
+  if (!m || !m.w) return true;
+  const fit = img.style.objectFit === 'cover' ? Math.max : Math.min;
+  const sc = fit(bw / m.w, bh / m.h), ox = (bw - m.w * sc) / 2, oy = (bh - m.h * sc) / 2;
+  const ix = Math.floor((bx - x0 - ox) / sc), iy = Math.floor((by - y0 - oy) / sc);
+  if (ix < 0 || iy < 0 || ix >= m.w || iy >= m.h) return false;
+  const o = (iy * m.w + ix) * 4, d = m.d;
+  return d[o + 3] > 60 && !(d[o] > 244 && d[o + 1] > 244 && d[o + 2] > 244);
+}
+function itemAt(e) {
+  const board = $('board'), r = board.getBoundingClientRect(), sc = r.width / 1920;
+  const bx = (e.clientX - r.left) / sc, by = (e.clientY - r.top) / sc;
+  const items = [...board.querySelectorAll('.pick-item')].reverse();
+  return items.find(b => solidAt(b, bx, by)) || null;
+}
+let hovered = null;
+$('board').addEventListener('pointermove', e => {
+  if (e.target.closest('.pick-add, .chev')) { if (hovered) { hovered.classList.remove('hover'); hovered = null; } $('board').classList.remove('over-item'); return; }
+  const b = itemAt(e);
+  if (b === hovered) return;
+  if (hovered) hovered.classList.remove('hover');
+  hovered = b;
+  $('board').classList.toggle('over-item', !!b);
+  if (b) { b.classList.add('hover'); placeName(b); }
+});
+$('board').addEventListener('pointerleave', () => { if (hovered) hovered.classList.remove('hover'); hovered = null; $('board').classList.remove('over-item'); });
 window.addEventListener('resize', () => { if (state.picking) { if (boardMode() !== $('pick').classList.contains('as-board')) renderPick(); else if (boardMode()) fitBoard(); } });
 async function chooseSurface(kind) {
   preparing = true;
@@ -1560,7 +1631,12 @@ function addCustomSurface(file) {
     chooseSurface(kind);
   }).catch(() => { URL.revokeObjectURL(url); toast(t('t.openFail')); });
 }
-['pickItems', 'board'].forEach(id => $(id).addEventListener('click', e => { const b = e.target.closest('.pick-item'); if (b) chooseSurface(b.dataset.surface); }));
+$('pickItems').addEventListener('click', e => { const b = e.target.closest('.pick-item'); if (b) chooseSurface(b.dataset.surface); });
+$('board').addEventListener('click', e => {
+  if (e.target.closest('.pick-add, .chev')) return;
+  const b = e.detail === 0 ? e.target.closest('.pick-item') : itemAt(e);
+  if (b) chooseSurface(b.dataset.surface);
+});
 $('catPrev').addEventListener('click', () => { catIdx = (catIdx + CATS.length - 1) % CATS.length; renderPick(); });
 $('catNext').addEventListener('click', () => { catIdx = (catIdx + 1) % CATS.length; renderPick(); });
 $('surfUpload').addEventListener('change', e => { addCustomSurface(e.target.files[0]); e.target.value = ''; });
