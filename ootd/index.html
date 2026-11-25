@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>어제 뭐 입었지</title>
 <meta name="description" content="매일 입은 옷을 캘린더에 기록하고, 옷 피스를 하나씩 모아 옷장을 만들고, 그걸로 코디해 보는 웹앱.">
-<meta name="theme-color" content="#f7f5f0">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="어제 뭐 입었지">
@@ -19,7 +19,10 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
 :root{
-  --paper:#f7f5f0;
+  --paper:#ffffff;
+  --tile:#ffffff;
+  --tile-line:#ececea;
+  --field:#fafaf9;
   --card:#ffffff;
   --ink:#1b1a18;
   --muted:#8b877f;
@@ -53,7 +56,7 @@ img{display:block;-webkit-user-drag:none;user-select:none}
 .iconbtn:hover{background:#0000000d}
 .menu{position:absolute;right:16px;top:58px;background:#fff;border:1px solid var(--faint);border-radius:12px;padding:6px;box-shadow:0 12px 30px #0002;min-width:190px;z-index:40}
 .menu button{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:8px}
-.menu button:hover{background:var(--paper)}
+.menu button:hover{background:var(--field)}
 .menu .danger{color:var(--red)}
 
 main{max-width:1440px;margin:0 auto;padding:20px 24px 40px}
@@ -80,7 +83,7 @@ main{max-width:1440px;margin:0 auto;padding:20px 24px 40px}
 .weekdays div{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--red);padding:0 0 6px 6px}
 .grid{border-top:1px solid var(--red);border-left:1px solid var(--red)}
 .cell{position:relative;aspect-ratio:4/5;border-right:1px solid var(--red);border-bottom:1px solid var(--red);text-align:left;overflow:hidden;background:transparent;transition:background .12s}
-.cell:hover{background:#ffffff90}
+.cell:hover{background:#fafaf9}
 .cell .num{position:absolute;left:6px;top:5px;font-family:var(--f-mono);font-size:11px;z-index:2;min-width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%}
 .cell.today .num{background:var(--red);color:#fff}
 .cell.out{color:var(--faint)}
@@ -104,7 +107,7 @@ main{max-width:1440px;margin:0 auto;padding:20px 24px 40px}
 .dp-close{margin-left:auto;display:none}
 .dp-figs{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0}
 .dp-figs.two{grid-template-columns:1fr 1fr}
-.dp-fig{position:relative;aspect-ratio:4/5;border-radius:12px;background:var(--paper);overflow:hidden}
+.dp-fig{position:relative;aspect-ratio:4/5;border-radius:12px;background:var(--tile);border:1px solid var(--tile-line);overflow:hidden}
 .dp-fig img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 8px #0002)}
 .dp-fig img.photo{object-fit:cover;filter:none}
 .dp-fig .lbl{position:absolute;left:10px;top:8px}
@@ -120,11 +123,11 @@ main{max-width:1440px;margin:0 auto;padding:20px 24px 40px}
 .sec-label{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);margin:14px 0 6px;text-transform:uppercase}
 .tagrow{display:flex;gap:6px;flex-wrap:wrap}
 .tagrow input{border:1px dashed var(--faint);border-radius:999px;padding:4px 10px;font-size:12px;width:96px;background:transparent;outline:none}
-textarea.memo{width:100%;min-height:70px;border:1px solid var(--faint);border-radius:10px;padding:10px;resize:vertical;background:var(--paper);outline:none}
+textarea.memo{width:100%;min-height:70px;border:1px solid var(--faint);border-radius:10px;padding:10px;resize:vertical;background:var(--field);outline:none}
 textarea.memo:focus{border-color:var(--ink)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .yhint{margin-top:16px;padding-top:12px;border-top:1px solid var(--faint);display:flex;gap:12px;align-items:center}
-.yhint img{width:70px;height:88px;object-fit:contain;background:var(--paper);border-radius:8px}
+.yhint img{width:70px;height:88px;object-fit:contain;background:var(--tile);border:1px solid var(--tile-line);border-radius:8px}
 .backdrop{position:fixed;inset:0;background:#0004;z-index:29}
 
 /* ---------- closet ---------- */
@@ -137,7 +140,7 @@ select.sel{border:1px solid var(--faint);border-radius:999px;padding:6px 10px;ba
 .catbar::-webkit-scrollbar{display:none}
 .closet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0;border-top:1px solid var(--faint);border-left:1px solid var(--faint)}
 .piece{position:relative;border-right:1px solid var(--faint);border-bottom:1px solid var(--faint);aspect-ratio:1/1.15;padding:10px;text-align:left;display:flex;flex-direction:column}
-.piece:hover{background:#fff}
+.piece:hover{background:#fafaf9}
 .piece .idx{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
 .piece img{flex:1;min-height:0;width:100%;object-fit:contain;filter:drop-shadow(0 5px 6px #0002);padding:6px 4px}
 .piece .nm{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -151,7 +154,7 @@ select.sel{border:1px solid var(--faint);border-radius:999px;padding:6px 10px;ba
 /* looks */
 .looks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
 .look{background:#fff;border:1px solid var(--faint);border-radius:14px;padding:10px;text-align:left}
-.look .img{aspect-ratio:4/5;background:var(--paper);border-radius:10px;overflow:hidden}
+.look .img{aspect-ratio:4/5;background:var(--tile);border-radius:10px;overflow:hidden}
 .look img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 6px #0002)}
 .look .nm{margin-top:8px;font-weight:500}
 .look .st{font-size:11px;color:var(--muted)}
@@ -175,7 +178,7 @@ select.sel{border:1px solid var(--faint);border-radius:999px;padding:6px 10px;ba
 .drawer{border-left:1px solid var(--faint);background:#fff;display:flex;flex-direction:column;min-height:0}
 .drawer .catbar{padding:12px 12px 4px;margin:0}
 .drawer-grid{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 12px 16px;align-content:start}
-.dp{position:relative;aspect-ratio:1;border-radius:10px;background:var(--paper);padding:6px;border:1px solid transparent}
+.dp{position:relative;aspect-ratio:1;border-radius:10px;background:var(--tile);padding:6px;border:1px solid var(--tile-line)}
 .dp img{width:100%;height:100%;object-fit:contain}
 .dp.in{border-color:var(--red);background:var(--red-soft)}
 .dp .badge{position:absolute;left:4px;top:4px;background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:999px;font-weight:600}
@@ -190,7 +193,7 @@ select.sel{border:1px solid var(--faint);border-radius:999px;padding:6px 10px;ba
 #edCanvas{max-width:100%;max-height:calc(100vh - 110px);border-radius:6px;touch-action:none;box-shadow:0 0 0 1px var(--faint)}
 .ed-side{border-left:1px solid var(--faint);background:#fff;padding:16px;overflow:auto;display:flex;flex-direction:column;gap:6px}
 .ed-side .sec-label{margin-top:10px}
-.field{width:100%;border:1px solid var(--faint);border-radius:10px;padding:9px 10px;background:var(--paper);outline:none}
+.field{width:100%;border:1px solid var(--faint);border-radius:10px;padding:9px 10px;background:var(--field);outline:none}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--ink);border-radius:999px;overflow:hidden}
 .seg button{padding:7px 0;font-size:13px}
 .seg button[aria-pressed=true]{background:var(--ink);color:#fff}
@@ -201,7 +204,7 @@ select.sel{border:1px solid var(--faint);border-radius:999px;padding:6px 10px;ba
 
 /* sheet (item detail / look detail) */
 .sheet{position:fixed;z-index:45;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 32px));max-height:calc(100vh - 60px);overflow:auto;background:#fff;border-radius:18px;padding:20px;box-shadow:0 30px 80px #0003}
-.sheet .big{aspect-ratio:1;background:var(--paper);border-radius:12px;padding:20px;margin-bottom:12px}
+.sheet .big{aspect-ratio:1;background:var(--tile);border:1px solid var(--tile-line);border-radius:12px;padding:20px;margin-bottom:12px}
 .sheet .big img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px #0002)}
 .dates{display:flex;gap:6px;flex-wrap:wrap}
 .toast{position:fixed;left:50%;bottom:calc(84px + var(--safe-b));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;z-index:90;font-size:13px;pointer-events:none;opacity:0;transition:opacity .2s}
@@ -385,7 +388,7 @@ select.sel{border:1px solid var(--faint);border-radius:999px;padding:6px 10px;ba
   <div class="ed-body">
     <div class="ed-canvas-wrap checker" id="edWrap">
       <div class="ed-pick" id="edPick">
-        <svg width="90" height="90" viewBox="0 0 100 100"><path fill="#d42a1f" d="M30 15 L42 10 Q50 16 58 10 L70 15 L88 30 L78 42 L70 36 L70 90 L30 90 L30 36 L22 42 L12 30 Z"/></svg>
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#d42a1f" stroke-width="1.2"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>
         <div>옷을 바닥이나 벽에 펼쳐 두고<br>한 장 찍어 주세요. 배경을 지워 피스로 만들어요.</div>
         <button class="pill red solid" id="edChoose">사진 고르기 / 찍기</button>
       </div>
@@ -517,7 +520,7 @@ async function downscaleToBlob(file, max=1400){
   return toBlob(c, 'image/jpeg', .86);
 }
 /* compose pieces onto a 4:5 transparent canvas -> thumbnail blob */
-async function composite(pieces, W=480){
+async function composite(pieces, W=720){
   const H = W * 1.25, c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d');
   g.shadowColor = 'rgba(0,0,0,.18)'; g.shadowBlur = W*.02; g.shadowOffsetY = W*.012;
@@ -1092,65 +1095,35 @@ $('#importIn').onchange = async e => {
   } catch { toast('백업 파일을 읽지 못했어요'); }
 };
 
-/* ===================== demo silhouettes ===================== */
-const SIL = {
-  tee:    'M30 15 L42 10 Q50 17 58 10 L70 15 L88 30 L78 42 L70 37 L70 90 L30 90 L30 37 L22 42 L12 30 Z',
-  knit:   'M33 13 Q50 21 67 13 L82 20 L94 80 L82 83 L72 42 L72 90 L28 90 L28 42 L18 83 L6 80 L18 20 Z',
-  cami:   'M36 8 L38 8 L40 26 Q50 30 60 26 L62 8 L64 8 L66 30 L72 90 L28 90 L34 30 Z',
-  jacket: 'M32 10 L50 20 L68 10 L86 18 L95 84 L82 86 L74 44 L74 92 L26 92 L26 44 L18 86 L5 84 L14 18 Z',
-  jeans:  'M28 6 H72 L78 94 H58 L50 34 L42 94 H22 Z',
-  skirt:  'M34 14 H66 L86 86 Q50 94 14 86 Z',
-  shorts: 'M24 22 H76 L84 74 H56 L50 46 L44 74 H16 Z',
-  dress:  'M38 6 L42 6 L44 22 Q50 25 56 22 L58 6 L62 6 L64 24 L60 40 L82 92 Q50 98 18 92 L40 40 L36 24 Z',
-  sneaker:'M8 62 Q9 44 24 44 L40 47 Q55 58 76 60 Q92 62 92 74 L92 80 H8 Z',
-  boot:   'M30 6 H58 L60 62 Q86 64 90 80 L90 88 H28 Z',
-  bag:    'M32 42 Q32 14 50 14 Q68 14 68 42 L62 42 Q62 21 50 21 Q38 21 38 42 Z M18 40 H82 L88 88 H12 Z',
-  cap:    'M18 62 Q18 26 52 26 Q82 26 82 62 Z M74 56 H98 Q98 66 82 66 H74 Z',
-  scarf:  'M20 10 H80 V30 H62 L66 92 H50 L46 30 H20 Z',
-};
-const SIL_SVG = `<svg viewBox="0 0 100 100"><path fill="#d42a1f" d="${SIL.knit}"/></svg>`;
+/* ===================== demo closet (realistic product cut-outs in ./demo) ===================== */
+const SIL_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="#d42a1f" stroke-width="1.2"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>`;
 const DEMO_ITEMS = [
-  ['top','회색 니트','knit','#9a9a96','M30 50 H70 M30 60 H70'],
-  ['top','화이트 티','tee','#f4f1ea',''],
-  ['top','하늘색 캐미솔','cami','#4f9bb5',''],
-  ['top','스트라이프 티','tee','#1f3a63','M30 30 H70 M30 44 H70 M30 58 H70 M30 72 H70'],
-  ['outer','데님 재킷','jacket','#5d7fa8','M50 22 V92'],
-  ['outer','브라운 가디건','knit','#7a5236','M50 21 V90'],
-  ['bottom','와이드 데님','jeans','#3f5f8a',''],
-  ['bottom','블랙 슬랙스','jeans','#222','M50 34 V38'],
-  ['bottom','체크 미니스커트','skirt','#b8b2a6','M40 14 L30 88 M60 14 L70 88 M22 40 H78 M18 64 H82'],
-  ['bottom','차콜 쇼츠','shorts','#3a3a3c',''],
-  ['dress','레드 원피스','dress','#c9231a',''],
-  ['shoes','흰 스니커즈','sneaker','#efece6','M40 52 L48 60 M46 50 L54 58'],
-  ['shoes','레인부츠','boot','#e7e3d6',''],
-  ['bag','레드 숄더백','bag','#c9231a',''],
-  ['acc','스트라이프 캡','cap','#8a5a3c','M30 40 Q52 30 76 44'],
+  ['top','회색 니트','knit_grey'], ['top','화이트 티','tee_white'], ['top','하늘색 캐미솔','cami_blue'],
+  ['top','스트라이프 티','tee_stripe'], ['top','블랙 리브 티','top_black'],
+  ['outer','데님 재킷','jacket_denim'], ['outer','브라운 가디건','cardigan_brown'],
+  ['bottom','와이드 데님','jeans_wide'], ['bottom','블랙 슬랙스','slacks_black'], ['bottom','체크 미니스커트','skirt_plaid'], ['bottom','차콜 쇼츠','shorts_charcoal'],
+  ['dress','레드 원피스','dress_red'],
+  ['shoes','흰 스니커즈','sneakers_white'], ['shoes','레인부츠','boots_rain'], ['shoes','블랙 로퍼','loafers_black'],
+  ['bag','레드 숄더백','bag_red'], ['acc','코듀로이 캡','cap_brown'], ['acc','니트 머플러','scarf_beige'],
 ];
-async function svgToBlob(path, color, detail){
-  const stroke = color === '#f4f1ea' || color === '#efece6' || color === '#e7e3d6' ? '#cfc9bc' : 'rgba(0,0,0,.25)';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="400" height="400"><path d="${path}" fill="${color}" stroke="${stroke}" stroke-width="1" fill-rule="evenodd"/>${detail ? `<path d="${detail}" stroke="${color === '#1f3a63' ? '#f4f1ea' : 'rgba(0,0,0,.22)'}" stroke-width="${color === '#1f3a63' ? 5 : 1.2}" fill="none"/>` : ''}</svg>`;
-  const img = await loadImg('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
-  const c = document.createElement('canvas'); c.width = c.height = 400; c.getContext('2d').drawImage(img, 0, 0, 400, 400);
-  // trim
-  const g = c.getContext('2d'), d = g.getImageData(0,0,400,400).data; let x0=400,y0=400,x1=0,y1=0;
-  for (let y=0;y<400;y++) for (let x=0;x<400;x++) if (d[(y*400+x)*4+3] > 8){ x0=Math.min(x0,x); x1=Math.max(x1,x); y0=Math.min(y0,y); y1=Math.max(y1,y); }
-  const t = document.createElement('canvas'); t.width = x1-x0+9; t.height = y1-y0+9; t.getContext('2d').drawImage(c, x0-4, y0-4, t.width, t.height, 0, 0, t.width, t.height);
-  const blob = await toBlob(t); blob.ar = t.height / t.width; return blob;
-}
 async function loadDemo(){
-  if (S.items.size && !confirm('지금 옷장에 예시 피스 15개와 지난 2주 기록을 더할까요?')) return;
+  if (S.items.size && !confirm(`지금 옷장에 예시 피스 ${DEMO_ITEMS.length}개와 지난 2주 기록을 더할까요?`)) return;
   toast('예시 옷장을 채우는 중…');
   const ids = {};
-  for (const [cat, name, shape, color, detail] of DEMO_ITEMS){
-    const id = 'i_' + uid(), bl = await svgToBlob(SIL[shape], color, detail); const it = { name, cat, note:'예시', img: await putBlob(bl), ar: bl.ar, created: Date.now() };
-    S.items.set(id, it); await DB.put('items', id, it); ids[name] = id;
-  }
+  try {
+    for (const [cat, name, file] of DEMO_ITEMS){
+      const bl = await (await fetch(`demo/${file}.webp`)).blob();
+      const im = await loadImg(URL.createObjectURL(bl));
+      const id = 'i_' + uid(), it = { name, cat, note:'예시', img: await putBlob(bl), ar: im.naturalHeight / im.naturalWidth, created: Date.now() };
+      S.items.set(id, it); await DB.put('items', id, it); ids[name] = id;
+    }
+  } catch (err) { console.error(err); toast('예시 사진을 불러오지 못했어요'); return; }
   const outfits = [
     ['회색 니트','와이드 데님','흰 스니커즈'], ['화이트 티','데님 재킷','블랙 슬랙스','흰 스니커즈','레드 숄더백'],
     ['스트라이프 티','체크 미니스커트','레인부츠'], ['레드 원피스','브라운 가디건','흰 스니커즈'],
-    ['하늘색 캐미솔','차콜 쇼츠','레인부츠','스트라이프 캡'], ['회색 니트','블랙 슬랙스','흰 스니커즈'],
+    ['하늘색 캐미솔','차콜 쇼츠','레인부츠','코듀로이 캡'], ['블랙 리브 티','블랙 슬랙스','블랙 로퍼','니트 머플러'],
     ['화이트 티','와이드 데님','레드 숄더백','흰 스니커즈'], ['스트라이프 티','데님 재킷','차콜 쇼츠','흰 스니커즈'],
-    ['브라운 가디건','화이트 티','체크 미니스커트','레인부츠'], ['회색 니트','와이드 데님','흰 스니커즈','스트라이프 캡'],
+    ['브라운 가디건','화이트 티','체크 미니스커트','레인부츠'], ['회색 니트','와이드 데님','흰 스니커즈','코듀로이 캡'],
   ];
   const tagsFor = [['알바'],[ '학교'],['알바'],['데이트'],[],['알바'],['학교'],['약속'],['알바'],[]];
   const memos = ['손님 많았음. 니트 따뜻했다','','비 와서 부츠','','','','','','다리 추웠다',''];
