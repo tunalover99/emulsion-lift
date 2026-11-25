@@ -17,6 +17,7 @@ Notes from the `web` page (as of 2026-11-25; the site was rebuilt to this layout
   - `?` = explanation of emulsion lift (about page).
   - `+` = make a new emulsion lift (studio).
   - `@` = log in and keep an archive, plus an artist statement.
+- The `옮길 곳_*` pickers place each surface at its Figma box: `slot` in `SURFACES` is [x, y, w, h] in the 1920x1080 frame.
 - Frames: `메인페이지` (works with small grey captions), `? 눌렀을 때 나오는 페이지` (text left, picture + caption right), `+눌렀을 때 나오는 첫번째 이미지` (print centred, "+ change image", chevron bottom right), `+누르고 두번째 단계` (metal tray top view), `옮길 곳_돌` / `옮길 곳_종이` / `옮길 곳_나무` (objects scattered on white, chevrons left/right, "+ add image").
 - Type (owner's choice, overrides Figma's Inter): Latin in Arial Regular, Hangul in Pretendard Regular (self-hosted in `fonts/`), all text weight 400.
 - Tokens: white ground; nav ? 36px / + 45px / @ 27px, inactive #bababa, active #514f4f (+ is black); about text Inter Bold 16px #6d6d6d.
@@ -24,4 +25,4 @@ Notes from the `web` page (as of 2026-11-25; the site was rebuilt to this layout
 - The owner wants photographic material, not drawn illustration: tray, papers and sample photos come from the Figma file (`surfaces/tray.jpg`, `surfaces/paper/*.webp`, `photos/*.jpg`). Do not replace them with procedural drawings.
 - Section "reference" holds mood images; section "기능 구분" holds the owner's notes on what each page does.
 
-A login + archive (`@`) needs a backend; the current site keeps works only in the visitor's browser (IndexedDB). Raise this with the owner before building it.
+Login (`@`) uses Supabase: `config.js` holds the project URL and anon key (empty = browser-only mode), `supabase/setup.sql` creates `profiles`, `works` and a private `works` storage bucket with owner-only rules, and `vendor/supabase.js` is the self-hosted supabase-js 2.45.4 UMD build. Sign-in is an email magic link (PKCE). Works and the artist statement are private to each account; public sharing is not built.

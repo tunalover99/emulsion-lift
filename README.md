@@ -22,3 +22,14 @@
 - 메뉴의 "예시 옷장 채워 보기"는 `ootd/demo/`의 실사 제품 사진(AI로 생성 후 배경 제거) 18장을 씁니다.
 - 데이터는 이 브라우저(IndexedDB)에만 저장됩니다. 메뉴의 "백업 파일 내보내기/가져오기"로 기기를 옮길 수 있습니다.
 - 외부 의존성: Google Fonts(Bodoni Moda, Geist, Noto Serif KR), Pretendard(jsDelivr), onnxruntime-web 1.20.1(jsDelivr, 스캔할 때만 불러옴).
+
+## 로그인 연결하기 (Supabase)
+
+`@` 화면의 로그인, 계정별 아카이브, 작가 소개는 Supabase(무료 요금제 가능)에 보관됩니다. 연결하기 전에는 작업이 방문자의 브라우저에만 보관됩니다.
+
+1. https://supabase.com 에서 새 프로젝트를 만듭니다.
+2. 왼쪽 **SQL Editor → New query**에 `supabase/setup.sql` 내용을 붙여 넣고 **Run**을 누릅니다. 표 2개(작업, 작가 소개)와 비공개 이미지 보관함이 만들어지고, 각자 자기 것만 보고 고칠 수 있게 규칙이 걸립니다.
+3. **Authentication → URL Configuration**에서 Site URL과 Redirect URLs에 `https://tunalover99.github.io/emulsion-lift/` 를 넣습니다.
+4. **Project Settings → API**의 Project URL과 anon public key를 `config.js`에 적고 커밋합니다. anon key는 공개되어도 되는 키입니다. service_role 키는 절대 넣지 마세요.
+
+로그인은 이메일로 받은 링크를 누르는 방식입니다. Supabase 기본 메일 발송은 시간당 몇 통으로 제한되므로, 방문자가 많아지면 Authentication → Emails에서 자체 SMTP를 연결하세요.

@@ -139,6 +139,14 @@ body.picking-board .foot { visibility: hidden; }
 .archive-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 30px; }
 .archive-head p { margin: 0; font-size: 13px; color: #9a9a9a; max-width: 56ch; }
 .archive .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 44px; }
+.artist { display: grid; gap: 10px; max-width: 638px; margin-bottom: 44px; }
+.artist-name, .artist-statement, .login input { font: inherit; color: var(--ink); border: 0; border-bottom: 1px solid var(--hair); background: transparent; padding: 6px 0; width: 100%; outline: none; }
+.artist-name { font-size: 16px; }
+.artist-statement { font-size: 16px; line-height: 1.5; color: var(--text); resize: vertical; }
+.artist-name:focus, .artist-statement:focus, .login input:focus { border-bottom-color: var(--ink); }
+.account { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; margin-bottom: 26px; }
+.login { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.login input { width: min(280px, 70vw); font-size: 15px; }
 .archive-empty { text-align: center; color: #9a9a9a; font-size: 14px; padding-block: 80px; }
 
 /* ---------- viewer ---------- */
@@ -285,6 +293,21 @@ body.picking-board .foot { visibility: hidden; }
 <!-- @ -->
 <main id="view-archive" class="wrap" hidden>
   <div class="archive">
+    <section class="artist" id="artist" hidden aria-label="artist">
+      <input type="text" id="artistName" class="artist-name" maxlength="80" autocomplete="name">
+      <textarea id="artistStatement" class="artist-statement" rows="5" maxlength="4000"></textarea>
+      <div class="row"><button type="button" class="link quiet" id="artistSave" data-i18n="art.save">저장</button><span class="status" id="artistMsg" role="status"></span></div>
+    </section>
+    <div class="account" id="account" hidden>
+      <form class="login" id="loginForm" hidden>
+        <label class="sr" for="loginEmail" data-i18n="acc.email">이메일</label>
+        <input type="email" id="loginEmail" autocomplete="email" required>
+        <button type="submit" class="link" id="loginBtn" data-i18n="acc.send">로그인 링크 받기</button>
+      </form>
+      <span class="status" id="acctEmail"></span>
+      <button type="button" class="link quiet" id="logoutBtn" hidden data-i18n="acc.logout">로그아웃</button>
+      <button type="button" class="link quiet" id="migrateBtn" hidden></button>
+    </div>
     <div class="archive-head">
       <p id="archiveNote"></p>
       <label class="link file-link" for="workUpload"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6z"/></svg><span data-i18n="arc.add">이미지 추가</span><input type="file" id="workUpload" accept="image/*"></label>
@@ -316,6 +339,7 @@ body.picking-board .foot { visibility: hidden; }
 </footer>
 <div class="toast" id="toast" hidden role="status"></div>
 
+<script src="config.js"></script>
 <script>
 (() => {
 'use strict';
@@ -360,7 +384,7 @@ const I18N = {
     'surf.fig': '무화과 잎', 'surf.leaves': '긴 잎', 'surf.pebble': '조약돌', 'surf.wood': '나무판',
     'tag.example': '예시', 'tag.upload': '손으로 만든 리프트',
     'home.examples': '아직 둔 작업이 없어 예시를 놓아 두었습니다. + 에서 리프트를 만들어 말리면 이 자리에 쌓입니다.',
-    'arc.add': '이미지 추가', 'arc.note': '로그인 기능은 아직 없습니다. 작업은 지금 이 브라우저에만 보관되고, 손으로 만든 리프트 사진도 함께 둘 수 있습니다.',
+    'arc.add': '이미지 추가', 'arc.note': '로그인은 아직 연결되지 않았습니다. 작업은 이 브라우저에만 보관되고, 손으로 만든 리프트 사진도 함께 둘 수 있습니다.',
     'arc.empty': '아직 둔 작업이 없습니다. + 를 눌러 첫 리프트를 만들어 보세요.',
     'about.cap': 'pic_ 흰 조약돌 위의 리프트',
     't.printed': '사진을 즉석필름에 인화했습니다.', 't.notImage': '이미지 파일만 쓸 수 있습니다. JPG나 PNG를 골라 주세요.',
@@ -372,6 +396,13 @@ const I18N = {
     't.uploaded': '사진을 아카이브에 두었습니다.', 't.surfaceAdded': '올린 사진을 표면으로 놓았습니다.',
     't.saveNote': '저장 창이 뜨지 않으면 이미지를 길게 누르거나 마우스 오른쪽 버튼으로 눌러 저장하세요.',
     't.noWebgl': '이 브라우저에서는 WebGL을 쓸 수 없어 트레이를 그릴 수 없습니다. 최신 Chrome, Safari, Firefox에서 열어 주세요.',
+    'acc.email': '이메일', 'acc.send': '로그인 링크 받기', 'acc.sent': '{email}로 로그인 링크를 보냈습니다. 메일함에서 링크를 눌러 주세요.',
+    'acc.sendFail': '로그인 링크를 보내지 못했습니다. 이메일 주소를 확인하고 잠시 뒤 다시 시도해 주세요.', 'acc.signedIn': '{email}로 로그인함', 'acc.logout': '로그아웃',
+    'acc.migrate': '이 브라우저의 작업 {n}점을 계정으로 옮기기', 'acc.migrated': '{n}점을 계정으로 옮겼습니다.',
+    'acc.loginNote': '로그인하면 작업이 계정에 보관되어 어느 기기에서든 볼 수 있습니다. 로그인하지 않으면 이 브라우저에만 보관됩니다.',
+    'acc.cloudNote': '작업은 계정에 보관되고, 본인만 볼 수 있습니다.',
+    'art.name': '이름', 'art.statement': '작가 소개', 'art.save': '저장', 'art.saved': '저장했습니다.', 'art.fail': '저장하지 못했습니다. 다시 시도해 주세요.',
+    't.keptCloud': '계정에 보관했습니다.', 't.cloudFail': '계정에 보관하지 못했습니다. 연결을 확인하고 다시 시도해 주세요.', 't.loadFail': '계정의 작업을 불러오지 못했습니다.',
     'v.save': 'PNG로 저장', 'v.delete': '지우기', 'v.confirm': '정말 지울까요?', 'v.close': '닫기',
     'v.no': '{n}', 'v.flipped': '뒤집어 올림', 'v.uploadMeta': '손으로 만든 리프트를 찍은 사진',
   },
@@ -411,7 +442,7 @@ const I18N = {
     'surf.fig': 'fig leaf', 'surf.leaves': 'long leaves', 'surf.pebble': 'pebble', 'surf.wood': 'wood panel',
     'tag.example': 'example', 'tag.upload': 'hand-made lift',
     'home.examples': 'Nothing has been kept yet, so a few examples rest here. Make a lift under + and let it dry, and it will settle in their place.',
-    'arc.add': 'add image', 'arc.note': 'There is no log-in yet. Works are kept only in this browser, and you can add photographs of lifts made by hand.',
+    'arc.add': 'add image', 'arc.note': 'Sign-in is not connected yet. Works are kept only in this browser, and you can add photographs of lifts made by hand.',
     'arc.empty': 'Nothing kept yet. Press + to make your first lift.',
     'about.cap': 'pic_ a lift on a white pebble',
     't.printed': 'Printed onto instant film.', 't.notImage': 'Only image files work here. Choose a JPG or PNG.',
@@ -423,6 +454,13 @@ const I18N = {
     't.uploaded': 'Your photograph is in the archive.', 't.surfaceAdded': 'Your photo is now a surface.',
     't.saveNote': 'If no save prompt appears, long-press or right-click the image to save it.',
     't.noWebgl': 'This browser has no WebGL, so the tray cannot be drawn. Open the page in a current Chrome, Safari or Firefox.',
+    'acc.email': 'email', 'acc.send': 'send a sign-in link', 'acc.sent': 'A sign-in link is on its way to {email}. Open it from your inbox.',
+    'acc.sendFail': 'The sign-in link could not be sent. Check the address and try again in a moment.', 'acc.signedIn': 'signed in as {email}', 'acc.logout': 'sign out',
+    'acc.migrate': 'move {n} works from this browser to your account', 'acc.migrated': 'Moved {n} works to your account.',
+    'acc.loginNote': 'Sign in to keep works in your account and see them on any device. Without signing in, they stay in this browser.',
+    'acc.cloudNote': 'Works are kept in your account, visible only to you.',
+    'art.name': 'name', 'art.statement': 'artist statement', 'art.save': 'save', 'art.saved': 'Saved.', 'art.fail': 'Could not save. Try again.',
+    't.keptCloud': 'Kept in your account.', 't.cloudFail': 'Could not reach your account. Check the connection and try again.', 't.loadFail': 'Could not load the works in your account.',
     'v.save': 'save PNG', 'v.delete': 'remove', 'v.confirm': 'remove for good?', 'v.close': 'close',
     'v.no': '{n}', 'v.flipped': 'laid face down', 'v.uploadMeta': 'photograph of a hand-made lift',
   },
@@ -1636,6 +1674,112 @@ const store = {
   async del(id) { try { await this.tx('readwrite', s => s.delete(id)); } catch (e) {} this.mem = this.mem.filter(w => w.id !== id); },
 };
 const newId = () => 'w' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36);
+
+/* ---------- accounts (Supabase): works kept per person when signed in ---------- */
+const CFG = window.LIFT_CONFIG || {};
+function loadScript(src) { return new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); }); }
+const cloud = {
+  sb: null, user: null, enabled: !!(CFG.supabaseUrl && CFG.supabaseAnonKey),
+  async init() {
+    if (!this.enabled) return;
+    try { await loadScript('vendor/supabase.js'); } catch (e) { this.enabled = false; return; }
+    this.sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, { auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true } });
+    try { const { data } = await this.sb.auth.getSession(); this.user = data.session ? data.session.user : null; } catch (e) { this.user = null; }
+    if (/[?&]code=/.test(location.search)) history.replaceState(null, '', location.pathname + location.hash);
+    this.sb.auth.onAuthStateChange((_ev, session) => {
+      const was = this.user && this.user.id; this.user = session ? session.user : null;
+      if (was !== (this.user && this.user.id)) onAuthChange();
+    });
+  },
+  signIn(email) { return this.sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname + '#archive' } }); },
+  signOut() { return this.sb.auth.signOut(); },
+  async all() {
+    const { data, error } = await this.sb.from('works').select('*').order('created');
+    if (error) throw error;
+    if (!data.length) return [];
+    const { data: signed } = await this.sb.storage.from('works').createSignedUrls(data.map(r => r.path), 3600);
+    const map = new Map((signed || []).map(x => [x.path, x.signedUrl]));
+    return data.map(r => ({ ...r, src: map.get(r.path), cloud: true }));
+  },
+  async put(w) {
+    const type = (w.blob && w.blob.type) || 'image/png', ext = type.includes('jpeg') ? 'jpg' : 'png';
+    const path = `${this.user.id}/${w.id}.${ext}`;
+    const up = await this.sb.storage.from('works').upload(path, w.blob, { contentType: type, upsert: true });
+    if (up.error) throw up.error;
+    const row = { id: w.id, kind: w.kind || 'lift', created: w.created, film: w.film || null, surface: w.surface || null, temp: w.temp || null, flipped: !!w.flipped, w: w.w || null, h: w.h || null, path };
+    const { error } = await this.sb.from('works').upsert(row);
+    if (error) throw error;
+  },
+  async del(w) {
+    await this.sb.storage.from('works').remove([w.path]);
+    const { error } = await this.sb.from('works').delete().eq('id', w.id);
+    if (error) throw error;
+  },
+  async profile() {
+    const { data } = await this.sb.from('profiles').select('name, statement').eq('id', this.user.id).maybeSingle();
+    return data || { name: '', statement: '' };
+  },
+  async saveProfile(p) {
+    const { error } = await this.sb.from('profiles').upsert({ id: this.user.id, name: p.name, statement: p.statement, updated_at: new Date().toISOString() });
+    if (error) throw error;
+  },
+};
+async function allWorks() {
+  if (cloud.user) { try { return await cloud.all(); } catch (e) { toast(t('t.loadFail')); return []; } }
+  return store.all();
+}
+async function keepWork(w, okKey) {
+  if (cloud.user) {
+    try { await cloud.put(w); toast(t('t.keptCloud')); return; } catch (e) { toast(t('t.cloudFail')); }
+  }
+  const durable = await store.put(w);
+  if (!cloud.user) toast(durable ? t(okKey) : t('t.storeFail'));
+}
+async function renderAccount() {
+  const on = cloud.enabled, user = cloud.user;
+  $('account').hidden = !on;
+  $('loginForm').hidden = !on || !!user;
+  $('logoutBtn').hidden = !user;
+  $('acctEmail').textContent = user ? t('acc.signedIn', { email: user.email || '' }) : '';
+  $('artist').hidden = !user;
+  $('archiveNote').textContent = !on ? t('arc.note') : user ? t('acc.cloudNote') : t('acc.loginNote');
+  $('loginEmail').placeholder = t('acc.email');
+  $('artistName').placeholder = t('art.name'); $('artistStatement').placeholder = t('art.statement');
+  $('migrateBtn').hidden = true;
+  if (user) {
+    try { const p = await cloud.profile(); $('artistName').value = p.name || ''; $('artistStatement').value = p.statement || ''; } catch (e) {}
+    const local = await store.all();
+    if (local.length) { $('migrateBtn').hidden = false; $('migrateBtn').textContent = t('acc.migrate', { n: local.length }); }
+  }
+}
+function onAuthChange() {
+  if (state.view === 'archive') renderArchive(); else if (state.view === 'home') renderHome();
+}
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = $('loginEmail').value.trim(); if (!email) return;
+  $('loginBtn').disabled = true;
+  try {
+    const { error } = await cloud.signIn(email);
+    if (error) throw error;
+    $('acctEmail').textContent = t('acc.sent', { email });
+  } catch (err) { $('acctEmail').textContent = t('acc.sendFail'); }
+  $('loginBtn').disabled = false;
+});
+$('logoutBtn').addEventListener('click', async () => { try { await cloud.signOut(); } catch (e) {} cloud.user = null; onAuthChange(); });
+$('artistSave').addEventListener('click', async () => {
+  try { await cloud.saveProfile({ name: $('artistName').value.trim(), statement: $('artistStatement').value.trim() }); $('artistMsg').textContent = t('art.saved'); }
+  catch (e) { $('artistMsg').textContent = t('art.fail'); }
+  setTimeout(() => { $('artistMsg').textContent = ''; }, 3000);
+});
+$('migrateBtn').addEventListener('click', async () => {
+  $('migrateBtn').disabled = true;
+  const local = await store.all(); let n = 0;
+  for (const w of local) { try { await cloud.put(w); await store.del(w.id); n++; } catch (e) { break; } }
+  $('migrateBtn').disabled = false;
+  toast(n === local.length ? t('acc.migrated', { n }) : t('t.cloudFail'));
+  renderArchive();
+});
 let works = [], examples = null, shown = [];
 const urls = new Map();
 async function loadExamples() {
@@ -1685,7 +1829,7 @@ function layoutCols(list, a, b, arrivedId) {
   list.forEach((w, i) => (i % 2 ? b : a).appendChild(workButton(w, i, arrivedId)));
 }
 async function renderHome(arrivedId) {
-  works = (await store.all()).sort((x, y) => x.created - y.created);
+  works = (await allWorks()).sort((x, y) => x.created - y.created);
   shown = works.length ? works.slice().reverse() : await loadExamples();
   layoutCols(shown, $('colA'), $('colB'), arrivedId);
   const cap = $('captions'); cap.innerHTML = '';
@@ -1693,12 +1837,12 @@ async function renderHome(arrivedId) {
   $('homeNote').textContent = works.length ? '' : t('home.examples');
 }
 async function renderArchive(arrivedId) {
-  works = (await store.all()).sort((x, y) => x.created - y.created);
+  renderAccount();
+  works = (await allWorks()).sort((x, y) => x.created - y.created);
   shown = works.slice().reverse();
   layoutCols(shown, $('arcA'), $('arcB'), arrivedId);
   $('archiveEmpty').hidden = shown.length > 0;
   $('archiveEmpty').textContent = t('arc.empty');
-  $('archiveNote').textContent = t('arc.note');
 }
 
 /* ---------- viewer ---------- */
@@ -1735,7 +1879,7 @@ $('vSave').addEventListener('click', async () => {
 $('vDelete').addEventListener('click', async () => {
   const w = shown[vIndex]; if (!w || w.example) return;
   if (!confirmDel) { confirmDel = true; $('vDelete').textContent = t('v.confirm'); return; }
-  await store.del(w.id);
+  try { if (w.cloud) await cloud.del(w); else await store.del(w.id); } catch (e) { toast(t('t.cloudFail')); return; }
   if (urls.has(w.id)) { URL.revokeObjectURL(urls.get(w.id)); urls.delete(w.id); }
   toast(t('t.deleted'));
   closeViewer();
@@ -1753,9 +1897,8 @@ let pendingArrival = null;
 async function keepResult() {
   const r = state.result; if (!r || state.kept) return;
   const w = { id: newId(), kind: 'lift', created: Date.now(), blob: r.blob, w: r.w, h: r.h, ...r.meta };
-  const durable = await store.put(w);
+  await keepWork(w, 't.kept');
   state.kept = true; pendingArrival = w.id;
-  toast(durable ? t('t.kept') : t('t.storeFail'));
 }
 $('workUpload').addEventListener('change', e => {
   const f = e.target.files[0]; e.target.value = '';
@@ -1768,8 +1911,7 @@ $('workUpload').addEventListener('change', e => {
     const c = mk(img.naturalWidth * sc, img.naturalHeight * sc); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
     const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.9));
     const w = { id: newId(), kind: 'upload', created: Date.now(), blob, w: c.width, h: c.height };
-    const durable = await store.put(w);
-    toast(durable ? t('t.uploaded') : t('t.storeFail'));
+    await keepWork(w, 't.uploaded');
     renderArchive(w.id);
   }).catch(() => { URL.revokeObjectURL(url); toast(t('t.openFail')); });
 });
@@ -1990,7 +2132,7 @@ async function autoLift({ scene, film: f = 'peel', surface = 'cold', temp, flip:
 
 /* ---------- boot ---------- */
 applyLang();
-route();
+cloud.init().finally(route);
 requestAnimationFrame(frame);
 window.__lift = { state, autoLift, get M() { return M; } };
 })();
