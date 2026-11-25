@@ -1,0 +1,1369 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>어제 뭐 입었지</title>
+<meta name="description" content="매일 입은 옷을 캘린더에 기록하고, 옷 피스를 하나씩 모아 옷장을 만들고, 그걸로 코디해 보는 웹앱.">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="어제 뭐 입었지">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Noto+Serif+KR:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* Type & layout follow the quiet-luxury pattern of award-winning fashion sites:
+   one neutral grotesk for all UI, a high-contrast Didone only for large dates and titles,
+   tiny tracked uppercase labels, hairline rules, square corners, lots of white. */
+:root{
+  --paper:#ffffff;
+  --tile:#ffffff;
+  --tile-line:#ededed;
+  --field:#f7f7f7;
+  --card:#ffffff;
+  --ink:#111111;
+  --muted:#8c8c8c;
+  --faint:#e3e3e3;
+  --line:#111111;
+  --red:#d42a1f;
+  --red-soft:#fcefed;
+  --f-sans:"Geist","Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+  --f-serif:"Bodoni Moda","Noto Serif KR","Times New Roman",serif;
+  --f-mono:"Geist Mono","Pretendard",ui-monospace,monospace;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --gut:32px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{overflow-x:hidden}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-sans);font-size:13px;line-height:1.5;letter-spacing:-.005em;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;font-feature-settings:"ss01","tnum"}
+button,input,select,textarea{font:inherit;color:inherit;letter-spacing:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+img{display:block;-webkit-user-drag:none;user-select:none}
+.mono{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.serif{font-family:var(--f-serif);font-weight:400;letter-spacing:-.01em}
+
+/* ---------- top bar ---------- */
+.top{position:sticky;top:0;z-index:20;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px;height:56px;padding:0 var(--gut);background:#fffffff2;backdrop-filter:blur(10px);border-bottom:1px solid var(--faint)}
+.brand{display:flex;align-items:baseline;gap:10px;white-space:nowrap}
+.brand b{font-weight:600;font-size:14px;letter-spacing:-.02em}
+.brand i{font-style:normal;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.top > .sp{display:none}
+.tabs{display:flex;gap:28px;justify-self:center}
+.tab{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 0;border-bottom:1px solid transparent}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ink)}
+.top-right{justify-self:end;display:flex;align-items:center;gap:14px}
+.top-date{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.iconbtn{width:32px;height:32px;display:grid;place-items:center;font-size:16px}
+.iconbtn:hover{background:var(--field)}
+.menu{position:absolute;right:var(--gut);top:52px;background:#fff;border:1px solid var(--line);padding:6px 0;min-width:220px;z-index:40}
+.menu button{display:block;width:100%;text-align:left;padding:10px 16px;font-size:12px}
+.menu button:hover{background:var(--field)}
+.menu .danger{color:var(--red)}
+
+main{max-width:1600px;margin:0 auto;padding:28px var(--gut) 56px}
+.view{display:none}
+.view.on{display:block}
+
+/* ---------- buttons & chips (square, hairline) ---------- */
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 16px;border:1px solid var(--line);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;transition:background .15s,color .15s}
+.pill:hover{background:var(--ink);color:#fff}
+.pill.solid{background:var(--ink);color:#fff}
+.pill.solid:hover{background:#333}
+.pill.red{border-color:var(--red);color:var(--red)}
+.pill.red:hover{background:var(--red);color:#fff}
+.pill.red.solid{background:var(--ink);border-color:var(--ink);color:#fff}
+.pill:disabled{opacity:.35;pointer-events:none}
+.chip{height:28px;padding:0 12px;border:1px solid var(--faint);background:#fff;font-size:11px;letter-spacing:.02em;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.chip:hover{border-color:var(--ink)}
+.chip.on{border-color:var(--ink);background:var(--ink);color:#fff}
+
+/* ---------- calendar ---------- */
+.cal-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(360px,1fr);gap:48px;align-items:start}
+.cal-head{display:flex;align-items:flex-end;gap:16px;margin-bottom:18px}
+.cal-title{font-family:var(--f-serif);font-size:88px;font-weight:400;line-height:.82;letter-spacing:-.035em}
+.cal-title small{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;color:var(--muted);margin:0 0 12px 2px;text-transform:uppercase}
+.cal-nav{margin-left:auto;display:flex;gap:0;align-items:center}
+.cal-nav .iconbtn{border:1px solid var(--line);width:34px;height:34px}
+.cal-nav .pill{border-left:0;border-right:0}
+.tagbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 20px;min-height:28px}
+.taghint{font-size:11px;color:var(--ink);margin-left:8px}
+.taghint button{text-decoration:underline;text-underline-offset:3px;color:var(--red)}
+
+.weekdays,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.weekdays div{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:var(--red);padding:0 0 8px 8px}
+.grid{border-top:1px solid var(--red);border-left:1px solid var(--red)}
+.cell{position:relative;aspect-ratio:4/5;border-right:1px solid var(--red);border-bottom:1px solid var(--red);text-align:left;overflow:hidden;background:transparent;transition:background .12s}
+.cell:hover{background:#fafafa}
+.cell .num{position:absolute;left:8px;top:7px;font-family:var(--f-mono);font-size:11px;letter-spacing:.02em;z-index:2;line-height:1}
+.cell.today .num{color:#fff;background:var(--red);padding:3px 5px;left:5px;top:4px}
+.cell.out{color:#cfcfcf}
+.cell.out .thumb{opacity:.3}
+.cell.sel{background:var(--red-soft)}
+.cell.sel::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 2px var(--red);pointer-events:none}
+.cell.dim .thumb,.cell.dim .tagmark{opacity:.12}
+.cell .thumb{position:absolute;inset:14% 6% 14%;width:88%;height:72%;object-fit:contain;filter:drop-shadow(0 3px 3px #0001)}
+.cell .thumb.photo{inset:0;width:100%;height:100%;object-fit:cover;filter:none}
+.cell .tagmark{position:absolute;left:8px;right:6px;bottom:6px;font-family:var(--f-mono);font-size:9px;letter-spacing:.04em;color:var(--red);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2}
+.cell .thumb.photo~.tagmark,.cell .thumb.photo~.num{color:#fff;text-shadow:0 1px 2px #0008}
+
+/* ---------- day pane ---------- */
+.day-pane{position:sticky;top:84px;background:#fff;border-left:1px solid var(--faint);padding:0 0 0 32px;max-height:calc(100vh - 110px);overflow:auto;scrollbar-width:thin}
+.dp-head{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.dp-date{font-family:var(--f-serif);font-size:72px;line-height:.8;letter-spacing:-.04em}
+.dp-sub{display:flex;flex-direction:column;gap:3px;padding-bottom:4px}
+.dp-dow{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:var(--muted)}
+.dp-rel{color:var(--red);font-weight:600;font-size:12px}
+.dp-close{margin-left:auto;display:none}
+.dp-figs{display:grid;grid-template-columns:1fr;gap:1px;margin:18px 0;background:var(--faint);border:1px solid var(--faint)}
+.dp-figs.two{grid-template-columns:1fr 1fr}
+.dp-fig{position:relative;aspect-ratio:4/5;background:#fff;overflow:hidden}
+.dp-fig img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 8px #00000014)}
+.dp-fig img.photo{object-fit:cover;filter:none}
+.empty-fig{aspect-ratio:4/5;border:1px solid var(--faint);display:grid;place-items:center;text-align:center;padding:24px;margin:18px 0;color:var(--muted)}
+.empty-fig .serif{color:var(--ink)}
+.empty-fig .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.warn{border-left:2px solid var(--red);color:var(--red);padding:2px 0 2px 12px;font-size:12px;margin:0 0 16px;line-height:1.5}
+.ok{border-left:2px solid var(--ink);color:var(--ink);padding:2px 0 2px 12px;font-size:12px;margin:0 0 16px}
+.plist{list-style:none;padding:0;margin:0 0 18px;border-top:1px solid var(--line)}
+.plist li{display:grid;grid-template-columns:28px 44px 1fr auto;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--faint);font-size:13px}
+.plist img{width:44px;height:44px;object-fit:contain}
+.plist .n{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+.plist .meta{font-size:11px;color:var(--muted);text-align:right;line-height:1.6}
+.sec-label{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:var(--muted);margin:20px 0 8px;text-transform:uppercase}
+.tagrow{display:flex;gap:6px;flex-wrap:wrap}
+.tagrow input{height:28px;border:1px dashed var(--faint);padding:0 10px;font-size:11px;width:100px;background:transparent;outline:none}
+.tagrow input:focus{border-color:var(--ink);border-style:solid}
+textarea.memo{width:100%;min-height:80px;border:0;border-bottom:1px solid var(--faint);padding:8px 0;resize:vertical;background:transparent;outline:none;font-size:13px}
+textarea.memo:focus{border-color:var(--ink)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.yhint{margin-top:24px;padding-top:16px;border-top:1px solid var(--faint);display:flex;gap:14px;align-items:center}
+.yhint img{width:72px;height:90px;object-fit:contain;background:#fff;border:1px solid var(--tile-line)}
+.backdrop{position:fixed;inset:0;background:#0000004d;z-index:29}
+
+/* ---------- section heads (closet, looks) ---------- */
+.v-head{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:16px}
+.v-title{font-family:var(--f-serif);font-size:88px;line-height:.82;letter-spacing:-.035em}
+.v-title small{display:block;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 12px 2px;order:-1}
+.v-title{display:flex;flex-direction:column}
+.v-tools{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+select.sel{height:34px;border:1px solid var(--faint);padding:0 28px 0 12px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23111' fill='none'/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;appearance:none;font-size:11px;letter-spacing:.04em;border-radius:0}
+.catbar{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:20px;scrollbar-width:none}
+.catbar::-webkit-scrollbar{display:none}
+
+/* closet = product listing grid */
+.closet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));border-top:1px solid var(--faint);border-left:1px solid var(--faint)}
+.piece{position:relative;border-right:1px solid var(--faint);border-bottom:1px solid var(--faint);aspect-ratio:3/4;padding:14px 14px 16px;text-align:left;display:flex;flex-direction:column;transition:background .15s}
+.piece:hover{background:#fafafa}
+.piece .idx{font-family:var(--f-mono);font-size:10px;letter-spacing:.02em;color:var(--muted);text-transform:uppercase}
+.piece img{flex:1;min-height:0;width:100%;object-fit:contain;filter:drop-shadow(0 6px 8px #00000014);padding:14px 10px;transition:transform .3s ease}
+.piece:hover img{transform:scale(1.03)}
+.piece .nm{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.piece .st{font-size:11px;color:var(--muted);margin-top:2px}
+.piece .st b{color:var(--red);font-weight:500}
+.piece.add{align-items:center;justify-content:center;gap:10px;color:var(--ink)}
+.piece.add .plus{font-family:var(--f-serif);font-size:64px;line-height:.8;font-weight:400}
+.piece.add span:last-child{font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.empty-state{padding:80px 20px;text-align:center;color:var(--muted);border:1px solid var(--faint)}
+.empty-state svg{width:56px;height:56px;margin:0 auto 20px;display:block}
+.empty-state p{line-height:1.7}
+.empty-state>div:last-child{display:flex;gap:8px;justify-content:center}
+
+/* looks */
+.looks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));border-top:1px solid var(--faint);border-left:1px solid var(--faint)}
+.look{background:#fff;border-right:1px solid var(--faint);border-bottom:1px solid var(--faint);padding:14px 14px 18px;text-align:left}
+.look:hover{background:#fafafa}
+.look .img{aspect-ratio:4/5;background:transparent;overflow:hidden}
+.look img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 6px #00000014)}
+.look .nm{margin-top:10px;font-weight:500}
+.look .st{font-size:11px;color:var(--muted)}
+.look.add{display:grid;place-items:center;color:var(--ink);min-height:300px;text-align:center;font-size:11px;letter-spacing:.06em;text-transform:uppercase;line-height:1.8}
+.look.add .serif{text-transform:none;font-size:64px!important}
+
+/* ---------- full-screen modal ---------- */
+.modal{position:fixed;inset:0;z-index:50;background:#fff;display:flex;flex-direction:column}
+.m-bar{display:flex;align-items:center;gap:12px;height:56px;padding:0 var(--gut);border-bottom:1px solid var(--line);background:#fff}
+.m-bar h2{margin:0;font-family:var(--f-sans);font-weight:600;font-size:15px;line-height:1;letter-spacing:-.01em}
+.m-bar .sp{flex:1}
+.m-bar input[type=date],.m-bar input[type=text]{height:34px;border:1px solid var(--faint);padding:0 10px;background:#fff;border-radius:0;font-size:12px}
+.m-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 400px}
+.stage-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;min-height:0;gap:14px;background:#fafafa}
+.stage{position:relative;aspect-ratio:4/5;height:min(100%,calc((100vw - 450px) * 1.25));max-height:calc(100vh - 180px);max-width:100%;background:#fff;border:1px solid var(--red);overflow:hidden;touch-action:none}
+.stage .hint{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);text-align:center;padding:30px;pointer-events:none;line-height:1.7}
+.stage .sp{position:absolute;transform:translate(-50%,-50%);touch-action:none;cursor:grab}
+.stage .sp img{width:100%;filter:drop-shadow(0 6px 7px #00000022);pointer-events:none}
+.stage .sp.sel{outline:1px solid var(--red);outline-offset:4px}
+.stage-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;min-height:36px}
+.stage-tools input[type=range]{width:120px;accent-color:var(--ink)}
+.drawer{border-left:1px solid var(--faint);background:#fff;display:flex;flex-direction:column;min-height:0}
+.drawer .catbar{padding:16px 16px 6px;margin:0}
+.drawer-grid{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:8px 16px 16px;align-content:start}
+.dp{position:relative;aspect-ratio:1;background:#fff;padding:8px;border:1px solid var(--tile-line);margin:0 -1px -1px 0}
+.dp:hover{z-index:1;border-color:var(--ink)}
+.dp img{width:100%;height:100%;object-fit:contain}
+.dp.in{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);z-index:1}
+.dp .badge{position:absolute;left:0;top:0;background:var(--red);color:#fff;font-family:var(--f-sans);font-size:9px;font-weight:500;letter-spacing:0;padding:2px 5px}
+.dp .check{position:absolute;right:6px;top:4px;color:var(--ink);font-size:12px}
+.drawer-foot{padding:12px 16px calc(12px + var(--safe-b));border-top:1px solid var(--faint);display:flex;gap:8px;align-items:center;font-size:12px}
+.drawer-foot label{display:flex;gap:8px;align-items:center}
+.drawer-foot input{accent-color:var(--ink)}
+
+/* piece editor */
+.ed-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 360px}
+.ed-canvas-wrap{display:grid;place-items:center;padding:24px;min-height:0;overflow:hidden}
+.checker{background-color:#fff;background-image:linear-gradient(45deg,#f2f2f2 25%,transparent 25%),linear-gradient(-45deg,#f2f2f2 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#f2f2f2 75%),linear-gradient(-45deg,transparent 75%,#f2f2f2 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
+#edCanvas{max-width:100%;max-height:calc(100vh - 110px);touch-action:none;box-shadow:0 0 0 1px var(--faint)}
+.ed-side{border-left:1px solid var(--faint);background:#fff;padding:8px 24px 24px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.ed-side .sec-label{margin-top:16px}
+.field{width:100%;height:38px;border:0;border-bottom:1px solid var(--faint);padding:0;background:transparent;outline:none;font-size:13px;border-radius:0}
+.field:focus{border-color:var(--ink)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}
+.seg button{height:34px;font-size:11px;letter-spacing:.04em}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+.rangerow{display:flex;gap:10px;align-items:center;font-size:11px;color:var(--muted)}
+.rangerow input{flex:1;accent-color:var(--ink)}
+.ed-pick{display:grid;place-items:center;text-align:center;color:var(--muted);gap:16px;line-height:1.7}
+.catpick{display:flex;flex-wrap:wrap;gap:6px}
+
+/* sheet (item detail / look detail) */
+.sheet{position:fixed;z-index:45;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 60px);overflow:auto;background:#fff;padding:24px;border:1px solid var(--line)}
+.sheet .big{aspect-ratio:1;background:#fff;border:1px solid var(--tile-line);padding:28px;margin-bottom:16px}
+.sheet .big img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 10px #00000014)}
+.sheet .field{margin-bottom:4px}
+.dates{display:flex;gap:6px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(84px + var(--safe-b));transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;z-index:90;font-size:12px;pointer-events:none;opacity:0;transition:opacity .2s}
+.toast.on{opacity:1}
+
+.bottombar{display:none}
+
+/* ---------- mobile ---------- */
+@media (max-width:860px){
+  :root{--gut:16px}
+  .top{display:flex;height:auto;padding:12px var(--gut);padding-top:calc(12px + env(safe-area-inset-top,0px))}
+  .brand i{display:none}
+  .tabs,.top-date{display:none}
+  .top-right{margin-left:auto}
+  main{padding:20px var(--gut) calc(100px + var(--safe-b))}
+  .cal-layout{display:block}
+  .cal-title,.v-title{font-size:46px}
+  .cal-head{margin-bottom:14px;flex-wrap:wrap;gap:10px}
+  .cal-nav .pill{padding:0 12px}
+  .tagbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-bottom:16px}
+  .tagbar::-webkit-scrollbar{display:none}
+  .weekdays div{padding-left:4px;font-size:9px;letter-spacing:.04em}
+  .cell{aspect-ratio:3/4}
+  .cell .num{font-size:10px;left:4px;top:4px}
+  .cell.today .num{left:2px;top:2px;padding:2px 3px}
+  .cell .tagmark{font-size:8px;left:4px;bottom:3px;letter-spacing:0}
+  .cell .thumb{inset:17% 4% 17%;width:92%;height:66%}
+  .day-pane{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:30;max-height:88vh;padding:18px var(--gut) calc(28px + var(--safe-b));transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1);border:0;border-top:1px solid var(--line)}
+  .day-pane.open{transform:none}
+  .day-pane::before{content:"";display:block;width:36px;height:3px;background:var(--faint);margin:-6px auto 14px}
+  .dp-close{display:grid}
+  .dp-date{font-size:60px}
+  .dp-figs:not(.two){max-width:320px;margin-left:auto;margin-right:auto}
+  .empty-fig{aspect-ratio:auto;min-height:220px}
+  .closet-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .piece{padding:10px 10px 12px}
+  .looks-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .look.add{min-height:220px}
+  .v-head{gap:12px}
+  .v-tools{margin-left:0;width:100%}
+  .v-tools select{flex:1}
+  .bottombar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:25;background:#fffffff5;backdrop-filter:blur(10px);border-top:1px solid var(--faint);padding:8px 8px calc(8px + var(--safe-b))}
+  .bottombar button{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:4px 0}
+  .bottombar button[aria-selected=true]{color:var(--ink)}
+  .bottombar .rec span.c{width:40px;height:40px;background:var(--ink);display:grid;place-items:center;margin-top:-2px}
+  .bottombar .rec span.t{color:var(--ink)}
+  .m-body,.ed-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .stage-wrap{padding:12px 12px 8px}
+  .stage{height:auto;width:min(100%,calc(38vh * .8));max-height:none}
+  .drawer{border-left:0;border-top:1px solid var(--faint)}
+  .drawer .catbar{padding:12px 12px 4px}
+  .drawer-grid{grid-template-columns:repeat(4,1fr);padding:8px 12px 12px}
+  .m-bar{height:auto;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top,0px));gap:8px}
+  .m-bar h2{white-space:nowrap}
+  .m-bar .sp{display:none}
+  .m-bar input[type=date],.m-bar input[type=text]{flex:1;min-width:0}
+  #composer .m-bar h2{display:none}
+  .ed-canvas-wrap{padding:12px;max-height:50vh}
+  #edCanvas{max-height:calc(50vh - 24px)}
+  .ed-side{border-left:0;border-top:1px solid var(--faint);padding:4px 16px calc(20px + var(--safe-b))}
+  .sheet{left:0;right:0;bottom:0;top:auto;transform:none;width:auto;max-height:88vh;border:0;border-top:1px solid var(--line);padding:20px var(--gut) calc(24px + var(--safe-b))}
+}
+/* ---------- scan screen ---------- */
+.ed-pick{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted);gap:22px;padding:24px;height:100%}
+.ed-frame{position:relative;width:150px;height:190px;display:grid;place-items:center}
+.ed-frame i{position:absolute;width:26px;height:26px;border:0 solid var(--red)}
+.ed-frame i:nth-child(1){left:0;top:0;border-left-width:2px;border-top-width:2px}
+.ed-frame i:nth-child(2){right:0;top:0;border-right-width:2px;border-top-width:2px}
+.ed-frame i:nth-child(3){left:0;bottom:0;border-left-width:2px;border-bottom-width:2px}
+.ed-frame i:nth-child(4){right:0;bottom:0;border-right-width:2px;border-bottom-width:2px}
+.ed-tip{font-size:13px;line-height:1.75;color:var(--ink)}
+.ed-tip span{color:var(--muted);font-size:12px}
+.ed-pick-btns{display:flex;flex-direction:column;gap:8px;width:min(280px,100%)}
+.ed-pick-btns .pill{height:48px;font-size:12px;color:var(--ink)}
+.ed-pick-btns .pill.solid{color:#fff}
+.ed-stage{position:relative;max-width:100%;max-height:100%;display:grid;place-items:center}
+.scanfx{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#ffffff55}
+.scanfx i{position:absolute;left:0;right:0;height:2px;background:var(--red);box-shadow:0 0 14px 3px #d42a1f88;animation:scan 1.4s ease-in-out infinite alternate}
+@keyframes scan{from{top:2%}to{top:97%}}
+.scanmsg{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:8px 14px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis}
+.ed-canvas-wrap{position:relative}
+.ed-fix{border-top:1px solid var(--faint);border-bottom:1px solid var(--faint);margin-top:14px;padding:0}
+.ed-fix summary{list-style:none;cursor:pointer;padding:12px 0;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between}
+.ed-fix summary::-webkit-details-marker{display:none}
+.ed-fix summary::after{content:"+";font-size:14px;color:var(--ink)}
+.ed-fix[open] summary::after{content:"–"}
+.ed-fix>*:not(summary){margin-bottom:10px}
+.ed-fix-row{display:flex;gap:6px}
+.ed-fix-row .pill{flex:1;padding:0 6px}
+.ed-actions{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:auto;padding-top:20px}
+.ed-actions .pill{height:48px}
+button,a{touch-action:manipulation}
+
+@media (max-width:860px){
+  /* iPhone 16 (393x852): notch/Dynamic Island + home indicator safe areas, 16px inputs (no auto-zoom) */
+  input,select,textarea,.field,textarea.memo,.tagrow input{font-size:16px}
+  .tagrow input{width:120px;height:32px}
+  .chip{height:32px;padding:0 13px;font-size:12px}
+  .pill{height:40px}
+  .bottombar{grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + var(--safe-b))}
+  .bottombar button{font-size:10px;letter-spacing:0;text-transform:none;min-height:48px;justify-content:flex-end}
+  .bottombar .scan{color:var(--ink)}
+  .bottombar .scan span.c{width:48px;height:48px;background:var(--ink);display:grid;place-items:center;margin-top:-14px}
+  .toast{bottom:calc(92px + var(--safe-b));max-width:calc(100% - 32px)}
+  .modal{height:100dvh}
+  #editor .ed-body{grid-template-rows:minmax(0,46dvh) minmax(0,1fr)}
+  .ed-canvas-wrap{max-height:none;height:100%;padding:12px}
+  #edCanvas{max-height:calc(46dvh - 24px);max-width:100%}
+  .ed-side{padding:4px 16px calc(12px + var(--safe-b));gap:6px}
+  .ed-actions{position:sticky;bottom:0;background:#fff;padding:12px 0 0;margin-top:16px}
+  .m-bar .pill{height:36px}
+  .day-pane{max-height:calc(100dvh - 56px - env(safe-area-inset-top,0px))}
+  .sheet{max-height:calc(100dvh - 56px)}
+}
+#editor.picking .ed-side{display:none}
+#editor.picking .ed-body{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+@media (max-width:860px){
+  #editor.picking .ed-body{grid-template-rows:minmax(0,1fr)}
+  #editor.picking .ed-canvas-wrap{padding-bottom:calc(24px + var(--safe-b))}
+  .m-bar h2 + .sp + .pill, .m-bar .sp + .pill{margin-left:auto}
+  .cal-nav .iconbtn{width:40px;height:40px}
+  .cell{aspect-ratio:5/7}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><b>어제 뭐 입었지</b><i>Wardrobe Diary</i></div>
+  <nav class="tabs" role="tablist">
+    <button class="tab" data-view="cal" role="tab">캘린더</button>
+    <button class="tab" data-view="closet" role="tab">옷장</button>
+    <button class="tab" data-view="looks" role="tab">코디</button>
+  </nav>
+  <div class="top-right">
+  <span class="top-date" id="topDate"></span>
+  <button class="iconbtn" id="menuBtn" aria-label="메뉴">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+  </button>
+  <div class="menu" id="menu" hidden>
+    <button data-act="export">백업 파일 내보내기</button>
+    <button data-act="import">백업 파일 가져오기</button>
+    <button data-act="demo">예시 옷장 채워 보기</button>
+    <button data-act="wipe" class="danger">모든 기록 지우기</button>
+  </div>
+  </div>
+</header>
+
+<main>
+  <!-- CALENDAR -->
+  <section class="view" id="view-cal">
+    <div class="cal-layout">
+      <div>
+        <div class="cal-head">
+          <div class="cal-title" id="calTitle"></div>
+          <div class="cal-nav">
+            <button class="iconbtn" id="prevM" aria-label="이전 달">‹</button>
+            <button class="pill" id="todayBtn">오늘</button>
+            <button class="iconbtn" id="nextM" aria-label="다음 달">›</button>
+          </div>
+        </div>
+        <div class="tagbar" id="tagbar"></div>
+        <div class="weekdays"><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div></div>
+        <div class="grid" id="grid"></div>
+      </div>
+      <aside class="day-pane" id="dayPane"></aside>
+    </div>
+  </section>
+
+  <!-- CLOSET -->
+  <section class="view" id="view-closet">
+    <div class="v-head">
+      <div class="v-title"><small id="closetCount"></small>Closet</div>
+      <div class="v-tools">
+        <select class="sel" id="sortSel">
+          <option value="new">최근 추가순</option>
+          <option value="stale">안 입은 지 오래된 순</option>
+          <option value="most">많이 입은 순</option>
+          <option value="least">적게 입은 순</option>
+        </select>
+        <button class="pill red solid" id="addPieceBtn">+ 옷 스캔</button>
+      </div>
+    </div>
+    <div class="catbar" id="closetCats"></div>
+    <div id="closetBody"></div>
+  </section>
+
+  <!-- LOOKS -->
+  <section class="view" id="view-looks">
+    <div class="v-head">
+      <div class="v-title"><small id="looksCount"></small>Looks</div>
+      <div class="v-tools"><button class="pill red solid" id="newLookBtn">+ 새 코디</button></div>
+    </div>
+    <div id="looksBody"></div>
+  </section>
+</main>
+
+<nav class="bottombar" role="tablist">
+  <button data-view="cal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>캘린더</button>
+  <button data-view="closet"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 6a2 2 0 1 0-2-2M12 6v2L3 15h18l-9-7"/></svg>옷장</button>
+  <button class="scan" id="scanBtn" aria-label="옷 스캔"><span class="c"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4"><path d="M3 8V4h4M17 4h4v4M21 16v4h-4M7 20H3v-4"/><circle cx="12" cy="12" r="3.4"/></svg></span>스캔</button>
+  <button id="recBtn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M12 8v8M8 12h8"/></svg>오늘 기록</button>
+  <button data-view="looks"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>코디</button>
+</nav>
+
+<div class="backdrop" id="backdrop" hidden></div>
+
+<!-- COMPOSER -->
+<div class="modal" id="composer" hidden>
+  <div class="m-bar">
+    <button class="iconbtn" data-close aria-label="닫기">✕</button>
+    <h2 id="cmpTitle">코디</h2>
+    <span class="sp"></span>
+    <input type="date" id="cmpDate">
+    <input type="text" id="cmpName" placeholder="코디 이름" hidden>
+    <button class="pill red solid" id="cmpSave">저장</button>
+  </div>
+  <div class="m-body">
+    <div class="stage-wrap">
+      <div class="stage" id="stage"><div class="hint" id="stageHint">옆 옷장에서 오늘 입은 피스를 눌러 담아 주세요.<br>끌어서 위치를 옮길 수 있어요.</div></div>
+      <div class="stage-tools">
+        <span id="selTools" hidden style="display:contents">
+          <span class="mono">크기</span><input type="range" id="selSize" min="8" max="90">
+          <button class="pill" id="selFront">앞으로</button>
+          <button class="pill red" id="selRemove">빼기</button>
+        </span>
+        <span id="stageTools" style="display:contents">
+          <button class="pill" id="autoArrange">자동 정렬</button>
+          <button class="pill" id="clearStage">비우기</button>
+        </span>
+      </div>
+    </div>
+    <div class="drawer">
+      <div class="catbar" id="drawerCats"></div>
+      <div class="drawer-grid" id="drawerGrid"></div>
+      <div class="drawer-foot">
+        <label id="alsoLookWrap"><input type="checkbox" id="alsoLook"> 코디 목록에도 저장</label>
+        <span class="sp" style="flex:1"></span>
+        <button class="pill" id="drawerAdd">+ 옷 스캔</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN (piece editor) -->
+<div class="modal" id="editor" hidden>
+  <div class="m-bar">
+    <button class="iconbtn" data-close aria-label="닫기">✕</button>
+    <h2>옷 스캔</h2>
+    <span class="sp"></span>
+    <button class="pill" id="edPng" disabled>PNG 저장</button>
+  </div>
+  <div class="ed-body">
+    <div class="ed-canvas-wrap checker" id="edWrap">
+      <div class="ed-pick" id="edPick">
+        <div class="ed-frame"><i></i><i></i><i></i><i></i>
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.1"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>
+        </div>
+        <div class="ed-tip">옷을 바닥이나 침대 위에 펼쳐 두고<br>화면에 꽉 차게 한 장 찍어 주세요.<br><span>배경은 자동으로 지워져요</span></div>
+        <div class="ed-pick-btns">
+          <button class="pill solid" id="edCamera">카메라로 스캔</button>
+          <button class="pill" id="edAlbum">앨범에서 고르기</button>
+        </div>
+      </div>
+      <div class="ed-stage" id="edStage" hidden>
+        <canvas id="edCanvas"></canvas>
+        <div class="scanfx" id="scanFx" hidden><i></i></div>
+      </div>
+      <div class="scanmsg" id="scanMsg" hidden></div>
+    </div>
+    <div class="ed-side">
+      <div class="sec-label">이름</div>
+      <input class="field" id="edName" placeholder="예) 회색 니트, 와이드 데님" enterkeyhint="done" autocomplete="off">
+      <div class="sec-label">종류</div>
+      <div class="catpick" id="edCats"></div>
+      <details class="ed-fix" id="edFix">
+        <summary>배경 다듬기</summary>
+        <div class="seg" id="edTool">
+          <button data-t="none" aria-pressed="true">보기</button>
+          <button data-t="erase">지우개</button>
+          <button data-t="restore">되살리기</button>
+        </div>
+        <div class="rangerow">브러시 <input type="range" id="edBrush" min="4" max="80" value="28"></div>
+        <div class="ed-fix-row">
+          <button class="pill" id="edAi">AI로 다시</button>
+          <button class="pill" id="edAuto">색으로 지우기</button>
+          <button class="pill" id="edReset">원본</button>
+        </div>
+        <div class="rangerow">색 민감도 <input type="range" id="edTol" min="8" max="120" value="42"> <span id="edTolV" class="mono">42</span></div>
+      </details>
+      <div class="sec-label">메모 (브랜드·구매처 등)</div>
+      <input class="field" id="edNote" placeholder="선택" enterkeyhint="done" autocomplete="off">
+      <div class="ed-actions">
+        <button class="pill" id="edAnother">다시 찍기</button>
+        <button class="pill solid" id="edSave" disabled>옷장에 넣기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="sheetHost"></div>
+<input type="file" id="fileIn" accept="image/*" hidden>
+<input type="file" id="camIn" accept="image/*" capture="environment" hidden>
+<input type="file" id="photoIn" accept="image/*" hidden>
+<input type="file" id="importIn" accept="application/json,.json" hidden>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== basics ===================== */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const pad = n => String(n).padStart(2, '0');
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseKey = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); };
+const diffDays = (a, b) => Math.round((parseKey(a) - parseKey(b)) / 864e5);
+const todayKey = () => keyOf(new Date());
+const addDays = (k, n) => { const d = parseKey(k); d.setDate(d.getDate() + n); return keyOf(d); };
+const DOW = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const DOW_L = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const fmtMD = k => { const d = parseKey(k); return `${d.getMonth()+1}.${pad(d.getDate())}`; };
+function relLabel(k){
+  const n = diffDays(todayKey(), k);
+  if (n === 0) return '오늘'; if (n === 1) return '어제'; if (n === 2) return '그저께';
+  if (n === -1) return '내일'; if (n > 0) return `${n}일 전`; return `${-n}일 후`;
+}
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 1800); }
+
+const CATS = [['top','상의'],['outer','아우터'],['bottom','하의'],['dress','원피스'],['shoes','신발'],['bag','가방'],['acc','액세서리'],['etc','기타']];
+const CAT = Object.fromEntries(CATS);
+const DEFAULT_TAGS = ['알바','학교','출근','약속','데이트','집콕'];
+
+/* ===================== storage (IndexedDB) ===================== */
+const DB = (() => {
+  let dbp;
+  const open = () => dbp ||= new Promise((res, rej) => {
+    const r = indexedDB.open('ootd-log', 1);
+    r.onupgradeneeded = () => { for (const s of ['items','days','looks','blobs']) if (!r.result.objectStoreNames.contains(s)) r.result.createObjectStore(s); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+  async function run(store, mode, fn){
+    const d = await open();
+    return new Promise((res, rej) => {
+      const t = d.transaction(store, mode); const req = fn(t.objectStore(store));
+      t.oncomplete = () => res(req && 'result' in req ? req.result : undefined);
+      t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+    });
+  }
+  return {
+    get: (s,k) => run(s,'readonly', st => st.get(k)),
+    put: (s,k,v) => run(s,'readwrite', st => st.put(v,k)),
+    del: (s,k) => run(s,'readwrite', st => st.delete(k)),
+    clear: s => run(s,'readwrite', st => st.clear()),
+    async all(s){
+      const d = await open();
+      return new Promise((res, rej) => {
+        const t = d.transaction(s); const st = t.objectStore(s); const ks = st.getAllKeys(), vs = st.getAll();
+        t.oncomplete = () => res(ks.result.map((k,i) => [k, vs.result[i]])); t.onerror = () => rej(t.error);
+      });
+    }
+  };
+})();
+
+const S = { items: new Map(), days: new Map(), looks: new Map(), view: 'cal', month: new Date(), sel: todayKey(), tag: null, closetCat: 'all', sort: 'new' };
+const URLS = new Map();
+const U = id => URLS.get(id) || '';
+async function putBlob(blob){ const id = 'b_' + uid(); await DB.put('blobs', id, blob); URLS.set(id, URL.createObjectURL(blob)); return id; }
+async function delBlob(id){ if (!id) return; await DB.del('blobs', id); const u = URLS.get(id); if (u) URL.revokeObjectURL(u); URLS.delete(id); }
+
+async function loadAll(){
+  for (const [k,v] of await DB.all('blobs')) URLS.set(k, URL.createObjectURL(v));
+  S.items = new Map(await DB.all('items'));
+  S.days = new Map(await DB.all('days'));
+  S.looks = new Map(await DB.all('looks'));
+  for (const [id, it] of S.items) if (!it.ar && U(it.img)){ try { const im = await loadImg(U(it.img)); it.ar = im.naturalHeight / im.naturalWidth; DB.put('items', id, it); } catch {} }
+  reindex();
+}
+
+/* wear index: itemId -> sorted date keys */
+let WORN = new Map();
+function reindex(){
+  WORN = new Map();
+  for (const [k, d] of S.days) for (const p of d.pieces || []) { if (!WORN.has(p.id)) WORN.set(p.id, []); WORN.get(p.id).push(k); }
+  for (const a of WORN.values()) a.sort();
+}
+const wornDates = id => WORN.get(id) || [];
+function lastWornBefore(id, k){ const a = wornDates(id); for (let i = a.length - 1; i >= 0; i--) if (a[i] < k) return a[i]; return null; }
+function lastWorn(id){ const a = wornDates(id).filter(d => d <= todayKey()); return a[a.length-1] || null; }
+
+/* ===================== images ===================== */
+function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+const toBlob = (c, type='image/png', q) => new Promise(r => c.toBlob(r, type, q));
+async function fileToImage(file){ const u = URL.createObjectURL(file); try { return await loadImg(u); } finally { setTimeout(() => URL.revokeObjectURL(u), 1000); } }
+async function downscaleToBlob(file, max=1400){
+  const img = await fileToImage(file);
+  const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth*s); c.height = Math.round(img.naturalHeight*s);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return toBlob(c, 'image/jpeg', .86);
+}
+/* compose pieces onto a 4:5 transparent canvas -> thumbnail blob */
+async function composite(pieces, W=720){
+  const H = W * 1.25, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.shadowColor = 'rgba(0,0,0,.18)'; g.shadowBlur = W*.02; g.shadowOffsetY = W*.012;
+  for (const p of pieces){
+    const it = S.items.get(p.id); if (!it) continue;
+    const img = await loadImg(U(it.img));
+    const dw = p.w*W, dh = dw * img.naturalHeight / img.naturalWidth;
+    g.drawImage(img, p.x*W - dw/2, p.y*H - dh/2, dw, dh);
+  }
+  return toBlob(c);
+}
+
+/* ===================== layout presets ===================== */
+const SLOTS = { outer:{x:.32,y:.33,w:.44}, top:{x:.5,y:.3,w:.46}, dress:{x:.5,y:.42,w:.48}, bottom:{x:.5,y:.68,w:.38}, shoes:{x:.5,y:.91,w:.3}, bag:{x:.82,y:.6,w:.26}, acc:{x:.18,y:.12,w:.2}, etc:{x:.82,y:.16,w:.22} };
+function arrange(pieces){
+  const by = {}; for (const p of pieces){ const c = S.items.get(p.id)?.cat || 'etc'; (by[c] ||= []).push(p); }
+  const hasOuter = by.outer?.length, hasTop = by.top?.length;
+  for (const [c, list] of Object.entries(by)){
+    list.forEach((p, i) => {
+      const s = { ...SLOTS[c] || SLOTS.etc };
+      if (c === 'top' && hasOuter) s.x = .64;
+      if (c === 'outer' && hasTop) s.x = .32;
+      if (c === 'outer' && !hasTop) s.x = .5;
+      const n = list.length;
+      if (n > 1){
+        if (c === 'acc' || c === 'etc'){ s.y += i * .16; }
+        else { s.x += (i - (n-1)/2) * .16; s.y += (i - (n-1)/2) * .04; s.w *= .85; }
+      }
+      Object.assign(p, { x: clamp(s.x,.08,.92), y: clamp(s.y,.06,.94), w: s.w });
+      fitInside(p);
+    });
+  }
+  const order = ['outer','top','dress','bottom','shoes','bag','acc','etc'];
+  pieces.sort((a,b) => order.indexOf(S.items.get(a.id)?.cat||'etc') - order.indexOf(S.items.get(b.id)?.cat||'etc'));
+  // tops drawn over outer only when outer is shown aside; put outer first so top sits on it
+  return pieces;
+}
+
+/* keep a piece fully inside the 4:5 stage (uses the item's aspect ratio) */
+function fitInside(p){
+  const ar = S.items.get(p.id)?.ar || 1;
+  let hh = p.w * ar / 1.25;
+  if (hh > .9){ p.w *= .9 / hh; hh = .9; }
+  p.y = clamp(p.y, hh/2 + .03, 1 - hh/2 - .03);
+  p.x = clamp(p.x, p.w/2 + .02, 1 - p.w/2 - .02);
+}
+
+/* ===================== view switching ===================== */
+function setView(v){
+  S.view = v;
+  $$('.view').forEach(e => e.classList.toggle('on', e.id === 'view-' + v));
+  $$('[data-view]').forEach(b => b.setAttribute('aria-selected', b.dataset.view === v));
+  closeDayPane();
+  render();
+  try { localStorage.setItem('ootd.view', v); } catch {}
+}
+function render(){ if (S.view === 'cal') renderCal(); else if (S.view === 'closet') renderCloset(); else renderLooks(); }
+$$('[data-view]').forEach(b => b.onclick = () => setView(b.dataset.view));
+
+/* ===================== calendar ===================== */
+function allTags(){ const m = new Map(); for (const d of S.days.values()) for (const t of d.tags || []) m.set(t, (m.get(t)||0)+1); return [...m.entries()].sort((a,b) => b[1]-a[1]).map(e => e[0]); }
+const isMobile = () => matchMedia('(max-width:860px)').matches;
+
+function renderCal(){
+  const y = S.month.getFullYear(), m = S.month.getMonth();
+  $('#calTitle').innerHTML = `<small>${pad(m+1)} — ${y}</small>${MONTHS[m]}`;
+  // tags
+  const tags = allTags();
+  let hint = '';
+  if (S.tag){
+    const ks = [...S.days.entries()].filter(([k,d]) => (d.tags||[]).includes(S.tag) && k <= todayKey()).map(e => e[0]).sort();
+    const last = ks[ks.length-1];
+    hint = last ? `<span class="taghint">마지막 ‘${esc(S.tag)}’ — <button data-go="${last}">${fmtMD(last)} (${relLabel(last)})</button> · 총 ${ks.length}번</span>` : '';
+  }
+  $('#tagbar').innerHTML = tags.length
+    ? tags.map(t => `<button class="chip ${S.tag===t?'on':''}" data-tag="${esc(t)}">#${esc(t)}</button>`).join('') + hint
+    : `<span class="mono" style="color:var(--muted)">날짜에 #알바 같은 태그를 달면 “지난번 알바 때 뭐 입었지?”를 바로 찾을 수 있어요.</span>`;
+  $$('#tagbar [data-tag]').forEach(b => b.onclick = () => { S.tag = S.tag === b.dataset.tag ? null : b.dataset.tag; renderCal(); });
+  $$('#tagbar [data-go]').forEach(b => b.onclick = () => goDate(b.dataset.go));
+
+  const first = new Date(y, m, 1), off = first.getDay();
+  const dim = new Date(y, m+1, 0).getDate();
+  const total = Math.ceil((off + dim) / 7) * 7;
+  const tk = todayKey(); let html = '';
+  for (let i = 0; i < total; i++){
+    const d = new Date(y, m, 1 - off + i), k = keyOf(d), rec = S.days.get(k);
+    const cls = ['cell']; if (d.getMonth() !== m) cls.push('out'); if (k === tk) cls.push('today'); if (k === S.sel) cls.push('sel');
+    if (S.tag && !(rec?.tags||[]).includes(S.tag)) cls.push('dim');
+    let inner = '';
+    if (rec){
+      if (rec.thumb) inner += `<img class="thumb" src="${U(rec.thumb)}" alt="">`;
+      else if (rec.photo) inner += `<img class="thumb photo" src="${U(rec.photo)}" alt="">`;
+    }
+    inner += `<span class="num">${d.getDate()}</span>`;
+    if (rec?.tags?.length) inner += `<span class="tagmark">#${esc(rec.tags[0])}</span>`;
+    html += `<button class="${cls.join(' ')}" data-k="${k}" aria-label="${k}">${inner}</button>`;
+  }
+  $('#grid').innerHTML = html;
+  $$('#grid .cell').forEach(c => c.onclick = () => {
+    const k = c.dataset.k; S.sel = k;
+    const d = parseKey(k); if (d.getMonth() !== m) S.month = new Date(d.getFullYear(), d.getMonth(), 1);
+    renderCal(); if (isMobile()) openDayPane();
+  });
+  renderDay();
+}
+function goDate(k){ S.sel = k; const d = parseKey(k); S.month = new Date(d.getFullYear(), d.getMonth(), 1); if (S.view !== 'cal') setView('cal'); else renderCal(); if (isMobile()) openDayPane(); }
+$('#prevM').onclick = () => { S.month = new Date(S.month.getFullYear(), S.month.getMonth()-1, 1); renderCal(); };
+$('#nextM').onclick = () => { S.month = new Date(S.month.getFullYear(), S.month.getMonth()+1, 1); renderCal(); };
+$('#todayBtn').onclick = () => goDate(todayKey());
+// swipe months on phone
+(() => { let sx = null, sy = 0; const g = $('#grid');
+  g.addEventListener('touchstart', e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, {passive:true});
+  g.addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) (dx < 0 ? $('#nextM') : $('#prevM')).click(); });
+})();
+
+function openDayPane(){ $('#dayPane').classList.add('open'); $('#backdrop').hidden = false; }
+function closeDayPane(){ $('#dayPane').classList.remove('open'); if (!$('.sheet')) $('#backdrop').hidden = true; }
+$('#backdrop').onclick = () => { closeDayPane(); closeSheet(); };
+
+/* overlap with the most recent earlier record within 7 days */
+function overlapInfo(k){
+  const rec = S.days.get(k); if (!rec?.pieces?.length) return null;
+  const ids = new Set(rec.pieces.map(p => p.id));
+  const prev = [...S.days.keys()].filter(x => x < k && diffDays(k, x) <= 7 && S.days.get(x).pieces?.length).sort().pop();
+  if (!prev) return null;
+  const same = S.days.get(prev).pieces.filter(p => ids.has(p.id)).map(p => S.items.get(p.id)).filter(Boolean);
+  return { prev, same, all: same.length && same.length === ids.size && same.length === S.days.get(prev).pieces.length };
+}
+
+function renderDay(){
+  const k = S.sel, rec = S.days.get(k), d = parseKey(k), pane = $('#dayPane');
+  let h = `<div class="dp-head"><span class="dp-date">${pad(d.getDate())}</span><span class="dp-sub"><span class="dp-dow">${DOW_L[d.getDay()].toUpperCase()} · ${MONTHS[d.getMonth()].toUpperCase()} ${d.getFullYear()}</span><span class="dp-rel">${relLabel(k)}</span></span>
+    <button class="iconbtn dp-close" id="dpClose" aria-label="닫기">✕</button></div>`;
+  const hasPieces = rec?.pieces?.length, hasPhoto = !!rec?.photo;
+  if (!rec || (!hasPieces && !hasPhoto)){
+    h += `<div class="empty-fig"><div><div class="serif" style="font-size:26px">아직 기록이 없어요</div>
+      <div style="font-size:12px;margin-top:4px">옷장의 피스로 코디를 만들거나, 거울 셀카 한 장만 올려도 돼요.</div>
+      <div class="row"><button class="pill red solid" id="dpCompose">코디로 기록</button><button class="pill red" id="dpPhoto">사진으로 기록</button></div></div></div>`;
+  } else {
+    h += `<div class="dp-figs ${hasPieces && hasPhoto ? 'two' : ''}">`;
+    if (hasPieces) h += `<div class="dp-fig"><img src="${U(rec.thumb)}" alt="코디"></div>`;
+    if (hasPhoto) h += `<div class="dp-fig"><img class="photo" src="${U(rec.photo)}" alt="사진"></div>`;
+    h += `</div>`;
+    const ov = overlapInfo(k);
+    if (ov){
+      const when = diffDays(k, ov.prev) === 1 ? '전날' : `${fmtMD(ov.prev)}`;
+      if (ov.all) h += `<div class="warn"><b>${when}이랑 완전히 똑같은 코디예요.</b></div>`;
+      else if (ov.same.length) h += `<div class="warn">${when}이랑 겹치는 옷: <b>${ov.same.map(i => esc(i.name)).join(', ')}</b></div>`;
+      else if (diffDays(k, ov.prev) <= 3) h += `<div class="ok">${when}이랑 겹치는 옷 없음 ✓</div>`;
+    }
+    if (hasPieces){
+      h += `<ul class="plist">` + rec.pieces.map((p, i) => {
+        const it = S.items.get(p.id); if (!it) return '';
+        const n = wornDates(p.id).length, lb = lastWornBefore(p.id, k);
+        return `<li><span class="n">(${i+1})</span><img src="${U(it.img)}" alt=""><span>${esc(it.name)}<br><span class="mono" style="color:var(--muted)">${CAT[it.cat]||''}</span></span>
+          <span class="meta">${n}번째 착용${lb ? `<br>직전 ${fmtMD(lb)}` : '<br>첫 착용'}</span></li>`;
+      }).join('') + `</ul>`;
+    }
+  }
+  // tags
+  const cur = rec?.tags || [];
+  const sugg = [...new Set([...cur, ...allTags(), ...DEFAULT_TAGS])].slice(0, 12);
+  h += `<div class="sec-label">태그</div><div class="tagrow">${sugg.map(t => `<button class="chip ${cur.includes(t)?'on':''}" data-t="${esc(t)}">#${esc(t)}</button>`).join('')}<input id="tagIn" placeholder="+ 새 태그" maxlength="12"></div>`;
+  h += `<div class="sec-label">메모</div><textarea class="memo" id="memo" placeholder="날씨, 기분, 들은 말…">${esc(rec?.memo || '')}</textarea>`;
+  if (rec && (hasPieces || hasPhoto)){
+    h += `<div class="actions"><button class="pill solid" id="dpCompose">${hasPieces ? '코디 수정' : '코디 추가'}</button><button class="pill" id="dpPhoto">${hasPhoto ? '사진 바꾸기' : '사진 추가'}</button>
+      ${hasPhoto ? '<button class="pill" id="dpPhotoDel">사진 빼기</button>' : ''}<button class="pill red" id="dpDel">기록 삭제</button></div>`;
+  }
+  // yesterday hint
+  const y = addDays(k, -1), yr = S.days.get(y);
+  if (yr && (yr.thumb || yr.photo)){
+    h += `<div class="yhint"><img src="${U(yr.thumb || yr.photo)}" style="${yr.thumb?'':'object-fit:cover'}" alt=""><div><div class="sec-label" style="margin:0 0 4px">전날 (${fmtMD(y)})</div>
+      <div style="font-size:13px">${(yr.pieces||[]).map(p => esc(S.items.get(p.id)?.name)).filter(Boolean).join(' · ') || '사진 기록'}</div>
+      <button class="pill" style="margin-top:6px;font-size:12px" data-go="${y}">보기</button></div></div>`;
+  }
+  pane.innerHTML = h;
+
+  $('#dpClose').onclick = closeDayPane;
+  pane.querySelectorAll('#dpCompose').forEach(b => b.onclick = () => openComposer({ mode:'day', date:k }));
+  pane.querySelectorAll('#dpPhoto').forEach(b => b.onclick = () => pickPhoto(k));
+  $('#dpPhotoDel') && ($('#dpPhotoDel').onclick = async () => { const r = S.days.get(k); await delBlob(r.photo); r.photo = null; await saveDay(k, r); });
+  $('#dpDel') && ($('#dpDel').onclick = async () => { if (!confirm(`${fmtMD(k)} 기록을 지울까요?`)) return; await deleteDay(k); toast('지웠어요'); });
+  pane.querySelectorAll('[data-go]').forEach(b => b.onclick = () => goDate(b.dataset.go));
+  pane.querySelectorAll('[data-t]').forEach(b => b.onclick = () => toggleTag(k, b.dataset.t));
+  $('#tagIn').onkeydown = e => { if (e.key === 'Enter' && !e.isComposing){ const v = e.target.value.trim().replace(/^#/, ''); if (v) toggleTag(k, v, true); } };
+  let mt; $('#memo').oninput = e => { clearTimeout(mt); mt = setTimeout(() => setMemo(k, e.target.value), 400); };
+}
+
+function blankDay(k){ return { date:k, pieces:[], photo:null, thumb:null, tags:[], memo:'' }; }
+async function saveDay(k, rec, rerender = true){
+  const empty = !rec.pieces?.length && !rec.photo && !rec.tags?.length && !rec.memo?.trim();
+  if (empty){ S.days.delete(k); await DB.del('days', k); } else { rec.updated = Date.now(); S.days.set(k, rec); await DB.put('days', k, rec); }
+  reindex(); if (rerender && S.view === 'cal') renderCal();
+}
+async function deleteDay(k){ const r = S.days.get(k); if (!r) return; await delBlob(r.thumb); await delBlob(r.photo); S.days.delete(k); await DB.del('days', k); reindex(); renderCal(); }
+async function toggleTag(k, t, forceOn){
+  const r = S.days.get(k) || blankDay(k); r.tags ||= [];
+  if (r.tags.includes(t) && !forceOn) r.tags = r.tags.filter(x => x !== t); else if (!r.tags.includes(t)) r.tags.push(t);
+  await saveDay(k, r);
+}
+async function setMemo(k, v){ const r = S.days.get(k) || blankDay(k); r.memo = v; await saveDay(k, r, false); }
+
+let photoTarget = null;
+function pickPhoto(k){ photoTarget = k; $('#photoIn').value = ''; $('#photoIn').click(); }
+$('#photoIn').onchange = async e => {
+  const f = e.target.files[0]; if (!f || !photoTarget) return;
+  const k = photoTarget, blob = await downscaleToBlob(f, 1400), r = S.days.get(k) || blankDay(k);
+  if (r.photo) await delBlob(r.photo);
+  r.photo = await putBlob(blob); await saveDay(k, r); toast('사진을 기록했어요');
+};
+$('#scanBtn').onclick = () => openEditor();
+$('#recBtn').onclick = () => { S.sel = todayKey(); const d = new Date(); S.month = new Date(d.getFullYear(), d.getMonth(), 1); openComposer({ mode:'day', date: todayKey() }); };
+
+/* ===================== closet ===================== */
+function catChips(host, cur, onPick, counts){
+  host.innerHTML = [['all','전체'], ...CATS].filter(([c]) => !counts || c === 'all' || counts[c])
+    .map(([c, n]) => `<button class="chip ${cur===c?'on':''}" data-c="${c}">${n}${counts ? ` <span style="opacity:.6">${c==='all' ? counts.all : counts[c]}</span>` : ''}</button>`).join('');
+  host.querySelectorAll('[data-c]').forEach(b => b.onclick = () => onPick(b.dataset.c));
+}
+function itemCounts(){ const c = { all: S.items.size }; for (const it of S.items.values()) c[it.cat] = (c[it.cat]||0)+1; return c; }
+function sortedItems(cat){
+  let list = [...S.items.entries()].map(([id, it]) => ({ id, ...it }));
+  if (cat !== 'all') list = list.filter(i => i.cat === cat);
+  const lw = i => lastWorn(i.id) || '0000';
+  const by = { new:(a,b) => b.created - a.created, stale:(a,b) => lw(a).localeCompare(lw(b)), most:(a,b) => wornDates(b.id).length - wornDates(a.id).length, least:(a,b) => wornDates(a.id).length - wornDates(b.id).length };
+  return list.sort(by[S.sort] || by.new);
+}
+function wearLine(id){
+  const lw = lastWorn(id), n = wornDates(id).length;
+  if (!lw) return '아직 안 입음';
+  const dd = diffDays(todayKey(), lw);
+  return `${n}회 · ${dd === 0 ? '<b>오늘</b>' : dd === 1 ? '<b>어제</b>' : dd + '일 전'}`;
+}
+function renderCloset(){
+  const counts = itemCounts();
+  $('#closetCount').textContent = `${S.items.size} pieces`;
+  catChips($('#closetCats'), S.closetCat, c => { S.closetCat = c; renderCloset(); }, counts);
+  $('#sortSel').value = S.sort;
+  const list = sortedItems(S.closetCat);
+  if (!S.items.size){
+    $('#closetBody').innerHTML = `<div class="empty-state">${SIL_SVG}<div class="serif" style="font-size:28px;color:var(--ink)">옷장이 비어 있어요</div>
+      <p>오늘 입은 옷부터 한 피스씩 찍어 모아 보세요.<br>모으다 보면 어느새 진짜 옷장이랑 똑같아져요.</p>
+      <div style="display:flex;gap:8px;justify-content:center"><button class="pill red solid" data-add>첫 옷 스캔하기</button><button class="pill" data-demo>예시로 둘러보기</button></div></div>`;
+  } else {
+    $('#closetBody').innerHTML = `<div class="closet-grid"><button class="piece add" data-add><span class="plus">+</span><span>옷 스캔</span></button>` +
+      list.map((it, i) => `<button class="piece" data-id="${it.id}"><span class="idx">${pad(i+1)} · ${CAT[it.cat]}</span><img src="${U(it.img)}" alt="" loading="lazy"><span class="nm">${esc(it.name)}</span><span class="st">${wearLine(it.id)}</span></button>`).join('') + `</div>`;
+  }
+  $$('#closetBody [data-add]').forEach(b => b.onclick = () => openEditor());
+  $$('#closetBody [data-demo]').forEach(b => b.onclick = loadDemo);
+  $$('#closetBody [data-id]').forEach(b => b.onclick = () => openItemSheet(b.dataset.id));
+}
+$('#sortSel').onchange = e => { S.sort = e.target.value; renderCloset(); };
+$('#addPieceBtn').onclick = () => openEditor();
+
+function closeSheet(){ $('#sheetHost').innerHTML = ''; if (!$('#dayPane').classList.contains('open')) $('#backdrop').hidden = true; }
+function openSheet(html){ $('#sheetHost').innerHTML = `<div class="sheet">${html}</div>`; $('#backdrop').hidden = false; return $('#sheetHost .sheet'); }
+
+function openItemSheet(id){
+  const it = S.items.get(id); if (!it) return;
+  const ds = wornDates(id).slice().reverse();
+  const sh = openSheet(`<div style="display:flex;align-items:center;margin-bottom:10px"><span class="mono" style="color:var(--red)">${CAT[it.cat]}</span><span style="flex:1"></span><button class="iconbtn" data-x>✕</button></div>
+    <div class="big"><img src="${U(it.img)}" alt=""></div>
+    <input class="field" id="isName" value="${esc(it.name)}">
+    <div class="catpick" id="isCats" style="margin:10px 0"></div>
+    <input class="field" id="isNote" value="${esc(it.note||'')}" placeholder="메모 (브랜드·구매처 등)">
+    <div class="sec-label">입은 날 ${ds.length}번</div>
+    <div class="dates">${ds.length ? ds.map(k => `<button class="chip" data-go="${k}">${fmtMD(k)}${k.slice(0,4)!==todayKey().slice(0,4)?` '${k.slice(2,4)}`:''}</button>`).join('') : '<span style="color:var(--muted);font-size:13px">아직 기록 없음</span>'}</div>
+    <div class="actions"><button class="pill solid" data-wear>오늘 이걸로 코디 시작</button><span style="flex:1"></span><button class="pill red" data-del>옷장에서 빼기</button></div>`);
+  let cat = it.cat;
+  const drawCats = () => { sh.querySelector('#isCats').innerHTML = CATS.map(([c,n]) => `<button class="chip ${c===cat?'on':''}" data-c="${c}">${n}</button>`).join('');
+    sh.querySelectorAll('#isCats [data-c]').forEach(b => b.onclick = async () => { cat = b.dataset.c; it.cat = cat; await DB.put('items', id, it); drawCats(); renderCloset(); }); };
+  drawCats();
+  const saveMeta = async () => { it.name = sh.querySelector('#isName').value.trim() || it.name; it.note = sh.querySelector('#isNote').value.trim(); await DB.put('items', id, it); renderCloset(); };
+  sh.querySelector('#isName').onchange = saveMeta; sh.querySelector('#isNote').onchange = saveMeta;
+  sh.querySelector('[data-x]').onclick = closeSheet;
+  sh.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { closeSheet(); goDate(b.dataset.go); });
+  sh.querySelector('[data-wear]').onclick = () => { closeSheet(); openComposer({ mode:'day', date: todayKey(), add: id }); };
+  sh.querySelector('[data-del]').onclick = async () => {
+    const n = wornDates(id).length;
+    if (!confirm(n ? `이 옷은 ${n}번의 기록에 들어 있어요. 기록에서도 빠지게 돼요. 지울까요?` : '옷장에서 뺄까요?')) return;
+    await deleteItem(id); closeSheet(); renderCloset(); toast('뺐어요');
+  };
+}
+async function deleteItem(id){
+  const it = S.items.get(id); if (!it) return;
+  for (const [k, r] of S.days) if (r.pieces?.some(p => p.id === id)){
+    r.pieces = r.pieces.filter(p => p.id !== id);
+    await delBlob(r.thumb); r.thumb = r.pieces.length ? await putBlob(await composite(r.pieces)) : null;
+    await saveDay(k, r, false);
+  }
+  for (const [lid, l] of S.looks) if (l.pieces.some(p => p.id === id)){
+    l.pieces = l.pieces.filter(p => p.id !== id); await delBlob(l.thumb);
+    if (l.pieces.length){ l.thumb = await putBlob(await composite(l.pieces)); await DB.put('looks', lid, l); } else { S.looks.delete(lid); await DB.del('looks', lid); }
+  }
+  await delBlob(it.img); S.items.delete(id); await DB.del('items', id); reindex();
+}
+
+/* ===================== looks ===================== */
+function renderLooks(){
+  $('#looksCount').textContent = `${S.looks.size} looks`;
+  const list = [...S.looks.entries()].sort((a,b) => b[1].created - a[1].created);
+  const used = id => [...S.days.entries()].filter(([,d]) => d.look === id).map(e => e[0]).sort();
+  $('#looksBody').innerHTML = `<div class="looks-grid"><button class="look add" id="lookAdd"><div><div class="serif" style="font-size:48px;line-height:1">+</div>옷장 피스로<br>코디 짜 보기</div></button>` +
+    list.map(([id, l]) => { const u = used(id); return `<button class="look" data-id="${id}"><div class="img"><img src="${U(l.thumb)}" alt=""></div><div class="nm">${esc(l.name || '이름 없는 코디')}</div>
+      <div class="st">${l.pieces.length} pieces · ${u.length ? `${u.length}번 입음, 마지막 ${fmtMD(u[u.length-1])}` : '아직 안 입음'}</div></button>`; }).join('') + `</div>`;
+  $('#lookAdd').onclick = () => openComposer({ mode:'look' });
+  $$('#looksBody [data-id]').forEach(b => b.onclick = () => openLookSheet(b.dataset.id));
+}
+$('#newLookBtn').onclick = () => openComposer({ mode:'look' });
+function openLookSheet(id){
+  const l = S.looks.get(id);
+  const sh = openSheet(`<div style="display:flex;align-items:center;margin-bottom:10px"><span class="serif" style="font-size:26px">${esc(l.name || '이름 없는 코디')}</span><span style="flex:1"></span><button class="iconbtn" data-x>✕</button></div>
+    <div class="big" style="aspect-ratio:4/5"><img src="${U(l.thumb)}" alt=""></div>
+    <div class="sec-label">이 코디 입기</div>
+    <div style="display:flex;gap:8px;align-items:center"><input type="date" class="field" id="lsDate" value="${todayKey()}" style="flex:1"><button class="pill red solid" data-wear>이 날짜에 기록</button></div>
+    <div class="actions"><button class="pill" data-edit>수정</button><span style="flex:1"></span><button class="pill red" data-del>삭제</button></div>`);
+  sh.querySelector('[data-x]').onclick = closeSheet;
+  sh.querySelector('[data-edit]').onclick = () => { closeSheet(); openComposer({ mode:'look', lookId:id }); };
+  sh.querySelector('[data-del]').onclick = async () => { if (!confirm('이 코디를 지울까요? (캘린더 기록은 남아요)')) return; await delBlob(l.thumb); S.looks.delete(id); await DB.del('looks', id); closeSheet(); renderLooks(); };
+  sh.querySelector('[data-wear]').onclick = async () => {
+    const k = sh.querySelector('#lsDate').value || todayKey();
+    const r = S.days.get(k) || blankDay(k);
+    if (r.pieces?.length && !confirm(`${fmtMD(k)}에 이미 코디가 있어요. 바꿀까요?`)) return;
+    r.pieces = l.pieces.map(p => ({...p})); r.look = id; await delBlob(r.thumb); r.thumb = await putBlob(await composite(r.pieces));
+    await saveDay(k, r, false); closeSheet(); goDate(k); toast(`${fmtMD(k)}에 기록했어요`);
+  };
+}
+
+/* ===================== composer ===================== */
+const C = { mode:'day', date:null, lookId:null, pieces:[], sel:null, cat:'all' };
+function openComposer(o){
+  Object.assign(C, { mode:o.mode, date:o.date || todayKey(), lookId:o.lookId || null, sel:null, cat:'all' });
+  if (o.mode === 'day'){ const r = S.days.get(C.date); C.pieces = (r?.pieces || []).map(p => ({...p})); }
+  else { const l = o.lookId && S.looks.get(o.lookId); C.pieces = (l?.pieces || []).map(p => ({...p})); $('#cmpName').value = l?.name || ''; }
+  if (o.add && !C.pieces.some(p => p.id === o.add)){ C.pieces.push({ id:o.add }); arrange(C.pieces); }
+  $('#cmpTitle').textContent = o.mode === 'day' ? '오늘 입은 옷' : '코디 짜기';
+  $('#cmpDate').hidden = o.mode !== 'day'; $('#cmpDate').value = C.date;
+  $('#cmpName').hidden = o.mode !== 'look';
+  $('#alsoLookWrap').hidden = o.mode !== 'day'; $('#alsoLook').checked = false;
+  $('#composer').hidden = false; document.body.style.overflow = 'hidden';
+  if (!S.items.size) setTimeout(() => toast('먼저 옷장에 피스를 추가해 주세요'), 200);
+  drawStage(); drawDrawer();
+}
+function closeComposer(){ $('#composer').hidden = true; document.body.style.overflow = ''; }
+$('#composer [data-close]').onclick = closeComposer;
+$('#cmpDate').onchange = e => {
+  const k = e.target.value; if (!k) return;
+  if (C.pieces.length === 0){ const r = S.days.get(k); C.pieces = (r?.pieces || []).map(p => ({...p})); }
+  C.date = k; drawStage(); drawDrawer();
+};
+
+function drawStage(){
+  const st = $('#stage');
+  st.querySelectorAll('.sp').forEach(e => e.remove());
+  $('#stageHint').hidden = C.pieces.length > 0;
+  C.pieces.forEach((p, i) => {
+    const it = S.items.get(p.id); if (!it) return;
+    const el = document.createElement('div'); el.className = 'sp' + (C.sel === p ? ' sel' : '');
+    el.innerHTML = `<img src="${U(it.img)}" alt="">`; place(el, p); el.style.zIndex = i + 1;
+    el.onpointerdown = e => {
+      e.preventDefault(); C.sel = p; st.querySelectorAll('.sp').forEach(x => x.classList.toggle('sel', x === el)); syncSelTools();
+      el.setPointerCapture(e.pointerId); el.style.cursor = 'grabbing';
+      const r = st.getBoundingClientRect(), sx = e.clientX, sy = e.clientY, ox = p.x, oy = p.y;
+      el.onpointermove = ev => { p.x = clamp(ox + (ev.clientX - sx) / r.width, 0, 1); p.y = clamp(oy + (ev.clientY - sy) / r.height, 0, 1); place(el, p); };
+      el.onpointerup = el.onpointercancel = () => { el.onpointermove = null; el.style.cursor = ''; };
+    };
+    el.onwheel = e => { e.preventDefault(); p.w = clamp(p.w * (e.deltaY < 0 ? 1.06 : .94), .08, .9); place(el, p); syncSelTools(); };
+    st.appendChild(el);
+  });
+  syncSelTools();
+}
+function place(el, p){ el.style.left = p.x*100 + '%'; el.style.top = p.y*100 + '%'; el.style.width = p.w*100 + '%'; }
+$('#stage').addEventListener('pointerdown', e => { if (e.target.id === 'stage' || e.target.id === 'stageHint'){ C.sel = null; $$('#stage .sp').forEach(x => x.classList.remove('sel')); syncSelTools(); } });
+function syncSelTools(){
+  const on = !!C.sel && C.pieces.includes(C.sel);
+  $('#selTools').hidden = !on; $('#stageTools').hidden = on;
+  if (on) $('#selSize').value = Math.round(C.sel.w * 100);
+}
+$('#selSize').oninput = e => { if (!C.sel) return; C.sel.w = e.target.value / 100; const i = C.pieces.indexOf(C.sel); place($$('#stage .sp')[i], C.sel); };
+$('#selFront').onclick = () => { if (!C.sel) return; C.pieces = C.pieces.filter(p => p !== C.sel).concat(C.sel); drawStage(); };
+$('#selRemove').onclick = () => { C.pieces = C.pieces.filter(p => p !== C.sel); C.sel = null; drawStage(); drawDrawer(); };
+$('#autoArrange').onclick = () => { arrange(C.pieces); drawStage(); };
+$('#clearStage').onclick = () => { C.pieces = []; C.sel = null; drawStage(); drawDrawer(); };
+
+function drawDrawer(){
+  const counts = itemCounts();
+  catChips($('#drawerCats'), C.cat, c => { C.cat = c; drawDrawer(); }, counts);
+  const inSet = new Set(C.pieces.map(p => p.id));
+  const list = sortedItems(C.cat);
+  $('#drawerGrid').innerHTML = list.length ? list.map(it => {
+    let badge = '';
+    if (C.mode === 'day'){ const lb = lastWornBefore(it.id, C.date); if (lb){ const dd = diffDays(C.date, lb); if (dd <= 3) badge = `<span class="badge">${dd===1?'어제 입음':dd+'일 전'}</span>`; } }
+    return `<button class="dp ${inSet.has(it.id)?'in':''}" data-id="${it.id}" title="${esc(it.name)}"><img src="${U(it.img)}" alt="${esc(it.name)}" loading="lazy">${badge}${inSet.has(it.id)?'<span class="check">✓</span>':''}</button>`;
+  }).join('') : `<div style="grid-column:1/-1;color:var(--muted);padding:20px 0;text-align:center">피스가 없어요</div>`;
+  $$('#drawerGrid [data-id]').forEach(b => b.onclick = () => {
+    const id = b.dataset.id, ex = C.pieces.find(p => p.id === id);
+    if (ex){ C.pieces = C.pieces.filter(p => p !== ex); if (C.sel === ex) C.sel = null; }
+    else { const p = { id }; C.pieces.push(p); placeNew(p); C.sel = p; }
+    drawStage(); drawDrawer();
+  });
+}
+function placeNew(p){
+  const cat = S.items.get(p.id)?.cat || 'etc', s = SLOTS[cat] || SLOTS.etc;
+  const same = C.pieces.filter(q => q !== p && S.items.get(q.id)?.cat === cat).length;
+  Object.assign(p, { x: clamp(s.x + same*.08, .08, .92), y: clamp(s.y + same*.05, .06, .94), w: s.w });
+  fitInside(p);
+}
+$('#drawerAdd').onclick = () => openEditor({ thenAdd:true });
+
+$('#cmpSave').onclick = async () => {
+  const btn = $('#cmpSave'); btn.disabled = true;
+  try {
+    const pieces = C.pieces.map(p => ({ id:p.id, x:+p.x.toFixed(4), y:+p.y.toFixed(4), w:+p.w.toFixed(4) }));
+    if (C.mode === 'day'){
+      const k = $('#cmpDate').value || C.date, r = S.days.get(k) || blankDay(k);
+      await delBlob(r.thumb); r.pieces = pieces; r.thumb = pieces.length ? await putBlob(await composite(pieces)) : null;
+      if ($('#alsoLook').checked && pieces.length){
+        const lid = 'l_' + uid(); const l = { name: `${fmtMD(k)} 코디`, pieces, thumb: await putBlob(await composite(pieces)), created: Date.now() };
+        S.looks.set(lid, l); await DB.put('looks', lid, l); r.look = lid;
+      }
+      await saveDay(k, r, false); closeComposer(); goDate(k);
+      const ov = overlapInfo(k);
+      toast(ov?.all ? '저장! 근데 전날이랑 똑같아요 👀' : ov?.same.length && diffDays(k, ov.prev) === 1 ? `저장! 전날이랑 ${ov.same.length}개 겹쳐요` : '저장했어요');
+    } else {
+      if (!pieces.length){ toast('피스를 하나 이상 담아 주세요'); return; }
+      const lid = C.lookId || 'l_' + uid(), old = S.looks.get(lid);
+      if (old) await delBlob(old.thumb);
+      const l = { name: $('#cmpName').value.trim() || old?.name || `코디 ${S.looks.size + (old?0:1)}`, pieces, thumb: await putBlob(await composite(pieces)), created: old?.created || Date.now() };
+      S.looks.set(lid, l); await DB.put('looks', lid, l); closeComposer(); setView('looks'); toast('코디를 저장했어요');
+    }
+  } finally { btn.disabled = false; }
+};
+
+/* ===================== scan: photo -> AI cut-out -> named piece ===================== */
+const E = { w:0, h:0, orig:null, mask:null, tool:'none', cat:'top', thenAdd:false, ctx:null, busy:false };
+function openEditor(o = {}){
+  Object.assign(E, { thenAdd: !!o.thenAdd, orig:null, mask:null, tool:'none' });
+  $('#edName').value = ''; $('#edNote').value = '';
+  $('#edStage').hidden = true; $('#edPick').hidden = false; $('#scanMsg').hidden = true;
+  $('#edSave').disabled = true; $('#edPng').disabled = true; $('#edFix').open = false;
+  setTool('none'); drawEdCats();
+  $('#editor').classList.add('picking');
+  $('#editor').hidden = false; document.body.style.overflow = 'hidden';
+  loadSeg().catch(() => {});   // warm the model up while the user aims
+}
+function closeEditor(){ $('#editor').hidden = true; if ($('#composer').hidden) document.body.style.overflow = ''; }
+$('#editor [data-close]').onclick = closeEditor;
+function drawEdCats(){ $('#edCats').innerHTML = CATS.map(([c,n]) => `<button class="chip ${c===E.cat?'on':''}" data-c="${c}">${n}</button>`).join('');
+  $$('#edCats [data-c]').forEach(b => b.onclick = () => { E.cat = b.dataset.c; drawEdCats(); }); }
+$('#edCamera').onclick = () => { $('#camIn').value = ''; $('#camIn').click(); };
+$('#edAlbum').onclick = () => { $('#fileIn').value = ''; $('#fileIn').click(); };
+$('#edAnother').onclick = () => { (isMobile() ? $('#edCamera') : $('#edAlbum')).click(); };
+$('#camIn').onchange = $('#fileIn').onchange = e => { const f = e.target.files[0]; if (f) loadScan(f); };
+
+async function loadScan(file){
+  const img = await fileToImage(file);
+  const s = Math.min(1, 1024 / Math.max(img.naturalWidth, img.naturalHeight));
+  const cv = $('#edCanvas'); cv.width = E.w = Math.round(img.naturalWidth * s); cv.height = E.h = Math.round(img.naturalHeight * s);
+  E.ctx = cv.getContext('2d', { willReadFrequently:true });
+  E.ctx.drawImage(img, 0, 0, E.w, E.h);
+  E.orig = E.ctx.getImageData(0, 0, E.w, E.h);
+  E.mask = new Uint8ClampedArray(E.w * E.h).fill(255);
+  $('#edPick').hidden = true; $('#edStage').hidden = false; $('#editor').classList.remove('picking');
+  await runScan(true);
+  if (!isMobile()) $('#edName').focus();
+}
+async function runScan(first){
+  if (E.busy) return; E.busy = true;
+  $('#scanFx').hidden = false; $('#edSave').disabled = true; $('#edPng').disabled = true;
+  scanMsg('옷을 찾는 중… (처음 한 번은 몇 초 걸려요)');
+  try { await aiRemove(); scanMsg(''); if (first) cropToMask(); }
+  catch (err) { console.warn('AI scan failed, falling back to colour fill', err); autoRemove(); scanMsg('AI 스캔을 못 써서 색으로 지웠어요. 필요하면 다듬어 주세요.', 4000); }
+  edRender(); $('#scanFx').hidden = true; E.busy = false;
+  $('#edSave').disabled = false; $('#edPng').disabled = false;
+}
+/* re-base the working image on the garment (+ margin) so the preview fills the screen */
+function cropToMask(){
+  const { w, h } = E; let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (E.mask[y*w+x] > 40){ if (x<x0) x0=x; if (x>x1) x1=x; if (y<y0) y0=y; if (y>y1) y1=y; }
+  if (x1 < 0) return;
+  const mx = Math.round((x1-x0) * .08) + 8, my = Math.round((y1-y0) * .08) + 8;
+  x0 = Math.max(0, x0-mx); y0 = Math.max(0, y0-my); x1 = Math.min(w-1, x1+mx); y1 = Math.min(h-1, y1+my);
+  const nw = x1-x0+1, nh = y1-y0+1, od = E.orig.data, nd = new Uint8ClampedArray(nw*nh*4), nm = new Uint8ClampedArray(nw*nh);
+  for (let y = 0; y < nh; y++){ nd.set(od.subarray(((y+y0)*w + x0)*4, ((y+y0)*w + x0 + nw)*4), y*nw*4); nm.set(E.mask.subarray((y+y0)*w + x0, (y+y0)*w + x0 + nw), y*nw); }
+  const cv = $('#edCanvas'); cv.width = E.w = nw; cv.height = E.h = nh;
+  E.orig = new ImageData(nd, nw, nh); E.mask = nm;
+}
+function scanMsg(t, ms){ const m = $('#scanMsg'); m.textContent = t; m.hidden = !t; clearTimeout(scanMsg._t); if (t && ms) scanMsg._t = setTimeout(() => m.hidden = true, ms); }
+
+/* U2-Net (u2netp, Apache-2.0) salient-object segmentation, run on-device with onnxruntime-web */
+const ORT_VER = '1.20.1', ORT_BASE = `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ORT_VER}/dist/`;
+let segP = null;
+function loadSeg(){
+  return segP ||= (async () => {
+    if (!window.ort) await new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = ORT_BASE + 'ort.wasm.min.js'; sc.onload = res; sc.onerror = rej; document.head.appendChild(sc); });
+    ort.env.wasm.wasmPaths = ORT_BASE; ort.env.wasm.numThreads = 1;
+    return ort.InferenceSession.create('models/u2netp.onnx', { executionProviders:['wasm'], graphOptimizationLevel:'all' });
+  })().catch(err => { segP = null; throw err; });
+}
+async function aiRemove(){
+  const sess = await loadSeg(), N = 320;
+  const tmp = document.createElement('canvas'); tmp.width = E.w; tmp.height = E.h; tmp.getContext('2d').putImageData(E.orig, 0, 0);
+  const c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d', { willReadFrequently:true }); g.drawImage(tmp, 0, 0, N, N);
+  const px = g.getImageData(0, 0, N, N).data, inp = new Float32Array(3*N*N);
+  const mean = [.485,.456,.406], std = [.229,.224,.225];
+  for (let i = 0; i < N*N; i++) for (let ch = 0; ch < 3; ch++) inp[ch*N*N + i] = (px[i*4+ch] / 255 - mean[ch]) / std[ch];
+  const out = await sess.run({ [sess.inputNames[0]]: new ort.Tensor('float32', inp, [1,3,N,N]) });
+  const pred = out[sess.outputNames[0]].data;
+  let lo = Infinity, hi = -Infinity; for (const v of pred){ if (v < lo) lo = v; if (v > hi) hi = v; }
+  const mc = document.createElement('canvas'); mc.width = mc.height = N;
+  const mg = mc.getContext('2d'), md = mg.createImageData(N, N);
+  for (let i = 0; i < N*N; i++){ const v = (pred[i] - lo) / (hi - lo || 1) * 255; md.data[i*4] = md.data[i*4+1] = md.data[i*4+2] = v; md.data[i*4+3] = 255; }
+  mg.putImageData(md, 0, 0);
+  const big = document.createElement('canvas'); big.width = E.w; big.height = E.h;
+  const bg = big.getContext('2d', { willReadFrequently:true }); bg.imageSmoothingQuality = 'high'; bg.drawImage(mc, 0, 0, E.w, E.h);
+  const bd = bg.getImageData(0, 0, E.w, E.h).data, m = new Uint8ClampedArray(E.w * E.h);
+  for (let i = 0; i < m.length; i++){ const v = bd[i*4] / 255; m[i] = clamp((v - .22) / .6, 0, 1) * 255; }   // firm up soft edges
+  keepMainObject(m, E.w, E.h);
+  E.mask = m;
+}
+/* drop stray blobs: keep connected regions that are at least 4% of the biggest one */
+function keepMainObject(m, w, h){
+  const lab = new Int32Array(w*h), sizes = [0], q = new Int32Array(w*h);
+  for (let i = 0; i < w*h; i++){
+    if (m[i] < 128 || lab[i]) continue;
+    const id = sizes.length; let qh = 0, qt = 0, n = 0; q[qt++] = i; lab[i] = id;
+    while (qh < qt){ const j = q[qh++]; n++; const x = j % w;
+      for (const k of [x > 0 ? j-1 : -1, x < w-1 ? j+1 : -1, j-w, j+w]) if (k >= 0 && k < w*h && !lab[k] && m[k] >= 128){ lab[k] = id; q[qt++] = k; } }
+    sizes.push(n);
+  }
+  const top = Math.max(...sizes); if (!top) return;
+  for (let i = 0; i < w*h; i++) if (m[i] >= 128 && sizes[lab[i]] < top * .04) m[i] = 0;
+}
+function edRender(){
+  const out = new ImageData(new Uint8ClampedArray(E.orig.data), E.w, E.h), d = out.data, m = E.mask;
+  for (let i = 0; i < m.length; i++) d[i*4+3] = m[i];
+  E.ctx.putImageData(out, 0, 0);
+}
+function autoRemove(){
+  const tol = +$('#edTol').value, { w, h } = E, d = E.orig.data, N = w*h;
+  // median border colour
+  const br = [], bg = [], bb = [];
+  const pushPx = i => { br.push(d[i*4]); bg.push(d[i*4+1]); bb.push(d[i*4+2]); };
+  for (let x = 0; x < w; x += 2){ pushPx(x); pushPx((h-1)*w + x); }
+  for (let y = 0; y < h; y += 2){ pushPx(y*w); pushPx(y*w + w-1); }
+  const med = a => a.sort((p,q) => p-q)[a.length >> 1];
+  const M = [med(br), med(bg), med(bb)];
+  const dist = (i, r, g, b) => { const dr = d[i*4]-r, dg = d[i*4+1]-g, db = d[i*4+2]-b; return Math.sqrt(dr*dr*.3 + dg*dg*.59 + db*db*.11) * 1.7; };
+  const vis = new Uint8Array(N), q = new Int32Array(N), seed = new Int32Array(N); let qh = 0, qt = 0;
+  const tryPush = (j, s) => { vis[j] = 1; seed[j] = s; q[qt++] = j; };
+  for (let x = 0; x < w; x++) for (const y of [0, h-1]){ const i = y*w+x; if (!vis[i] && dist(i, ...M) < tol*1.6) tryPush(i, i); }
+  for (let y = 0; y < h; y++) for (const x of [0, w-1]){ const i = y*w+x; if (!vis[i] && dist(i, ...M) < tol*1.6) tryPush(i, i); }
+  const mask = new Uint8ClampedArray(N).fill(255);
+  while (qh < qt){
+    const i = q[qh++]; mask[i] = 0;
+    const x = i % w, y = (i / w) | 0, s = seed[i];
+    const sr = d[s*4], sg = d[s*4+1], sb = d[s*4+2], ir = d[i*4], ig = d[i*4+1], ib = d[i*4+2];
+    const nb = [x > 0 ? i-1 : -1, x < w-1 ? i+1 : -1, y > 0 ? i-w : -1, y < h-1 ? i+w : -1];
+    for (const j of nb){
+      if (j < 0 || vis[j]) continue;
+      if (dist(j, ir, ig, ib) < tol * .45 && dist(j, sr, sg, sb) < tol) tryPush(j, s);
+    }
+  }
+  // remove small foreground specks + soften edge (3x3 box on mask)
+  const soft = new Uint8ClampedArray(N);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){
+    let s = 0, n = 0;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++){ const xx = x+dx, yy = y+dy; if (xx>=0 && yy>=0 && xx<w && yy<h){ s += mask[yy*w+xx]; n++; } }
+    soft[y*w+x] = s / n;
+  }
+  E.mask = soft;
+}
+$('#edTol').oninput = e => { $('#edTolV').textContent = e.target.value; };
+$('#edTol').onchange = () => { if (E.orig){ autoRemove(); edRender(); } };
+$('#edAuto').onclick = () => { if (E.orig){ autoRemove(); edRender(); toast('배경을 지웠어요. 남은 곳은 지우개로 다듬어 주세요'); } };
+$('#edAi').onclick = () => { if (E.orig) runScan(); };
+$('#edReset').onclick = () => { if (E.orig){ E.mask.fill(255); edRender(); } };
+function setTool(t){ E.tool = t; $$('#edTool button').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === t)); $('#edCanvas').style.cursor = t === 'none' ? 'default' : 'crosshair'; }
+$$('#edTool button').forEach(b => b.onclick = () => setTool(b.dataset.t));
+(() => {
+  const cv = $('#edCanvas'); let down = false, last = null;
+  const pt = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * E.w / r.width, (e.clientY - r.top) * E.h / r.height, E.w / r.width]; };
+  const dab = (x, y, scale) => {
+    const rad = +$('#edBrush').value * scale / 2, v = E.tool === 'erase' ? 0 : 255;
+    const x0 = Math.max(0, x-rad|0), x1 = Math.min(E.w-1, x+rad|0), y0 = Math.max(0, y-rad|0), y1 = Math.min(E.h-1, y+rad|0);
+    for (let yy = y0; yy <= y1; yy++) for (let xx = x0; xx <= x1; xx++){ const dd = (xx-x)**2 + (yy-y)**2; if (dd <= rad*rad) E.mask[yy*E.w+xx] = v; }
+  };
+  const stroke = e => {
+    const [x, y, sc] = pt(e);
+    if (last){ const steps = Math.max(1, Math.hypot(x-last[0], y-last[1]) / 3); for (let s = 1; s <= steps; s++) dab(last[0] + (x-last[0])*s/steps, last[1] + (y-last[1])*s/steps, sc); }
+    else dab(x, y, sc);
+    last = [x, y]; edRender();
+  };
+  cv.addEventListener('pointerdown', e => { if (E.tool === 'none' || !E.orig) return; down = true; last = null; cv.setPointerCapture(e.pointerId); stroke(e); });
+  cv.addEventListener('pointermove', e => { if (down) stroke(e); });
+  const up = () => { down = false; last = null; };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+})();
+function cutoutCanvas(maxSide = 900){
+  const { w, h } = E; let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (E.mask[y*w+x] > 20){ if (x<x0) x0=x; if (x>x1) x1=x; if (y<y0) y0=y; if (y>y1) y1=y; }
+  if (x1 < 0) return null;
+  edRender();
+  const P = 6; x0 = Math.max(0, x0-P); y0 = Math.max(0, y0-P); x1 = Math.min(w-1, x1+P); y1 = Math.min(h-1, y1+P);
+  const cw = x1-x0+1, ch = y1-y0+1, s = Math.min(1, maxSide / Math.max(cw, ch));
+  const c = document.createElement('canvas'); c.width = Math.round(cw*s); c.height = Math.round(ch*s);
+  const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage($('#edCanvas'), x0, y0, cw, ch, 0, 0, c.width, c.height);
+  return c;
+}
+$('#edSave').onclick = async () => {
+  if (!E.orig || E.busy) return;
+  const c = cutoutCanvas(); if (!c){ toast('남은 부분이 없어요. 원본으로 되돌려 주세요'); return; }
+  const imgId = await putBlob(await toBlob(c));
+  const id = 'i_' + uid(), n = [...S.items.values()].filter(i => i.cat === E.cat).length + 1;
+  const it = { name: $('#edName').value.trim() || `${CAT[E.cat]} ${pad(n)}`, cat: E.cat, note: $('#edNote').value.trim(), img: imgId, ar: c.height / c.width, created: Date.now() };
+  S.items.set(id, it); await DB.put('items', id, it); reindex();
+  closeEditor(); toast(`‘${it.name}’ 옷장에 넣었어요`);
+  if (E.thenAdd && !$('#composer').hidden){ const p = { id }; C.pieces.push(p); placeNew(p); C.sel = p; drawStage(); drawDrawer(); }
+  else if (S.view === 'closet') renderCloset(); else setView('closet');
+};
+/* PNG export: share sheet on iPhone (-> save image), download elsewhere */
+$('#edPng').onclick = async () => {
+  if (!E.orig || E.busy) return;
+  const c = cutoutCanvas(1600); if (!c) return;
+  const blob = await toBlob(c), name = ($('#edName').value.trim() || 'piece').replace(/[\\/:*?"<>|]/g, '') + '.png';
+  const file = new File([blob], name, { type:'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files:[file] })){ await navigator.share({ files:[file] }); return; } } catch (err) { if (err.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+};
+
+/* ===================== menu: backup / demo / wipe ===================== */
+$('#menuBtn').onclick = e => { e.stopPropagation(); $('#menu').hidden = !$('#menu').hidden; };
+document.addEventListener('click', e => { if (!e.target.closest('#menu')) $('#menu').hidden = true; });
+$('#menu').onclick = async e => {
+  const a = e.target.dataset.act; if (!a) return; $('#menu').hidden = true;
+  if (a === 'export') exportAll();
+  if (a === 'import'){ $('#importIn').value = ''; $('#importIn').click(); }
+  if (a === 'demo') loadDemo();
+  if (a === 'wipe' && confirm('옷장, 기록, 코디를 전부 지울까요? 되돌릴 수 없어요.')){ for (const s of ['items','days','looks','blobs']) await DB.clear(s); URLS.clear(); await loadAll(); render(); toast('전부 지웠어요'); }
+};
+const blobToDataURL = b => new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(b); });
+async function exportAll(){
+  const blobs = {}; for (const [k, v] of await DB.all('blobs')) blobs[k] = await blobToDataURL(v);
+  const data = { app:'ootd-log', version:1, exported:new Date().toISOString(), items:[...S.items], days:[...S.days], looks:[...S.looks], blobs };
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type:'application/json' }));
+  a.download = `ootd-backup-${todayKey()}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('백업 파일을 저장했어요');
+}
+$('#importIn').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text()); if (data.app !== 'ootd-log') throw 0;
+    if (!confirm('지금 기록을 백업 파일 내용으로 바꿀까요?')) return;
+    for (const s of ['items','days','looks','blobs']) await DB.clear(s);
+    for (const [k, v] of Object.entries(data.blobs)) await DB.put('blobs', k, await (await fetch(v)).blob());
+    for (const [k, v] of data.items) await DB.put('items', k, v);
+    for (const [k, v] of data.days) await DB.put('days', k, v);
+    for (const [k, v] of data.looks) await DB.put('looks', k, v);
+    URLS.forEach(u => URL.revokeObjectURL(u)); URLS.clear(); await loadAll(); render(); toast('가져왔어요');
+  } catch { toast('백업 파일을 읽지 못했어요'); }
+};
+
+/* ===================== demo closet (realistic product cut-outs in ./demo) ===================== */
+const SIL_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="#d42a1f" stroke-width="1.2"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.6"/></svg>`;
+const DEMO_ITEMS = [
+  ['top','회색 니트','knit_grey'], ['top','화이트 티','tee_white'], ['top','하늘색 캐미솔','cami_blue'],
+  ['top','스트라이프 티','tee_stripe'], ['top','블랙 리브 티','top_black'],
+  ['outer','데님 재킷','jacket_denim'], ['outer','브라운 가디건','cardigan_brown'],
+  ['bottom','와이드 데님','jeans_wide'], ['bottom','블랙 슬랙스','slacks_black'], ['bottom','체크 미니스커트','skirt_plaid'], ['bottom','차콜 쇼츠','shorts_charcoal'],
+  ['dress','레드 원피스','dress_red'],
+  ['shoes','흰 스니커즈','sneakers_white'], ['shoes','레인부츠','boots_rain'], ['shoes','블랙 로퍼','loafers_black'],
+  ['bag','레드 숄더백','bag_red'], ['acc','코듀로이 캡','cap_brown'], ['acc','니트 머플러','scarf_beige'],
+];
+async function loadDemo(){
+  if (S.items.size && !confirm(`지금 옷장에 예시 피스 ${DEMO_ITEMS.length}개와 지난 2주 기록을 더할까요?`)) return;
+  toast('예시 옷장을 채우는 중…');
+  const ids = {};
+  try {
+    for (const [cat, name, file] of DEMO_ITEMS){
+      const bl = await (await fetch(`demo/${file}.webp`)).blob();
+      const im = await loadImg(URL.createObjectURL(bl));
+      const id = 'i_' + uid(), it = { name, cat, note:'예시', img: await putBlob(bl), ar: im.naturalHeight / im.naturalWidth, created: Date.now() };
+      S.items.set(id, it); await DB.put('items', id, it); ids[name] = id;
+    }
+  } catch (err) { console.error(err); toast('예시 사진을 불러오지 못했어요'); return; }
+  const outfits = [
+    ['회색 니트','와이드 데님','흰 스니커즈'], ['화이트 티','데님 재킷','블랙 슬랙스','흰 스니커즈','레드 숄더백'],
+    ['스트라이프 티','체크 미니스커트','레인부츠'], ['레드 원피스','브라운 가디건','흰 스니커즈'],
+    ['하늘색 캐미솔','차콜 쇼츠','레인부츠','코듀로이 캡'], ['블랙 리브 티','블랙 슬랙스','블랙 로퍼','니트 머플러'],
+    ['화이트 티','와이드 데님','레드 숄더백','흰 스니커즈'], ['스트라이프 티','데님 재킷','차콜 쇼츠','흰 스니커즈'],
+    ['브라운 가디건','화이트 티','체크 미니스커트','레인부츠'], ['회색 니트','와이드 데님','흰 스니커즈','코듀로이 캡'],
+  ];
+  const tagsFor = [['알바'],[ '학교'],['알바'],['데이트'],[],['알바'],['학교'],['약속'],['알바'],[]];
+  const memos = ['손님 많았음. 니트 따뜻했다','','비 와서 부츠','','','','','','다리 추웠다',''];
+  const skip = new Set([3, 8, 11]); let oi = 0;
+  for (let back = 13; back >= 1; back--){
+    if (skip.has(back)) continue;
+    const k = addDays(todayKey(), -back); if (S.days.has(k)) { oi++; continue; }
+    const names = outfits[oi % outfits.length], pieces = arrange(names.map(n => ({ id: ids[n] })));
+    const r = { date:k, pieces, photo:null, thumb: await putBlob(await composite(pieces)), tags: tagsFor[oi % tagsFor.length], memo: memos[oi % memos.length] };
+    S.days.set(k, r); await DB.put('days', k, r); oi++;
+  }
+  const look = arrange(['레드 원피스','데님 재킷','레인부츠','레드 숄더백'].map(n => ({ id: ids[n] })));
+  const lid = 'l_' + uid(), l = { name:'비 오는 날 빨강', pieces: look, thumb: await putBlob(await composite(look)), created: Date.now() };
+  S.looks.set(lid, l); await DB.put('looks', lid, l);
+  reindex(); render(); toast('예시를 채웠어요. 자유롭게 지워도 돼요');
+}
+
+/* ===================== boot ===================== */
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ if (!$('#editor').hidden) closeEditor(); else if (!$('#composer').hidden) closeComposer(); else { closeSheet(); closeDayPane(); } } });
+(async () => {
+  try { await loadAll(); } catch (err) { console.error(err); toast('저장소를 열 수 없어요 (사생활 보호 모드?)'); }
+  let v = 'cal'; try { v = localStorage.getItem('ootd.view') || 'cal'; } catch {}
+  const d = new Date(); S.month = new Date(d.getFullYear(), d.getMonth(), 1);
+  $('#topDate').textContent = `${DOW[d.getDay()]} ${pad(d.getDate())} ${MONTHS[d.getMonth()].slice(0,3).toUpperCase()} ${d.getFullYear()}`;
+  setView(['cal','closet','looks'].includes(v) ? v : 'cal');
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
