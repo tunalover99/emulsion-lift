@@ -6,11 +6,10 @@
 <title>에멀전 리프트</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="즉석사진의 이미지 막을 물에서 떼어 종이와 돌, 벽돌 위에 옮기는 에멀전 리프트 작업실. An emulsion lift studio in the browser.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+KR:wght@400;600;700&display=swap">
+<link rel="preload" href="fonts/Pretendard-Regular.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 /* Layout follows the Figma "web" page: white ground, three symbols across the top (? + @), one thing on screen at a time, a chevron to move on. */
+@font-face { font-family: "Pretendard"; src: url("fonts/Pretendard-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
 :root {
   --ground: #ffffff;
   --ink: #111111;
@@ -19,13 +18,15 @@
   --text: #6d6d6d;
   --hair: #e4e4e4;
   --plate: #d9d9d9;
-  --f-sans: "Inter", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  /* Latin in Arial, Hangul falls through to Pretendard; regular weight throughout */
+  --f-sans: Arial, "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   color-scheme: light;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; }
-body { background: var(--ground); color: var(--ink); font-family: var(--f-sans); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body { background: var(--ground); color: var(--ink); font-family: var(--f-sans); font-weight: 400; font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+strong, b, h1, h2, h3, th { font-weight: 400; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 :focus-visible { outline: 1.5px solid var(--ink); outline-offset: 4px; }
@@ -74,7 +75,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 /* ---------- ? : text left, picture right ---------- */
 .about { max-width: 1512px; margin: 0 auto; padding-block: 135px 120px; padding-inline: max(16px, 10.6vw) max(16px, 11vw); display: grid; grid-template-columns: minmax(0, 638px) minmax(0, 642px); justify-content: space-between; gap: 48px; align-items: start; }
-.about-text { font-weight: 700; font-size: 16px; color: var(--text); line-height: 1.21; }
+.about-text { font-weight: 400; font-size: 16px; color: var(--text); line-height: 1.21; }
 .about-text h1, .about-text h2 { font: inherit; margin: 0 0 19px; }
 .about-text p, .about-text ul, .about-text ol { margin: 0 0 38px; }
 .about-text ul, .about-text ol { padding-left: 0; list-style: none; }
@@ -105,7 +106,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .check { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text); }
 .check input { accent-color: var(--ink); }
 .explain { grid-column: 1 / -1; max-width: 62ch; font-size: 13px; line-height: 1.6; color: #8a8a8a; margin: 8px 0 0; }
-.explain strong { color: var(--text); font-weight: 600; }
+.explain strong { color: var(--ink); font-weight: 400; }
 .next { position: fixed; right: max(16px, 9.6vw); bottom: calc(env(safe-area-inset-bottom, 0px) + 56px); z-index: 15; }
 .result { width: min(1000px, 92vw); display: grid; place-items: center; }
 

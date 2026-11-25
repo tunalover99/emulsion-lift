@@ -18,7 +18,8 @@ Notes from the `web` page (as of 2026-11-25; the site was rebuilt to this layout
   - `+` = make a new emulsion lift (studio).
   - `@` = log in and keep an archive, plus an artist statement.
 - Frames: `메인페이지` (works with small grey captions), `? 눌렀을 때 나오는 페이지` (text left, picture + caption right), `+눌렀을 때 나오는 첫번째 이미지` (print centred, "+ change image", chevron bottom right), `+누르고 두번째 단계` (metal tray top view), `옮길 곳_돌` / `옮길 곳_종이` / `옮길 곳_나무` (objects scattered on white, chevrons left/right, "+ add image").
-- Tokens: white ground, Inter; nav ? 36px / + 45px / @ 27px, inactive #bababa, active #514f4f (+ is black); about text Inter Bold 16px #6d6d6d.
+- Type (owner's choice, overrides Figma's Inter): Latin in Arial Regular, Hangul in Pretendard Regular (self-hosted in `fonts/`), all text weight 400.
+- Tokens: white ground; nav ? 36px / + 45px / @ 27px, inactive #bababa, active #514f4f (+ is black); about text Inter Bold 16px #6d6d6d.
 - Figma asset URLs download with curl once `www.figma.com` is allowed; the `emulsion-lift` cloud environment allows it.
 - The owner wants photographic material, not drawn illustration: tray, papers and sample photos come from the Figma file (`surfaces/tray.jpg`, `surfaces/paper/*.webp`, `photos/*.jpg`). Do not replace them with procedural drawings.
 - Section "reference" holds mood images; section "기능 구분" holds the owner's notes on what each page does.
