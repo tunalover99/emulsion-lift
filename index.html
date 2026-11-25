@@ -340,7 +340,7 @@ const I18N = {
     'hint.4.push': '끌어서 밀면 주름이 지고, 가장자리를 넘기면 접힙니다.', 'hint.4.pinch': '누르고 있으면 막이 모이며 주름이 생깁니다.',
     'hint.4.smooth': '문지르면 주름이 펴집니다.', 'hint.4.tear': '문지른 자리가 찢어집니다.', 'hint.5': '젖은 광택이 빠지고 막이 살짝 줄어듭니다.',
     'cat.stone': '돌', 'cat.paper': '종이', 'addImage': '이미지 추가',
-    'surf.cold': '수채화지 콜드프레스', 'surf.hot': '수채화지 핫프레스', 'surf.hanji': '한지', 'surf.kraft': '크라프트지', 'surf.linen': '리넨', 'surf.greyPaper': '회색 종이',
+    'surf.cold': '수채화지 콜드프레스', 'surf.hot': '수채화지 핫프레스', 'surf.hanji': '한지', 'surf.kraft': '크라프트지', 'surf.linen': '리넨', 'surf.greyPaper': '회색 종이', 'surf.tornPlain': '찢은 종이', 'surf.crumpled': '구겨진 종이', 'surf.foldedBeige': '접힌 갱지', 'surf.newspaper': '신문', 'surf.roughWhite': '거친 흰 종이', 'surf.greenWash': '초록 물든 종이', 'surf.bookText': '책 낱장', 'surf.tornCream': '찢은 미색 종이', 'surf.map': '지도', 'surf.roughCream': '거친 미색 종이', 'surf.newspaperBridge': '신문 (다리)', 'surf.bookPage': '책 87쪽', 'surf.foldedCream': '접힌 미색 종이', 'surf.handmade': '수제 종이',
     'surf.pebbleWhite': '흰 조약돌', 'surf.flatStone': '납작한 돌', 'surf.brickFragment': '벽돌 조각', 'surf.oldBrick': '오래된 벽돌', 'surf.clayBrick': '흙벽돌',
     'surf.darkSlate': '검은 판석', 'surf.granitePebble': '화강암 조약돌', 'surf.ochreFlagstone': '황토빛 판석', 'surf.redBrick': '붉은 벽돌', 'surf.custom': '올린 표면',
     'surf.fig': '무화과 잎', 'surf.leaves': '긴 잎', 'surf.pebble': '조약돌', 'surf.wood': '나무판',
@@ -391,7 +391,7 @@ const I18N = {
     'hint.4.push': 'Drag to push; it wrinkles, and folds over at the edge.', 'hint.4.pinch': 'Hold to gather the skin into wrinkles.',
     'hint.4.smooth': 'Rub to ease the wrinkles out.', 'hint.4.tear': 'Rub to tear.', 'hint.5': 'The wet sheen fades and the skin tightens a little.',
     'cat.stone': 'stone', 'cat.paper': 'paper', 'addImage': 'add image',
-    'surf.cold': 'cold-press watercolor', 'surf.hot': 'hot-press watercolor', 'surf.hanji': 'hanji', 'surf.kraft': 'kraft paper', 'surf.linen': 'linen', 'surf.greyPaper': 'grey paper',
+    'surf.cold': 'cold-press watercolor', 'surf.hot': 'hot-press watercolor', 'surf.hanji': 'hanji', 'surf.kraft': 'kraft paper', 'surf.linen': 'linen', 'surf.greyPaper': 'grey paper', 'surf.tornPlain': 'torn paper', 'surf.crumpled': 'crumpled paper', 'surf.foldedBeige': 'folded newsprint', 'surf.newspaper': 'newspaper', 'surf.roughWhite': 'rough white paper', 'surf.greenWash': 'green-washed paper', 'surf.bookText': 'book page', 'surf.tornCream': 'torn cream paper', 'surf.map': 'map', 'surf.roughCream': 'rough cream paper', 'surf.newspaperBridge': 'newspaper, bridge', 'surf.bookPage': 'page 87', 'surf.foldedCream': 'folded cream paper', 'surf.handmade': 'handmade paper',
     'surf.pebbleWhite': 'white pebble', 'surf.flatStone': 'flat stone', 'surf.brickFragment': 'brick fragment', 'surf.oldBrick': 'old brick', 'surf.clayBrick': 'clay brick',
     'surf.darkSlate': 'dark slate', 'surf.granitePebble': 'granite pebble', 'surf.ochreFlagstone': 'ochre flagstone', 'surf.redBrick': 'red brick', 'surf.custom': 'your own surface',
     'surf.fig': 'fig leaf', 'surf.leaves': 'long leaves', 'surf.pebble': 'pebble', 'surf.wood': 'wood panel',
@@ -426,10 +426,12 @@ function t(key, vars) {
    constants & state
    ========================================================= */
 const W = 1200, H = 900, BGS = 1.5;
-const TRAY = { x: 36, y: 28, w: 1128, h: 844 };
+const TRAY = { x: 140, y: 142, w: 920, h: 588 };
+const TRAY_IMG = { x: 30, y: 60, w: 1140, h: 760 };
+const trayPhoto = new Image(); trayPhoto.src = 'surfaces/tray.jpg';
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const state = {
-  view: 'home', phase: 1, film: 'integral', temp: 45, surface: 'cold', whiteLayer: false, picking: false, soakDone: false,
+  view: 'home', phase: 1, film: 'integral', temp: 45, surface: 'pebbleWhite', whiteLayer: false, picking: false, soakDone: false,
   tool3: 'release', tool4: 'push', brush3: 70, brush4: 70, flipped: false,
   soakP: 0, soaking: false, soakThr: 0.2, ragged: 1, holes: 0,
   autoRel: null, dryP: 0, drying: false, dip: 0, simFrames: 0,
@@ -499,7 +501,7 @@ void main(){
   c=mix(c,c*vec3(0.86,0.87,0.88),u_wet*texture2D(u_mask,uv).a);
   c=mix(c,c*u_tint,min(inW,1.)*0.6);
   float a=n2(w*0.02+vec2(u_time*0.15,u_time*0.1)), b=n2(w*0.031-vec2(u_time*0.12,-u_time*0.07));
-  c+=inW*pow(max(0.,1.-abs(a-b)*2.4),10.)*0.045;
+  c+=inW*(a*b-0.25)*0.06;
   gl_FragColor=vec4(c,1.);
 }`;
 const MV_VS = `attribute vec2 a_pos; attribute vec2 a_uv; attribute float a_comp, a_rel, a_field; ${VS_VIEW}
@@ -697,12 +699,12 @@ function sceneStill(g, w, h, r) {
 }
 const SCENES = [[sceneSea, 1400, 1060], [sceneBlossom, 1060, 1400], [sceneMoon, 1400, 1060], [sceneStill, 1060, 1400]];
 let lastScene = -1;
-function makeScene(i, seed = 7) {
-  if (i == null) { do { i = Math.floor(Math.random() * SCENES.length); } while (i === lastScene); }
-  lastScene = i;
-  const [fn, w, h] = SCENES[i], c = mk(w, h), g = c.getContext('2d');
-  fn(g, w, h, rng(seed + i * 101));
-  return c;
+const PHOTOS = ['sea', 'roses', 'city', 'clouds', 'flowers'];
+let lastPhoto = -1;
+function loadSample(i) {
+  if (i == null) { do { i = Math.floor(Math.random() * PHOTOS.length); } while (i === lastPhoto && PHOTOS.length > 1); }
+  lastPhoto = i;
+  return loadImg('photos/' + PHOTOS[i] + '.jpg');
 }
 
 /* =========================================================
@@ -1034,6 +1036,8 @@ function cutout(img, noCut) {
   const c = mk(w, h), g = c.getContext('2d', { willReadFrequently: true });
   g.drawImage(img, 0, 0, w, h);
   const id = g.getImageData(0, 0, w, h), d = id.data;
+  let clear = 0; for (let k = 3; k < d.length; k += 16) if (d[k] < 200) clear++;
+  if (clear / (d.length / 16) > 0.03) noCut = true;
   const border = [];
   for (let x = 0; x < w; x += 3) { border.push(x, (h - 1) * w + x); }
   for (let y = 0; y < h; y += 3) { border.push(y * w, y * w + w - 1); }
@@ -1042,7 +1046,8 @@ function cutout(img, noCut) {
   const near = k => { const o = k * 4, r = d[o] - bg[0], gg = d[o + 1] - bg[1], b = d[o + 2] - bg[2]; return r * r + gg * gg + b * b; };
   const tol = 42 * 42;
   const uniform = border.filter(k => near(k) < tol).length / border.length;
-  const alpha = new Float32Array(w * h).fill(1);
+  const alpha = new Float32Array(w * h);
+  for (let k = 0; k < w * h; k++) alpha[k] = d[k * 4 + 3] / 255;
   if (uniform > 0.7 && !noCut) {
     const seen = new Uint8Array(w * h), stack = [];
     for (let x = 0; x < w; x++) { stack.push(x, (h - 1) * w + x); }
@@ -1072,7 +1077,7 @@ function cutout(img, noCut) {
     const soft = blur(blur(alpha, true), false);
     for (let k = 0; k < w * h; k++) alpha[k] = smooth(0.45, 0.85, soft[k]);
     let kept = 0; for (let k = 0; k < w * h; k++) kept += alpha[k];
-    if (kept / (w * h) < 0.08) alpha.fill(1);
+    if (kept / (w * h) < 0.08) for (let k = 0; k < w * h; k++) alpha[k] = d[k * 4 + 3] / 255;
   }
   let x0 = w, y0 = h, x1 = 0, y1 = 0;
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
@@ -1080,7 +1085,7 @@ function cutout(img, noCut) {
     d[(y * w + x) * 4 + 3] = a * 255;
     if (a > 0.05) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
   }
-  if (x1 <= x0 || y1 <= y0) { x0 = 0; y0 = 0; x1 = w - 1; y1 = h - 1; for (let k = 0; k < w * h; k++) d[k * 4 + 3] = 255; }
+  if (x1 <= x0 || y1 <= y0) { x0 = 0; y0 = 0; x1 = w - 1; y1 = h - 1; }
   g.putImageData(id, 0, 0);
   const cw = x1 - x0 + 1, chh = y1 - y0 + 1, out = mk(cw, chh);
   out.getContext('2d').drawImage(c, x0, y0, cw, chh, 0, 0, cw, chh);
@@ -1105,12 +1110,21 @@ const SURFACES = {
   clayBrick: { group: 'stone', photo: 'surfaces/clay-brick.jpg' },
   ochreFlagstone: { group: 'stone', photo: 'surfaces/ochre-flagstone.jpg' },
   redBrick: { group: 'stone', photo: 'surfaces/red-brick.jpg' },
+  tornPlain: { group: 'paper', photo: 'surfaces/paper/torn-plain.webp' },
+  crumpled: { group: 'paper', photo: 'surfaces/paper/crumpled.webp' },
+  foldedBeige: { group: 'paper', photo: 'surfaces/paper/folded-beige.webp' },
+  newspaper: { group: 'paper', photo: 'surfaces/paper/newspaper.webp' },
+  roughWhite: { group: 'paper', photo: 'surfaces/paper/rough-white.webp' },
+  greenWash: { group: 'paper', photo: 'surfaces/paper/green-wash.webp' },
+  bookText: { group: 'paper', photo: 'surfaces/paper/book-text.webp' },
+  tornCream: { group: 'paper', photo: 'surfaces/paper/torn-cream.webp' },
+  map: { group: 'paper', photo: 'surfaces/paper/map.webp' },
+  roughCream: { group: 'paper', photo: 'surfaces/paper/rough-cream.webp' },
+  newspaperBridge: { group: 'paper', photo: 'surfaces/paper/newspaper-bridge.webp' },
+  bookPage: { group: 'paper', photo: 'surfaces/paper/book-page.webp' },
+  foldedCream: { group: 'paper', photo: 'surfaces/paper/folded-cream.webp' },
+  handmade: { group: 'paper', photo: 'surfaces/handmade-paper.jpg', noCut: true },
   greyPaper: { group: 'paper', photo: 'surfaces/grey-paper.jpg', noCut: true },
-  cold: { group: 'paper', rect: PAPER_R, gen: genPaper('cold') },
-  hot: { group: 'paper', rect: PAPER_R, gen: genPaper('hot') },
-  hanji: { group: 'paper', rect: PAPER_R, gen: genPaper('hanji') },
-  kraft: { group: 'paper', rect: PAPER_R, gen: genPaper('kraft') },
-  linen: { group: 'paper', rect: { x: 140, y: 100, w: 920, h: 700 }, gen: genLinen },
 };
 function surfName(kind) { return SURFACES[kind] && SURFACES[kind].custom ? t('surf.custom') : t('surf.' + kind); }
 const surfCache = {};
@@ -1154,20 +1168,9 @@ function makeTable() {
 const bgCanvas = mk(W * BGS, H * BGS), bgCtx = bgCanvas.getContext('2d');
 function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 function drawTray(g) {
-  const { x, y, w, h } = TRAY;
-  g.save(); g.shadowColor = 'rgba(0,0,0,.22)'; g.shadowBlur = 26; g.shadowOffsetY = 12;
-  let gr = g.createLinearGradient(0, y, 0, y + h);
-  gr.addColorStop(0, '#5b5d60'); gr.addColorStop(0.05, '#1d1e20'); gr.addColorStop(0.5, '#3a3c3f'); gr.addColorStop(0.95, '#151617'); gr.addColorStop(1, '#4a4c4f');
-  g.fillStyle = gr; roundRect(g, x, y, w, h, 34); g.fill(); g.restore();
-  gr = g.createLinearGradient(x, 0, x + w, 0);
-  gr.addColorStop(0, '#c9cbcd'); gr.addColorStop(0.18, '#f2f3f4'); gr.addColorStop(0.45, '#d4d6d8'); gr.addColorStop(0.7, '#eceef0'); gr.addColorStop(1, '#b9bcbf');
-  g.fillStyle = gr; roundRect(g, x + 16, y + 16, w - 32, h - 32, 24); g.fill();
-  gr = g.createLinearGradient(0, y + 16, 0, y + h - 16);
-  gr.addColorStop(0, 'rgba(0,0,0,.18)'); gr.addColorStop(0.05, 'rgba(0,0,0,0)'); gr.addColorStop(0.93, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.16)');
-  g.fillStyle = gr; roundRect(g, x + 16, y + 16, w - 32, h - 32, 24); g.fill();
-  g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 2; roundRect(g, x + 40, y + 40, w - 80, h - 80, 14); g.stroke();
-  g.strokeStyle = 'rgba(0,0,0,.08)'; g.lineWidth = 1; roundRect(g, x + 43, y + 43, w - 86, h - 86, 12); g.stroke();
+  if (trayPhoto.complete && trayPhoto.naturalWidth) g.drawImage(trayPhoto, TRAY_IMG.x, TRAY_IMG.y, TRAY_IMG.w, TRAY_IMG.h);
 }
+trayPhoto.onload = () => { if (gl && (state.phase === 2 || state.phase === 3)) composeBG(); };
 function shadowRect(g, x, y, w, h, color, blur = 18, r = 3) {
   g.save(); g.shadowColor = 'rgba(30,34,36,.24)'; g.shadowBlur = blur; g.shadowOffsetY = 4;
   g.fillStyle = color; roundRect(g, x, y, w, h, r); g.fill(); g.restore();
@@ -1178,7 +1181,7 @@ function composeBG() {
   const g = bgCtx, ph = state.phase, r = printRect(), integ = state.film === 'integral';
   g.setTransform(BGS, 0, 0, BGS, 0, 0);
   g.drawImage(tableCanvas, 0, 0, W, H);
-  if (ph >= 2 && ph <= 4) drawTray(g);
+  if (ph === 2 || ph === 3) drawTray(g);
   if (ph === 1) {
     if (integ) shadowRect(g, r.x - 28, r.y - 28, r.w + 56, r.h + 28 + 120, '#f3f2ec', 22, 4);
     else shadowRect(g, r.x - 24, r.y - 24, r.w + 48, r.h + 48, '#f6f4ee', 22, 4);
@@ -1222,7 +1225,7 @@ function params() {
   if (ph === 1) return { water: 0, tint: cold, wet: 0, soak: 0, relVis: 0, mwet: 0, clip: 0 };
   if (ph === 2) return { water: 1, tint: hot, wet: 0, soak: state.soakP * state.soakThr, relVis: 0, mwet: 0, clip: 0 };
   if (ph === 3) return { water: 1, tint: cold, wet: 0, soak: 0, relVis: 1, mwet: 0.5, clip: 0 };
-  if (ph === 4) return { water: 0.45 + state.dip * 0.55, tint: cold, wet: 1, soak: 0, relVis: 0, mwet: 1, clip: 1 };
+  if (ph === 4) return { water: state.dip * 0.5, tint: cold, wet: 1, soak: 0, relVis: 0, mwet: 1, clip: 1 };
   const w = 1 - state.dryP; return { water: 0, tint: cold, wet: w, soak: 0, relVis: 0, mwet: w, clip: 1 };
 }
 function render(view) {
@@ -1786,7 +1789,7 @@ function showView(v) {
   [['nav-about', 'about'], ['nav-studio', 'studio'], ['nav-archive', 'archive']].forEach(([id, name]) => {
     if (v === name) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current');
   });
-  if (v === 'studio') { resize(); if (!state.srcImg && gl) loadImage(makeScene()); }
+  if (v === 'studio') { resize(); if (!state.srcImg && gl) loadSample().then(loadImage).catch(() => {}); }
 }
 async function route() {
   const h = location.hash.slice(1);
@@ -1913,7 +1916,7 @@ function readFile(file) {
     .catch(() => { URL.revokeObjectURL(url); toast(t('t.openFail')); });
 }
 $('file').addEventListener('change', e => { if (gl) readFile(e.target.files[0]); e.target.value = ''; });
-$('sampleBtn').addEventListener('click', () => { if (gl) loadImage(makeScene()); });
+$('sampleBtn').addEventListener('click', () => { if (gl) loadSample().then(loadImage).catch(() => toast(t('t.openFail'))); });
 const stageEl = $('stage');
 stageEl.addEventListener('dragover', e => { e.preventDefault(); if (gl && state.phase === 1) $('dropzone').hidden = false; });
 stageEl.addEventListener('dragleave', e => { if (!stageEl.contains(e.relatedTarget)) $('dropzone').hidden = true; });
@@ -1928,7 +1931,7 @@ window.addEventListener('paste', e => {
 async function autoLift({ scene, film: f = 'peel', surface = 'cold', temp, flip: fl = false, shakes = 1, maxSide = 1000 }) {
   state.film = f; state.temp = temp || (f === 'integral' ? 45 : 70); state.surface = surface;
   await ensureSurface(surface);
-  loadImage(makeScene(scene, 7));
+  loadImage(await loadSample(scene));
   finishSoak(); enterLift();
   M.rel.fill(1); M.inv.fill(1);
   enterPaper(); updateMask(); composeBG();
