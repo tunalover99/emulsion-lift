@@ -82,8 +82,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .about-text ul, .about-text ol { padding-left: 0; list-style: none; }
 .about-text .sec { margin-bottom: 0; }
 .about-fig { margin: 0; position: sticky; top: 140px; }
-.about-fig .pic { aspect-ratio: 642 / 357; background: #f4f4f4; display: grid; place-items: center; overflow: hidden; }
-.about-fig img { max-width: 92%; max-height: 92%; object-fit: contain; }
+.about-fig .pic { background: #f4f4f4; padding: 5%; }
+.about-fig img { display: block; width: 100%; height: auto; max-height: calc(100vh - 300px); object-fit: contain; }
 .about-fig figcaption { font-size: 16px; color: var(--ink); margin-top: 16px; }
 
 /* ---------- + : one step per screen ---------- */
@@ -208,7 +208,7 @@ body.picking-board .foot { visibility: hidden; }
   <div class="about">
     <article class="about-text" id="aboutBody"></article>
     <figure class="about-fig">
-      <div class="pic"><img id="aboutImg" src="examples/ex1.webp" alt=""></div>
+      <div class="pic"><img id="aboutImg" src="examples/ex1.webp" width="900" height="814" alt=""></div>
       <figcaption id="aboutCap"></figcaption>
     </figure>
   </div>
