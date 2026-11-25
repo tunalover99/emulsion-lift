@@ -1146,6 +1146,7 @@ function cutout(img, noCut) {
   g.putImageData(id, 0, 0);
   const cw = x1 - x0 + 1, chh = y1 - y0 + 1, out = mk(cw, chh);
   out.getContext('2d').drawImage(c, x0, y0, cw, chh, 0, 0, cw, chh);
+  out.full = c;
   return out;
 }
 function fitRect(cw, ch) {
@@ -1494,12 +1495,24 @@ function fitBoard() {
   $('board').style.setProperty('--s', sc);
 }
 const ADD_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6z"/></svg>';
+/* Photos shot on a grey or white ground are shown with that ground lifted away, framed exactly as in the design. */
+const pickSrc = {};
+async function pickImageSrc(kind) {
+  const S = SURFACES[kind];
+  if (!S.photo || !/\.jpe?g$/.test(S.photo) || S.noCut) return S.photo || thumbURL(kind);
+  if (pickSrc[kind]) return pickSrc[kind];
+  await ensureSurface(kind);
+  const f = S.cut.full, sc = Math.min(1, 720 / Math.max(f.width, f.height)), c = mk(f.width * sc, f.height * sc);
+  c.getContext('2d').drawImage(f, 0, 0, c.width, c.height);
+  pickSrc[kind] = c.toDataURL('image/webp', 0.9);
+  return pickSrc[kind];
+}
 function pickButton(kind) {
   const S = SURFACES[kind], b = document.createElement('button');
   b.type = 'button'; b.className = 'pick-item'; b.id = 'surf-' + kind; b.dataset.surface = kind;
   const img = new Image(); img.alt = surfName(kind); img.draggable = false;
   img.style.objectFit = S.fit || 'contain';
-  if (S.photo) img.src = S.photo; else thumbURL(kind).then(u => { img.src = u; });
+  Promise.resolve(pickImageSrc(kind)).then(u => { img.src = u; }).catch(() => { if (S.photo) img.src = S.photo; });
   const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = surfName(kind);
   b.append(img, nm);
   return b;
@@ -1541,36 +1554,70 @@ function renderPick() {
     $('pick').insertBefore($('catNext'), $('pickItems').nextSibling);
   }
 }
-/* Put the hover name where it keeps clear of every other object, the arrows and "add image". */
+/* The hover name sits a fixed distance from the drawn edge of its object, never on any drawn pixel,
+   and clear of the other objects, the arrows and "add image". Distances are in Figma frame px. */
+const NAME_GAP = 14, NAME_CLEAR = 18, SCAN = 3, EDGE = 1;
+function paintedBox(btn) {
+  if (btn._pb) return btn._pb;
+  const x0 = btn.offsetLeft, y0 = btn.offsetTop, w = btn.offsetWidth, h = btn.offsetHeight;
+  let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity;
+  for (let y = y0; y <= y0 + h; y += SCAN) for (let x = x0; x <= x0 + w; x += SCAN)
+    if (solidAt(btn, x, y)) { if (x < a) a = x; if (x > c) c = x; if (y < b) b = y; if (y > d) d = y; }
+  const pb = a === Infinity ? { x: x0, y: y0, w, h } : { x: a - SCAN, y: b - SCAN, w: c - a + 2 * SCAN, h: d - b + 2 * SCAN };
+  const im = btn.querySelector('img'); if (hitMap(im) && hitMaps.get(im).w) btn._pb = pb;
+  return pb;
+}
+function edgeAlong(btn, side, from, to) {
+  // where the name's near edge must sit so every drawn pixel, straight across or diagonal, is exactly NAME_GAP away or more
+  const pb = paintedBox(btn), G = NAME_GAP; let need = null;
+  for (let t = from - G; t <= to + G; t += EDGE) {
+    const off = Math.max(0, from - t, t - to); if (off > G) continue;
+    const reach = Math.sqrt(G * G - off * off);
+    let e = null;
+    if (side === 'below') { for (let y = pb.y + pb.h; y >= pb.y; y -= EDGE) if (solidAt(btn, t, y)) { e = y + reach; break; } }
+    if (side === 'above') { for (let y = pb.y; y <= pb.y + pb.h; y += EDGE) if (solidAt(btn, t, y)) { e = y - reach; break; } }
+    if (side === 'right') { for (let x = pb.x + pb.w; x >= pb.x; x -= EDGE) if (solidAt(btn, x, t)) { e = x + reach; break; } }
+    if (side === 'left') { for (let x = pb.x; x <= pb.x + pb.w; x += EDGE) if (solidAt(btn, x, t)) { e = x - reach; break; } }
+    if (e === null) continue;
+    need = need === null ? e : (side === 'below' || side === 'right') ? Math.max(need, e) : Math.min(need, e);
+  }
+  if (need !== null) return Math.round(need);
+  return side === 'below' ? pb.y + pb.h + G : side === 'above' ? pb.y - G : side === 'right' ? pb.x + pb.w + G : pb.x - G;
+}
 function placeName(btn) {
   if (!$('pick').classList.contains('as-board')) return;
-  const nm = btn.querySelector('.nm'), board = $('board'), GAP = 16, PAD = 22;
-  const box = el => ({ x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight });
-  const me = box(btn), lw = nm.offsetWidth, lh = nm.offsetHeight;
-  const others = [...board.children].filter(el => el !== btn && el.offsetWidth).map(box);
-  const hit = r => others.reduce((a, o) => {
-    const ox = Math.min(r.x + r.w, o.x + o.w + PAD) - Math.max(r.x, o.x - PAD);
-    const oy = Math.min(r.y + r.h, o.y + o.h + PAD) - Math.max(r.y, o.y - PAD);
-    return a + (ox > 0 && oy > 0 ? ox * oy : 0);
-  }, 0);
-  const cx = me.x + me.w / 2 - lw / 2, cy = me.y + me.h / 2 - lh / 2;
-  const spots = [
-    { x: cx, y: me.y + me.h + GAP }, { x: cx, y: me.y - GAP - lh },
-    { x: me.x + me.w + GAP, y: cy }, { x: me.x - GAP - lw, y: cy },
-    { x: me.x, y: me.y + me.h + GAP }, { x: me.x + me.w - lw, y: me.y + me.h + GAP },
-    { x: me.x, y: me.y - GAP - lh }, { x: me.x + me.w - lw, y: me.y - GAP - lh },
-  ].map(p => ({ ...p, x: Math.max(8, Math.min(1912 - lw, p.x)), y: Math.max(120, Math.min(1072 - lh, p.y)) }));
-  let best = spots[0], bestHit = Infinity;
-  for (const p of spots) { const h = hit({ x: p.x, y: p.y, w: lw, h: lh }); if (h < bestHit) { best = p; bestHit = h; } if (h === 0) break; }
-  nm.style.left = (best.x - me.x) + 'px'; nm.style.top = (best.y - me.y) + 'px';
+  const nm = btn.querySelector('.nm'), board = $('board');
+  const lw = nm.offsetWidth, lh = nm.offsetHeight, pb = paintedBox(btn);
+  const items = [...board.querySelectorAll('.pick-item')];
+  const fixed = [...board.querySelectorAll('.pick-add, .chev')].map(el => ({ x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight }));
+  const cost = r => {
+    if (r.x < 8 || r.x + r.w > 1912 || r.y < 120 || r.y + r.h > 1072) return 1e9;
+    let n = 0;
+    for (const f of fixed) if (r.x - NAME_CLEAR < f.x + f.w && r.x + r.w + NAME_CLEAR > f.x && r.y - NAME_CLEAR < f.y + f.h && r.y + r.h + NAME_CLEAR > f.y) n += 1000;
+    for (const it of items) {
+      const clear = it === btn ? NAME_GAP - 2 : NAME_CLEAR;
+      if (it.offsetLeft > r.x + r.w + clear || it.offsetLeft + it.offsetWidth < r.x - clear || it.offsetTop > r.y + r.h + clear || it.offsetTop + it.offsetHeight < r.y - clear) continue;
+      for (let y = r.y - clear; y <= r.y + r.h + clear; y += SCAN * 2) for (let x = r.x - clear; x <= r.x + r.w + clear; x += SCAN * 2) if (solidAt(it, x, y)) n++;
+    }
+    return n;
+  };
+  const cx = pb.x + pb.w / 2, cy = pb.y + pb.h / 2, spots = [];
+  { const x = Math.round(cx - lw / 2); spots.push({ x, y: edgeAlong(btn, 'below', x, x + lw) }); }
+  { const x = Math.round(cx - lw / 2); spots.push({ x, y: edgeAlong(btn, 'above', x, x + lw) - lh }); }
+  { const y = Math.round(cy - lh / 2); spots.push({ x: edgeAlong(btn, 'right', y, y + lh), y }); }
+  { const y = Math.round(cy - lh / 2); spots.push({ x: edgeAlong(btn, 'left', y, y + lh) - lw, y }); }
+  let best = spots[0], bestCost = Infinity;
+  for (const p of spots) { const c = cost({ x: p.x, y: p.y, w: lw, h: lh }); if (c < bestCost) { best = p; bestCost = c; } if (c === 0) break; }
+  nm.style.left = (best.x - btn.offsetLeft) + 'px'; nm.style.top = (best.y - btn.offsetTop) + 'px';
 }
 $('board').addEventListener('focusin', e => { const b = e.target.closest('.pick-item'); if (b) placeName(b); });
 /* Boxes from the design overlap (driftwood over the slab), so only painted pixels count as the object. */
 const hitMaps = new WeakMap();
 function hitMap(img) {
-  if (hitMaps.has(img)) return hitMaps.get(img);
+  if (hitMaps.has(img) && img._hitSrc === img.currentSrc) return hitMaps.get(img);
+  img._hitSrc = img.currentSrc;
   if (!img.complete || !img.naturalWidth) return null;
-  const sc = Math.min(1, 200 / Math.max(img.naturalWidth, img.naturalHeight));
+  const sc = Math.min(1, 700 / Math.max(img.naturalWidth, img.naturalHeight));
   const c = mk(img.naturalWidth * sc, img.naturalHeight * sc), g = c.getContext('2d', { willReadFrequently: true });
   g.drawImage(img, 0, 0, c.width, c.height);
   let m = null;
