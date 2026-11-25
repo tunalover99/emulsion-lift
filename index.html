@@ -39,13 +39,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   height: 112px; padding-inline: max(16px, 9.6vw) max(16px, 9.6vw);
 }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--ground); z-index: 21; }
-.sym { color: var(--symbol-off); line-height: 1; font-weight: 400; transition: color .2s; padding: 6px; }
+.sym { color: var(--symbol-off); line-height: 1; font-weight: 400; transition: color .2s; padding: 6px; height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.sym .glyph { display: block; line-height: 1; }
 .sym:hover { color: var(--symbol-on); }
 .sym[aria-current="page"] { color: var(--symbol-on); }
-.sym.q { font-size: 36px; justify-self: start; }
-.sym.plus { font-size: 45px; }
+.sym.q { font-size: 27px; justify-self: start; }
+.sym.plus { font-size: 32px; }
 .sym.plus[aria-current="page"] { color: #000; }
-.sym.at { font-size: 27px; justify-self: end; }
+.sym.at { font-size: 20px; justify-self: end; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* small text controls, as in "+ change image" / "+ add image" */
@@ -181,16 +182,15 @@ body.picking-board .foot { visibility: hidden; }
 }
 @media (max-width: 560px) {
   .home, .archive .grid { gap: 0 20px; }
-  .sym.q { font-size: 30px; } .sym.plus { font-size: 38px; } .sym.at { font-size: 23px; }
 }
 @media (prefers-reduced-motion: reduce) { .work.arrive { animation: none; } .pick-item img { transition: none; } }
 </style>
 </head>
 <body>
 <nav class="topnav" aria-label="menu">
-  <a class="sym q" href="#about" id="nav-about"><span aria-hidden="true">?</span><span class="sr" data-i18n="nav.about">소개</span></a>
-  <a class="sym plus" href="#studio" id="nav-studio"><span aria-hidden="true">+</span><span class="sr" data-i18n="nav.new">새 리프트</span></a>
-  <a class="sym at" href="#archive" id="nav-archive"><span aria-hidden="true">@</span><span class="sr" data-i18n="nav.archive">아카이브</span></a>
+  <a class="sym q" href="#about" id="nav-about"><span class="glyph" aria-hidden="true">?</span><span class="sr" data-i18n="nav.about">소개</span></a>
+  <a class="sym plus" href="#studio" id="nav-studio"><span class="glyph" aria-hidden="true">+</span><span class="sr" data-i18n="nav.new">새 리프트</span></a>
+  <a class="sym at" href="#archive" id="nav-archive"><span class="glyph" aria-hidden="true">@</span><span class="sr" data-i18n="nav.archive">아카이브</span></a>
 </nav>
 
 <!-- MAIN -->
@@ -2071,6 +2071,31 @@ const ABOUT = {
 <p>It crops your photograph to the film format and gives it the color and grain of FP-100C or Polaroid. In hot water the skin lifts unevenly from the edges; hotter water lifts it faster but frays the edges. In cold water the image becomes a skin of about 2,500 linked points: attached points hold, loose ones drift with the water. On the surface the links stretch only slightly but may shorten freely, so pushing makes wrinkles, overlaps multiply into deeper color, and whatever falls past the surface is trimmed to its shape. As it dries the wet sheen fades and the skin tightens. Finished works are kept inside this browser.</p>`,
 };
 
+/* ---------- the three symbols: same apparent size ----------
+   Sized by measured ink height, not font size. A cross spreads its strokes wide and an @ is dense,
+   so both read larger than a ? of the same height: + is set to 90% and @ to 92% of the ? height.
+   Each glyph is then shifted so the centres of the ink, not the baselines, share one line. */
+const SYMBOL_RATIO = { '?': 1, '+': 0.9, '@': 0.92 };
+function sizeSymbols() {
+  const H = innerWidth < 560 ? 16 : 19;
+  const g = document.createElement('canvas').getContext('2d');
+  document.querySelectorAll('.topnav .glyph').forEach(el => {
+    const ch = el.textContent, family = getComputedStyle(el).fontFamily;
+    g.font = `400 100px ${family}`;
+    const m = g.measureText(ch);
+    const ink = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+    if (!ink) return;
+    const fs = H * SYMBOL_RATIO[ch] * 100 / ink;
+    const asc = m.fontBoundingBoxAscent / 100, desc = m.fontBoundingBoxDescent / 100;
+    const baseline = (1 - (asc + desc)) / 2 + asc;              // baseline from top of a line-height:1 box, per 1px of font size
+    const inkMid = (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 200;
+    el.style.fontSize = fs.toFixed(2) + 'px';
+    el.style.transform = `translateY(${((inkMid - (baseline - 0.5)) * fs).toFixed(2)}px)`;
+  });
+}
+let symNarrow = innerWidth < 560;
+window.addEventListener('resize', () => { const n = innerWidth < 560; if (n !== symNarrow) { symNarrow = n; sizeSymbols(); } });
+
 /* ---------- language + routing ---------- */
 function applyLang() {
   document.documentElement.lang = lang;
@@ -2255,6 +2280,7 @@ async function autoLift({ scene, film: f = 'peel', surface = 'cold', temp, flip:
 
 /* ---------- boot ---------- */
 applyLang();
+sizeSymbols();
 cloud.init().finally(route);
 requestAnimationFrame(frame);
 window.__lift = { state, autoLift, get M() { return M; } };
