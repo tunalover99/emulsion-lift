@@ -15,7 +15,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Noto+Serif+KR:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
 /* Type & layout follow the quiet-luxury pattern of award-winning fashion sites:
@@ -365,12 +365,126 @@ button,a{touch-action:manipulation}
 .rotbar{position:absolute;right:12px;bottom:12px;display:flex;gap:0;border:1px solid var(--line);background:#fff;z-index:3}
 .rotbar .iconbtn{width:44px;height:44px}
 .rotbar .iconbtn+.iconbtn{border-left:1px solid var(--line)}
+/* =========== lookbook minimal (overrides) =========== */
+:root{
+  --ink:#1e1e1e; --muted:#8e8e8e; --faint:#d6d6d6; --line:#bdbdbd; --tile-line:#cfcfcf; --lab:#555555;
+  --f-sans:"Montserrat","Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+  --f-serif:"Montserrat","Pretendard",sans-serif;
+  --f-mono:"Montserrat","Pretendard",sans-serif;
+}
+body{font-feature-settings:normal;letter-spacing:0;font-size:13px}
+.serif{font-family:var(--f-sans);font-weight:400;letter-spacing:.02em}
+.lab{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 4px;background:var(--lab);color:#fff;font-family:var(--f-sans);font-size:10px;font-weight:500;letter-spacing:.02em;line-height:1}
+.box{position:relative;border:1px solid var(--tile-line);background:#fff;overflow:hidden}
+.box>.lab{position:absolute;left:10px;top:10px;z-index:2}
+
+/* header */
+.top{border-bottom:1px solid var(--faint);height:64px}
+.brand{align-items:center;gap:18px}
+.brand b{font-family:var(--f-sans);font-weight:300;font-size:22px;letter-spacing:.32em}
+.brand i{font-family:var(--f-sans);font-size:10px;letter-spacing:.14em;color:var(--ink);font-weight:500}
+.tab{font-family:var(--f-sans);font-size:11px;font-weight:500;letter-spacing:.14em;border-bottom-width:1px}
+.top-date{font-family:var(--f-sans);font-size:10px;letter-spacing:.12em;color:var(--ink)}
+.menu{border-color:var(--line)}
+
+/* controls */
+.pill{border-color:var(--line);font-family:var(--f-sans);font-size:11px;font-weight:500;letter-spacing:.1em;height:36px}
+.pill.solid,.pill.red.solid{background:var(--ink);border-color:var(--ink)}
+.pill.red{border-color:var(--line);color:var(--ink)}
+@media (hover:hover){.pill.red:hover{background:var(--ink);color:#fff;border-color:var(--ink)}}
+#dpDel,.sheet [data-del]{color:var(--red)!important}
+.chip{border-color:var(--faint);font-size:11px;letter-spacing:.04em}
+.chip.on{background:var(--lab);border-color:var(--lab)}
+.sec-label{font-family:var(--f-sans);font-size:10px;font-weight:600;letter-spacing:.14em;color:var(--ink)}
+.mono{font-family:var(--f-sans);letter-spacing:.1em}
+
+/* page titles: tracked uppercase line, like a lookbook headline */
+.cal-title,.v-title{font-family:var(--f-sans);font-weight:400;font-size:30px;line-height:1.1;letter-spacing:.06em;text-transform:uppercase;display:block}
+.cal-title span{color:var(--muted)}
+.v-title small{display:inline;font-size:11px;letter-spacing:.12em;color:var(--muted);margin:0 0 0 10px;vertical-align:middle}
+.cal-head{align-items:center;margin-bottom:22px}
+.v-head{border-bottom:1px solid var(--faint);align-items:center;padding-bottom:20px}
+.cal-nav .iconbtn{border-color:var(--line)}
+
+/* calendar: keep the red rule, quieter type */
+.weekdays div{font-family:var(--f-sans);font-weight:600;font-size:10px;letter-spacing:.14em}
+.cell .num{font-family:var(--f-sans);font-size:11px;font-weight:500}
+.cell.today .num{background:var(--ink);border-radius:50%;width:20px;height:20px;padding:0;display:grid;place-items:center;left:4px;top:4px}
+.cell .tagmark{font-family:var(--f-sans);font-weight:500;letter-spacing:.02em}
+
+/* day pane = lookbook page */
+.day-pane{border-left-color:var(--faint)}
+.dp-head{align-items:center;gap:12px;border-bottom:0;padding-bottom:6px}
+.dp-num{width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:600;flex:none}
+.dp-sub{gap:2px;padding:0}
+.dp-title{font-size:22px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;line-height:1.1}
+.dp-dow{font-family:var(--f-sans);font-size:10px;font-weight:500;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.dp-dow em{font-style:normal;color:var(--red);letter-spacing:0;text-transform:none}
+.dp-rel{display:none}
+.dots{display:flex;flex-direction:column;gap:6px;margin-left:auto}
+.dots i{width:14px;height:14px;border-radius:50%;border:1px solid #0000001a}
+.dots + .dp-close{margin-left:12px}
+.lb{display:grid;grid-template-columns:1.15fr 1fr;gap:10px;margin:16px 0 14px}
+.lb.solo{grid-template-columns:1fr}
+.lb-main{aspect-ratio:3/4}
+.lb-main img{width:100%;height:100%;object-fit:contain;padding:8% 6%}
+.lb-main img.photo{object-fit:cover;padding:0}
+.lb-side{display:grid;grid-template-rows:repeat(var(--rows),minmax(0,1fr));gap:10px;min-height:0}
+.lb.two .lb-side{grid-template-columns:1fr 1fr}
+.lb-side .box img{position:absolute;inset:14% 10% 8%;width:80%;height:78%;object-fit:contain}
+.plist{border-top:1px solid var(--faint);margin-bottom:6px}
+.plist li{grid-template-columns:auto 1fr auto;gap:12px;padding:9px 0}
+.plist .pn{font-weight:500;font-size:13px}
+.plist .pn small{margin-left:8px;color:var(--muted);font-weight:400;font-size:11px}
+.plist .meta{font-family:var(--f-sans);color:var(--muted)}
+.warn,.ok{border-left-width:2px;font-size:12px}
+.empty-fig{border-color:var(--tile-line)}
+.empty-title{font-size:15px;font-weight:600;color:var(--ink)}
+textarea.memo{font-family:var(--f-sans)}
+
+/* closet & looks: separate boxed cards like product panels */
+.closet-grid,.looks-grid{border:0;gap:12px}
+.piece,.look{border:1px solid var(--tile-line);padding:12px 12px 14px}
+.piece .lab{align-self:flex-start}
+.piece .idx{font-family:var(--f-sans);font-size:10px;letter-spacing:.1em;color:var(--muted);margin-top:8px}
+.piece .nm{font-weight:500}
+.piece.add,.look.add{border-style:dashed}
+.piece.add .plus{font-family:var(--f-sans);font-weight:300;font-size:44px}
+.piece.add span:last-child,.look.add{font-family:var(--f-sans);letter-spacing:.12em}
+.look.add .serif{font-size:44px!important;font-weight:300}
+.empty-state{border:1px solid var(--tile-line)}
+
+/* modals */
+.m-bar{border-bottom-color:var(--faint)}
+.m-bar h2{font-family:var(--f-sans);font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.stage{border-color:var(--tile-line)}
+.dp,.drawer .dp{border-color:var(--tile-line)}
+.dp .badge{background:var(--red)}
+.sheet{border-color:var(--line)}
+.sheet .big{border-color:var(--tile-line)}
+.bottombar button{font-family:var(--f-sans);font-weight:500}
+.toast{font-family:var(--f-sans)}
+
+.pill{letter-spacing:.04em}
+.piece .idx{letter-spacing:0}
+.piece.add span:last-child,.look.add{letter-spacing:.02em}
+.sec-label{letter-spacing:.06em}
+.bottombar button{letter-spacing:0}
+@media (max-width:860px){
+  .brand b{font-size:20px}
+  .cal-title,.v-title{font-size:22px}
+  .lb{gap:8px}
+  .lb-side{gap:8px}
+  .closet-grid,.looks-grid{gap:8px}
+  .piece{padding:8px 8px 10px}
+  .dp-title{font-size:20px}
+}
 </style>
 </head>
 <body>
 
 <header class="top">
-  <div class="brand"><b>어제 뭐 입었지</b><i>Wardrobe Diary</i></div>
+  <div class="brand"><b>OOTD</b><i>What I wore yesterday</i></div>
   <nav class="tabs" role="tablist">
     <button class="tab" data-view="cal" role="tab">캘린더</button>
     <button class="tab" data-view="closet" role="tab">옷장</button>
@@ -414,7 +528,7 @@ button,a{touch-action:manipulation}
   <!-- CLOSET -->
   <section class="view" id="view-closet">
     <div class="v-head">
-      <div class="v-title"><small id="closetCount"></small>Closet</div>
+      <div class="v-title">Closet <small id="closetCount"></small></div>
       <div class="v-tools">
         <select class="sel" id="sortSel">
           <option value="new">최근 추가순</option>
@@ -432,7 +546,7 @@ button,a{touch-action:manipulation}
   <!-- LOOKS -->
   <section class="view" id="view-looks">
     <div class="v-head">
-      <div class="v-title"><small id="looksCount"></small>Looks</div>
+      <div class="v-title">Looks <small id="looksCount"></small></div>
       <div class="v-tools"><button class="pill red solid" id="newLookBtn">+ 새 코디</button></div>
     </div>
     <div id="looksBody"></div>
@@ -630,13 +744,26 @@ async function replaceBlob(id, blob){
 }
 async function delBlob(id){ if (!id) return; await DB.del('blobs', id); const u = URLS.get(id); if (u) URL.revokeObjectURL(u); URLS.delete(id); }
 
+/* average colour of a piece's visible pixels -> palette dots */
+const COLORS = new Map();
+async function computeColor(id){
+  const it = S.items.get(id); if (!it || COLORS.has(id) || !U(it.img)) return;
+  try {
+    const img = await loadImg(U(it.img)), c = document.createElement('canvas'); c.width = c.height = 24;
+    const g = c.getContext('2d', { willReadFrequently:true }); g.drawImage(img, 0, 0, 24, 24);
+    const d = g.getImageData(0, 0, 24, 24).data; let r = 0, gg = 0, b = 0, n = 0;
+    for (let i = 0; i < d.length; i += 4) if (d[i+3] > 160){ r += d[i]; gg += d[i+1]; b += d[i+2]; n++; }
+    if (n) COLORS.set(id, `rgb(${r/n|0},${gg/n|0},${b/n|0})`);
+  } catch {}
+}
+async function computeColors(){ await Promise.all([...S.items.keys()].map(computeColor)); }
 async function loadAll(){
   for (const [k,v] of await DB.all('blobs')) URLS.set(k, URL.createObjectURL(asBlob(v)));
   S.items = new Map(await DB.all('items'));
   S.days = new Map(await DB.all('days'));
   S.looks = new Map(await DB.all('looks'));
   for (const [id, it] of S.items) if (!it.ar && U(it.img)){ try { const im = await loadImg(U(it.img)); it.ar = im.naturalHeight / im.naturalWidth; DB.put('items', id, it); } catch {} }
-  reindex();
+  reindex(); computeColors().then(() => { if (S.view === 'cal') renderDay(); });
 }
 
 /* wear index: itemId -> sorted date keys */
@@ -728,7 +855,7 @@ const isMobile = () => matchMedia('(max-width:860px)').matches;
 
 function renderCal(){
   const y = S.month.getFullYear(), m = S.month.getMonth();
-  $('#calTitle').innerHTML = `<small>${pad(m+1)} — ${y}</small>${MONTHS[m]}`;
+  $('#calTitle').innerHTML = `${MONTHS[m]} <span>${y}</span>`;
   // tags
   const tags = allTags();
   let hint = '';
@@ -795,18 +922,23 @@ function overlapInfo(k){
 
 function renderDay(){
   const k = S.sel, rec = S.days.get(k), d = parseKey(k), pane = $('#dayPane');
-  let h = `<div class="dp-head"><span class="dp-date">${pad(d.getDate())}</span><span class="dp-sub"><span class="dp-dow">${DOW_L[d.getDay()].toUpperCase()} · ${MONTHS[d.getMonth()].toUpperCase()} ${d.getFullYear()}</span><span class="dp-rel">${relLabel(k)}</span></span>
+  const dots = (rec?.pieces || []).map(p => COLORS.get(p.id)).filter(Boolean).slice(0, 4);
+  let h = `<div class="dp-head"><span class="dp-num">${d.getDate()}</span>
+    <div class="dp-sub"><b class="dp-title">${DOW_L[d.getDay()]}</b><span class="dp-dow">${MONTHS[d.getMonth()]} ${d.getFullYear()} · <em>${relLabel(k)}</em></span></div>
+    ${dots.length ? `<span class="dots">${dots.map(c => `<i style="background:${c}"></i>`).join('')}</span>` : ''}
     <button class="iconbtn dp-close" id="dpClose" aria-label="닫기">✕</button></div>`;
   const hasPieces = rec?.pieces?.length, hasPhoto = !!rec?.photo;
   if (!rec || (!hasPieces && !hasPhoto)){
-    h += `<div class="empty-fig"><div><div class="serif" style="font-size:26px">아직 기록이 없어요</div>
+    h += `<div class="empty-fig"><div><div class="empty-title">아직 기록이 없어요</div>
       <div style="font-size:12px;margin-top:4px">옷장의 피스로 코디를 만들거나, 거울 셀카 한 장만 올려도 돼요.</div>
       <div class="row"><button class="pill red solid" id="dpCompose">코디로 기록</button><button class="pill red" id="dpPhoto">사진으로 기록</button></div></div></div>`;
   } else {
-    h += `<div class="dp-figs ${hasPieces && hasPhoto ? 'two' : ''}">`;
-    if (hasPieces) h += `<div class="dp-fig"><img src="${U(rec.thumb)}" alt="코디"></div>`;
-    if (hasPhoto) h += `<div class="dp-fig"><img class="photo" src="${U(rec.photo)}" alt="사진"></div>`;
-    h += `</div>`;
+    const ps = (rec.pieces || []).map(p => ({ p, it: S.items.get(p.id) })).filter(x => x.it);
+    const L = 'ABCDEFGHIJKLMNOP';
+    h += `<div class="lb ${ps.length > 3 ? 'two' : ''} ${ps.length ? '' : 'solo'}">
+      <div class="box lb-main"><span class="lab">A</span><img class="${hasPhoto ? 'photo' : ''}" src="${U(hasPhoto ? rec.photo : rec.thumb)}" alt=""></div>
+      ${ps.length ? `<div class="lb-side" style="--rows:${ps.length > 3 ? Math.ceil(ps.length/2) : ps.length}">${ps.map(({ it }, i) => `<div class="box"><span class="lab">${L[i+1]}</span><img src="${U(it.img)}" alt="${esc(it.name)}"></div>`).join('')}</div>` : ''}
+    </div>`;
     const ov = overlapInfo(k);
     if (ov){
       const when = diffDays(k, ov.prev) === 1 ? '전날' : `${fmtMD(ov.prev)}`;
@@ -815,11 +947,11 @@ function renderDay(){
       else if (diffDays(k, ov.prev) <= 3) h += `<div class="ok">${when}이랑 겹치는 옷 없음 ✓</div>`;
     }
     if (hasPieces){
-      h += `<ul class="plist">` + rec.pieces.map((p, i) => {
-        const it = S.items.get(p.id); if (!it) return '';
-        const n = wornDates(p.id).length, lb = lastWornBefore(p.id, k);
-        return `<li><span class="n">(${i+1})</span><img src="${U(it.img)}" alt=""><span>${esc(it.name)}<br><span class="mono" style="color:var(--muted)">${CAT[it.cat]||''}</span></span>
-          <span class="meta">${n}번째 착용${lb ? `<br>직전 ${fmtMD(lb)}` : '<br>첫 착용'}</span></li>`;
+      const L = 'ABCDEFGHIJKLMNOP';
+      h += `<ul class="plist">` + rec.pieces.filter(p => S.items.get(p.id)).map((p, i) => {
+        const it = S.items.get(p.id), n = wornDates(p.id).length, lb = lastWornBefore(p.id, k);
+        return `<li><span class="lab">${L[i+1]}</span><span class="pn">${esc(it.name)}<small>${CAT[it.cat]||''}</small></span>
+          <span class="meta">${n}번째${lb ? ` · 직전 ${fmtMD(lb)}` : ' · 첫 착용'}</span></li>`;
       }).join('') + `</ul>`;
     }
   }
@@ -909,7 +1041,7 @@ function renderCloset(){
       <div style="display:flex;gap:8px;justify-content:center"><button class="pill red solid" data-add>첫 옷 스캔하기</button><button class="pill" data-demo>예시로 둘러보기</button></div></div>`;
   } else {
     $('#closetBody').innerHTML = `<div class="closet-grid"><button class="piece add" data-add><span class="plus">+</span><span>옷 스캔</span></button>` +
-      list.map((it, i) => `<button class="piece" data-id="${it.id}"><span class="idx">${pad(i+1)} · ${CAT[it.cat]}</span><img src="${U(it.img)}" alt="" loading="lazy"><span class="nm">${esc(it.name)}</span><span class="st">${wearLine(it.id)}</span></button>`).join('') + `</div>`;
+      list.map((it, i) => `<button class="piece" data-id="${it.id}"><span class="lab">${pad(i+1)}</span><span class="idx">${CAT[it.cat]}</span><img src="${U(it.img)}" alt="" loading="lazy"><span class="nm">${esc(it.name)}</span><span class="st">${wearLine(it.id)}</span></button>`).join('') + `</div>`;
   }
   $$('#closetBody [data-add]').forEach(b => b.onclick = () => openEditor());
   $$('#closetBody [data-demo]').forEach(b => b.onclick = loadDemo);
@@ -1311,7 +1443,7 @@ $('#edSave').onclick = async () => {
     const imgId = await putBlob(await toBlob(c));
     const id = 'i_' + uid(), n = [...S.items.values()].filter(i => i.cat === E.cat).length + 1;
     const it = { name: $('#edName').value.trim() || `${CAT[E.cat]} ${pad(n)}`, cat: E.cat, note: $('#edNote').value.trim(), img: imgId, ar: c.height / c.width, created: Date.now() };
-    await DB.put('items', id, it); S.items.set(id, it); reindex();
+    await DB.put('items', id, it); S.items.set(id, it); reindex(); computeColor(id);
     document.activeElement?.blur?.();
     closeEditor(); toast(`‘${it.name}’ 옷장에 넣었어요`);
     if (E.thenAdd && !$('#composer').hidden){ const p = { id }; C.pieces.push(p); placeNew(p); C.sel = p; drawStage(); drawDrawer(); }
@@ -1406,7 +1538,7 @@ async function loadDemo(){
   const look = arrange(['레드 원피스','데님 재킷','레인부츠','레드 숄더백'].map(n => ({ id: ids[n] })));
   const lid = 'l_' + uid(), l = { name:'비 오는 날 빨강', pieces: look, thumb: await putBlob(await composite(look)), created: Date.now() };
   S.looks.set(lid, l); await DB.put('looks', lid, l);
-  reindex(); render(); toast('예시를 채웠어요. 자유롭게 지워도 돼요');
+  reindex(); await computeColors(); render(); toast('예시를 채웠어요. 자유롭게 지워도 돼요');
 }
 
 /* ===================== boot ===================== */
