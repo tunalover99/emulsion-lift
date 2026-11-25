@@ -76,11 +76,11 @@ main{max-width:1600px;margin:0 auto;padding:28px var(--gut) 56px}
 
 /* ---------- buttons & chips (square, hairline) ---------- */
 .pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 16px;border:1px solid var(--line);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;transition:background .15s,color .15s}
-.pill:hover{background:var(--ink);color:#fff}
+@media (hover:hover){.pill:hover{background:var(--ink);color:#fff}}
 .pill.solid{background:var(--ink);color:#fff}
-.pill.solid:hover{background:#333}
+@media (hover:hover){.pill.solid:hover{background:#333}}
 .pill.red{border-color:var(--red);color:var(--red)}
-.pill.red:hover{background:var(--red);color:#fff}
+@media (hover:hover){.pill.red:hover{background:var(--red);color:#fff}}
 .pill.red.solid{background:var(--ink);border-color:var(--ink);color:#fff}
 .pill:disabled{opacity:.35;pointer-events:none}
 .chip{height:28px;padding:0 12px;border:1px solid var(--faint);background:#fff;font-size:11px;letter-spacing:.02em;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
@@ -318,7 +318,7 @@ select.sel{height:34px;border:1px solid var(--faint);padding:0 28px 0 12px;backg
 .scanfx{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#ffffff55}
 .scanfx i{position:absolute;left:0;right:0;height:2px;background:var(--red);box-shadow:0 0 14px 3px #d42a1f88;animation:scan 1.4s ease-in-out infinite alternate}
 @keyframes scan{from{top:2%}to{top:97%}}
-.scanmsg{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:8px 14px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis}
+.scanmsg{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:8px 14px;white-space:nowrap;max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis}
 .ed-canvas-wrap{position:relative}
 .ed-fix{border-top:1px solid var(--faint);border-bottom:1px solid var(--faint);margin-top:14px;padding:0}
 .ed-fix summary{list-style:none;cursor:pointer;padding:12px 0;font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between}
@@ -362,6 +362,9 @@ button,a{touch-action:manipulation}
   .cal-nav .iconbtn{width:40px;height:40px}
   .cell{aspect-ratio:5/7}
 }
+.rotbar{position:absolute;right:12px;bottom:12px;display:flex;gap:0;border:1px solid var(--line);background:#fff;z-index:3}
+.rotbar .iconbtn{width:44px;height:44px}
+.rotbar .iconbtn+.iconbtn{border-left:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -507,6 +510,10 @@ button,a{touch-action:manipulation}
         <canvas id="edCanvas"></canvas>
         <div class="scanfx" id="scanFx" hidden><i></i></div>
       </div>
+      <div class="rotbar" id="rotBar" hidden>
+        <button class="iconbtn" id="rotL" aria-label="왼쪽으로 돌리기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 4v5h5"/><path d="M4.6 9A8 8 0 1 1 6 17.5"/></svg></button>
+        <button class="iconbtn" id="rotR" aria-label="오른쪽으로 돌리기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M20 4v5h-5"/><path d="M19.4 9A8 8 0 1 0 18 17.5"/></svg></button>
+      </div>
       <div class="scanmsg" id="scanMsg" hidden></div>
     </div>
     <div class="ed-side">
@@ -568,7 +575,7 @@ function relLabel(k){
   if (n === 0) return '오늘'; if (n === 1) return '어제'; if (n === 2) return '그저께';
   if (n === -1) return '내일'; if (n > 0) return `${n}일 전`; return `${-n}일 후`;
 }
-function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 1800); }
+function toast(msg, ms = 1800){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), ms); }
 
 const CATS = [['top','상의'],['outer','아우터'],['bottom','하의'],['dress','원피스'],['shoes','신발'],['bag','가방'],['acc','액세서리'],['etc','기타']];
 const CAT = Object.fromEntries(CATS);
@@ -608,11 +615,23 @@ const DB = (() => {
 const S = { items: new Map(), days: new Map(), looks: new Map(), view: 'cal', month: new Date(), sel: todayKey(), tag: null, closetCat: 'all', sort: 'new' };
 const URLS = new Map();
 const U = id => URLS.get(id) || '';
-async function putBlob(blob){ const id = 'b_' + uid(); await DB.put('blobs', id, blob); URLS.set(id, URL.createObjectURL(blob)); return id; }
+const blobBytes = b => b.arrayBuffer ? b.arrayBuffer() : new Promise((res, rej) => { const f = new FileReader(); f.onload = () => res(f.result); f.onerror = () => rej(f.error); f.readAsArrayBuffer(b); });
+const asBlob = v => v instanceof Blob ? v : new Blob([v.buf], { type: v.type || 'image/png' });
+async function putBlob(blob){
+  if (!blob) throw new Error('이미지를 만들지 못했어요');
+  const id = 'b_' + uid();
+  await DB.put('blobs', id, { buf: await blobBytes(blob), type: blob.type || 'image/png' });
+  URLS.set(id, URL.createObjectURL(blob)); return id;
+}
+async function replaceBlob(id, blob){
+  await DB.put('blobs', id, { buf: await blobBytes(blob), type: blob.type || 'image/png' });
+  const old = URLS.get(id); if (old) URL.revokeObjectURL(old);
+  URLS.set(id, URL.createObjectURL(blob));
+}
 async function delBlob(id){ if (!id) return; await DB.del('blobs', id); const u = URLS.get(id); if (u) URL.revokeObjectURL(u); URLS.delete(id); }
 
 async function loadAll(){
-  for (const [k,v] of await DB.all('blobs')) URLS.set(k, URL.createObjectURL(v));
+  for (const [k,v] of await DB.all('blobs')) URLS.set(k, URL.createObjectURL(asBlob(v)));
   S.items = new Map(await DB.all('items'));
   S.days = new Map(await DB.all('days'));
   S.looks = new Map(await DB.all('looks'));
@@ -912,7 +931,7 @@ function openItemSheet(id){
     <input class="field" id="isNote" value="${esc(it.note||'')}" placeholder="메모 (브랜드·구매처 등)">
     <div class="sec-label">입은 날 ${ds.length}번</div>
     <div class="dates">${ds.length ? ds.map(k => `<button class="chip" data-go="${k}">${fmtMD(k)}${k.slice(0,4)!==todayKey().slice(0,4)?` '${k.slice(2,4)}`:''}</button>`).join('') : '<span style="color:var(--muted);font-size:13px">아직 기록 없음</span>'}</div>
-    <div class="actions"><button class="pill solid" data-wear>오늘 이걸로 코디 시작</button><span style="flex:1"></span><button class="pill red" data-del>옷장에서 빼기</button></div>`);
+    <div class="actions"><button class="pill solid" data-wear>오늘 이걸로 코디 시작</button><button class="pill" data-rot aria-label="오른쪽으로 돌리기">↻ 회전</button><span style="flex:1"></span><button class="pill red" data-del>옷장에서 빼기</button></div>`);
   let cat = it.cat;
   const drawCats = () => { sh.querySelector('#isCats').innerHTML = CATS.map(([c,n]) => `<button class="chip ${c===cat?'on':''}" data-c="${c}">${n}</button>`).join('');
     sh.querySelectorAll('#isCats [data-c]').forEach(b => b.onclick = async () => { cat = b.dataset.c; it.cat = cat; await DB.put('items', id, it); drawCats(); renderCloset(); }); };
@@ -921,12 +940,27 @@ function openItemSheet(id){
   sh.querySelector('#isName').onchange = saveMeta; sh.querySelector('#isNote').onchange = saveMeta;
   sh.querySelector('[data-x]').onclick = closeSheet;
   sh.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { closeSheet(); goDate(b.dataset.go); });
+  sh.querySelector('[data-rot]').onclick = async e => {
+    const b = e.currentTarget; b.disabled = true;
+    try { await rotateItem(id); sh.querySelector('.big img').src = U(it.img); renderCloset(); toast('돌렸어요'); }
+    catch (err) { console.error(err); toast('돌리지 못했어요'); }
+    finally { b.disabled = false; }
+  };
   sh.querySelector('[data-wear]').onclick = () => { closeSheet(); openComposer({ mode:'day', date: todayKey(), add: id }); };
   sh.querySelector('[data-del]').onclick = async () => {
     const n = wornDates(id).length;
     if (!confirm(n ? `이 옷은 ${n}번의 기록에 들어 있어요. 기록에서도 빠지게 돼요. 지울까요?` : '옷장에서 뺄까요?')) return;
     await deleteItem(id); closeSheet(); renderCloset(); toast('뺐어요');
   };
+}
+async function rotateItem(id){
+  const it = S.items.get(id), img = await loadImg(U(it.img));
+  const c = document.createElement('canvas'); c.width = img.naturalHeight; c.height = img.naturalWidth;
+  const g = c.getContext('2d'); g.translate(c.width, 0); g.rotate(Math.PI / 2); g.drawImage(img, 0, 0);
+  await replaceBlob(it.img, await toBlob(c)); it.ar = c.height / c.width; await DB.put('items', id, it);
+  // refresh outfit pictures that use this piece
+  for (const [k, r] of S.days) if (r.pieces?.some(p => p.id === id)){ r.pieces.forEach(fitInside); if (r.thumb) await replaceBlob(r.thumb, await composite(r.pieces)); await DB.put('days', k, r); }
+  for (const [lid, l] of S.looks) if (l.pieces.some(p => p.id === id)){ l.pieces.forEach(fitInside); await replaceBlob(l.thumb, await composite(l.pieces)); await DB.put('looks', lid, l); }
 }
 async function deleteItem(id){
   const it = S.items.get(id); if (!it) return;
@@ -1083,7 +1117,7 @@ const E = { w:0, h:0, orig:null, mask:null, tool:'none', cat:'top', thenAdd:fals
 function openEditor(o = {}){
   Object.assign(E, { thenAdd: !!o.thenAdd, orig:null, mask:null, tool:'none' });
   $('#edName').value = ''; $('#edNote').value = '';
-  $('#edStage').hidden = true; $('#edPick').hidden = false; $('#scanMsg').hidden = true;
+  $('#edStage').hidden = true; $('#rotBar').hidden = true; $('#edPick').hidden = false; $('#scanMsg').hidden = true;
   $('#edSave').disabled = true; $('#edPng').disabled = true; $('#edFix').open = false;
   setTool('none'); drawEdCats();
   $('#editor').classList.add('picking');
@@ -1107,7 +1141,7 @@ async function loadScan(file){
   E.ctx.drawImage(img, 0, 0, E.w, E.h);
   E.orig = E.ctx.getImageData(0, 0, E.w, E.h);
   E.mask = new Uint8ClampedArray(E.w * E.h).fill(255);
-  $('#edPick').hidden = true; $('#edStage').hidden = false; $('#editor').classList.remove('picking');
+  $('#edPick').hidden = true; $('#edStage').hidden = false; $('#rotBar').hidden = false; $('#editor').classList.remove('picking');
   await runScan(true);
   if (!isMobile()) $('#edName').focus();
 }
@@ -1132,6 +1166,20 @@ function cropToMask(){
   const cv = $('#edCanvas'); cv.width = E.w = nw; cv.height = E.h = nh;
   E.orig = new ImageData(nd, nw, nh); E.mask = nm;
 }
+/* rotate the working photo and its mask by 90 degrees (dir 1 = clockwise) */
+function rotateScan(dir){
+  if (!E.orig || E.busy) return;
+  const { w, h } = E, od = E.orig.data, om = E.mask, nw = h, nh = w;
+  const nd = new Uint8ClampedArray(nw*nh*4), nm = new Uint8ClampedArray(nw*nh);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++){
+    const nx = dir > 0 ? h-1-y : y, ny = dir > 0 ? x : w-1-x, si = y*w+x, di = ny*nw+nx;
+    nd[di*4] = od[si*4]; nd[di*4+1] = od[si*4+1]; nd[di*4+2] = od[si*4+2]; nd[di*4+3] = od[si*4+3]; nm[di] = om[si];
+  }
+  const cv = $('#edCanvas'); cv.width = E.w = nw; cv.height = E.h = nh;
+  E.orig = new ImageData(nd, nw, nh); E.mask = nm; edRender();
+}
+$('#rotL').onclick = () => rotateScan(-1);
+$('#rotR').onclick = () => rotateScan(1);
 function scanMsg(t, ms){ const m = $('#scanMsg'); m.textContent = t; m.hidden = !t; clearTimeout(scanMsg._t); if (t && ms) scanMsg._t = setTimeout(() => m.hidden = true, ms); }
 
 /* U2-Net (u2netp, Apache-2.0) salient-object segmentation, run on-device with onnxruntime-web */
@@ -1257,14 +1305,21 @@ function cutoutCanvas(maxSide = 900){
 }
 $('#edSave').onclick = async () => {
   if (!E.orig || E.busy) return;
-  const c = cutoutCanvas(); if (!c){ toast('남은 부분이 없어요. 원본으로 되돌려 주세요'); return; }
-  const imgId = await putBlob(await toBlob(c));
-  const id = 'i_' + uid(), n = [...S.items.values()].filter(i => i.cat === E.cat).length + 1;
-  const it = { name: $('#edName').value.trim() || `${CAT[E.cat]} ${pad(n)}`, cat: E.cat, note: $('#edNote').value.trim(), img: imgId, ar: c.height / c.width, created: Date.now() };
-  S.items.set(id, it); await DB.put('items', id, it); reindex();
-  closeEditor(); toast(`‘${it.name}’ 옷장에 넣었어요`);
-  if (E.thenAdd && !$('#composer').hidden){ const p = { id }; C.pieces.push(p); placeNew(p); C.sel = p; drawStage(); drawDrawer(); }
-  else if (S.view === 'closet') renderCloset(); else setView('closet');
+  const btn = $('#edSave'); btn.disabled = true; btn.textContent = '넣는 중…';
+  try {
+    const c = cutoutCanvas(); if (!c){ toast('남은 부분이 없어요. 원본으로 되돌려 주세요'); return; }
+    const imgId = await putBlob(await toBlob(c));
+    const id = 'i_' + uid(), n = [...S.items.values()].filter(i => i.cat === E.cat).length + 1;
+    const it = { name: $('#edName').value.trim() || `${CAT[E.cat]} ${pad(n)}`, cat: E.cat, note: $('#edNote').value.trim(), img: imgId, ar: c.height / c.width, created: Date.now() };
+    await DB.put('items', id, it); S.items.set(id, it); reindex();
+    document.activeElement?.blur?.();
+    closeEditor(); toast(`‘${it.name}’ 옷장에 넣었어요`);
+    if (E.thenAdd && !$('#composer').hidden){ const p = { id }; C.pieces.push(p); placeNew(p); C.sel = p; drawStage(); drawDrawer(); }
+    else if (S.view === 'closet') renderCloset(); else setView('closet');
+  } catch (err) {
+    console.error(err);
+    toast('저장하지 못했어요: ' + (err?.message || err?.name || err) + (/private|quota/i.test(err?.message || '') ? '' : ''), 5000);
+  } finally { btn.disabled = false; btn.textContent = '옷장에 넣기'; }
 };
 /* PNG export: share sheet on iPhone (-> save image), download elsewhere */
 $('#edPng').onclick = async () => {
@@ -1288,7 +1343,7 @@ $('#menu').onclick = async e => {
 };
 const blobToDataURL = b => new Promise(r => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(b); });
 async function exportAll(){
-  const blobs = {}; for (const [k, v] of await DB.all('blobs')) blobs[k] = await blobToDataURL(v);
+  const blobs = {}; for (const [k, v] of await DB.all('blobs')) blobs[k] = await blobToDataURL(asBlob(v));
   const data = { app:'ootd-log', version:1, exported:new Date().toISOString(), items:[...S.items], days:[...S.days], looks:[...S.looks], blobs };
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type:'application/json' }));
   a.download = `ootd-backup-${todayKey()}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
@@ -1300,7 +1355,7 @@ $('#importIn').onchange = async e => {
     const data = JSON.parse(await f.text()); if (data.app !== 'ootd-log') throw 0;
     if (!confirm('지금 기록을 백업 파일 내용으로 바꿀까요?')) return;
     for (const s of ['items','days','looks','blobs']) await DB.clear(s);
-    for (const [k, v] of Object.entries(data.blobs)) await DB.put('blobs', k, await (await fetch(v)).blob());
+    for (const [k, v] of Object.entries(data.blobs)) { const b = await (await fetch(v)).blob(); await DB.put('blobs', k, { buf: await blobBytes(b), type: b.type }); }
     for (const [k, v] of data.items) await DB.put('items', k, v);
     for (const [k, v] of data.days) await DB.put('days', k, v);
     for (const [k, v] of data.looks) await DB.put('looks', k, v);
