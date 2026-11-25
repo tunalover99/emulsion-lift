@@ -115,6 +115,18 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .pick-title { grid-column: 1 / -1; text-align: center; font-size: 13px; color: #9a9a9a; margin: 0 0 10px; }
 .pick-items { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 18px 34px; padding-block: 10px; }
 .pick-item { position: relative; display: block; }
+.pick-items .pick-item img { width: 100%; height: 100%; }
+.board { display: none; }
+.pick.as-board { position: fixed; inset: 0; z-index: 10; background: var(--ground); display: block; padding: 0; min-height: 0; }
+.pick.as-board .pick-title, .pick.as-board .pick-note, .pick.as-board .pick-items { display: none; }
+.pick.as-board .board { display: block; position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform: translate(-50%, -50%) scale(var(--s, .5)); transform-origin: center; }
+.board .pick-item { position: absolute; }
+.board .pick-item img { width: 100%; height: 100%; display: block; }
+.board .pick-add { position: absolute; left: 1287px; top: 552px; gap: 5px; padding: 0; }
+.board .chev { position: absolute; top: 540px; }
+.board #catPrev { left: 187px; } .board #catNext { left: 1660px; }
+body.picking-board .topnav { background: transparent; }
+body.picking-board .foot { visibility: hidden; }
 .pick-item img { display: block; width: 100%; height: auto; transition: transform .35s cubic-bezier(.2,.7,.2,1); }
 .pick-item:hover img, .pick-item:focus-visible img { transform: translateY(-4px); }
 .pick-item .nm { position: absolute; left: 50%; bottom: -22px; transform: translateX(-50%); white-space: nowrap; font-size: 12px; color: #9a9a9a; opacity: 0; transition: opacity .2s; }
@@ -202,6 +214,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
       <p class="pick-title" id="pickTitle"></p>
       <button type="button" class="chev" id="catPrev" aria-label="previous"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m14 18-6-6 6-6 1.4 1.4-4.6 4.6 4.6 4.6z"/></svg></button>
       <div class="pick-items" id="pickItems"></div>
+      <div class="board" id="board"></div>
       <button type="button" class="chev" id="catNext" aria-label="next"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.6 12 8 7.4 9.4 6l6 6-6 6L8 16.6z"/></svg></button>
       <p class="pick-note" data-i18n="s4.uploadNote"></p>
     </section>
@@ -327,7 +340,7 @@ const I18N = {
     's3.text': '찬물에서 손가락이나 부드러운 붓으로 <strong>가장자리부터 안쪽으로</strong> 밀어 막을 떼어냅니다. 떨어진 막은 젖은 셀로판처럼 물에 뜹니다.',
     's3.auto': '남은 부분 한꺼번에 떼기',
     'tool.release': '떼어내기', 'tool.push': '밀기', 'tool.pinch': '주름 모으기', 'tool.smooth': '펴기', 'tool.tear': '찢기', 'tool.size': '붓',
-    's4.pick': '막을 옮길 곳을 고르세요. 양옆 화살표로 종이와 돌을 넘겨 봅니다.',
+    's4.pick': '막을 옮길 곳을 고르세요. 양옆 화살표로 돌, 종이, 나무를 넘겨 봅니다.',
     's4.text': '표면을 막 아래로 넣어 건져 올리고, 젖은 동안 <strong>밀고, 모으고, 접고, 찢어</strong> 모양을 만듭니다. 표면 밖으로 나간 막은 표면 모양대로 다듬어집니다. 뒤집어 올리면 좌우가 바뀝니다.',
     's4.uploadNote': '흰 바탕에서 찍은 물체 사진을 올리면 바탕을 지우고 물체 모양대로 옮깁니다. 바탕이 고르지 않으면 사진 전체가 표면이 됩니다.',
     's4.white': '흰 층 남기기 (어두운 표면에서 이미지가 보이게)',
@@ -340,7 +353,7 @@ const I18N = {
     'hint.3.release': '가장자리부터 안쪽으로 문질러 떼어내세요.', 'hint.3.push': '떨어진 막을 끌어 옮깁니다.',
     'hint.4.push': '끌어서 밀면 주름이 지고, 가장자리를 넘기면 접힙니다.', 'hint.4.pinch': '누르고 있으면 막이 모이며 주름이 생깁니다.',
     'hint.4.smooth': '문지르면 주름이 펴집니다.', 'hint.4.tear': '문지른 자리가 찢어집니다.', 'hint.5': '젖은 광택이 빠지고 막이 살짝 줄어듭니다.',
-    'cat.stone': '돌', 'cat.paper': '종이', 'addImage': '이미지 추가',
+    'cat.stone': '돌', 'cat.paper': '종이', 'addImage': '이미지 추가', 'cat.wood': '나무', 'surf.cityPiece': '도시 사진이 찍힌 종이', 'surf.flowersPiece': '꽃 사진이 찍힌 종이', 'surf.slab': '나무 판재', 'surf.planks': '세로 널빤지', 'surf.sign': '나무 간판', 'surf.driftwood': '유목', 'surf.branches': '나뭇가지 세 개', 'surf.log': '통나무 조각',
     'surf.cold': '수채화지 콜드프레스', 'surf.hot': '수채화지 핫프레스', 'surf.hanji': '한지', 'surf.kraft': '크라프트지', 'surf.linen': '리넨', 'surf.greyPaper': '회색 종이', 'surf.tornPlain': '찢은 종이', 'surf.crumpled': '구겨진 종이', 'surf.foldedBeige': '접힌 갱지', 'surf.newspaper': '신문', 'surf.roughWhite': '거친 흰 종이', 'surf.greenWash': '초록 물든 종이', 'surf.bookText': '책 낱장', 'surf.tornCream': '찢은 미색 종이', 'surf.map': '지도', 'surf.roughCream': '거친 미색 종이', 'surf.newspaperBridge': '신문 (다리)', 'surf.bookPage': '책 87쪽', 'surf.foldedCream': '접힌 미색 종이', 'surf.handmade': '수제 종이',
     'surf.pebbleWhite': '흰 조약돌', 'surf.flatStone': '납작한 돌', 'surf.brickFragment': '벽돌 조각', 'surf.oldBrick': '오래된 벽돌', 'surf.clayBrick': '흙벽돌',
     'surf.darkSlate': '검은 판석', 'surf.granitePebble': '화강암 조약돌', 'surf.ochreFlagstone': '황토빛 판석', 'surf.redBrick': '붉은 벽돌', 'surf.custom': '올린 표면',
@@ -378,7 +391,7 @@ const I18N = {
     's3.text': 'In cold water, coax the skin loose with a fingertip or soft brush, <strong>working from the edges inward</strong>. Once free it floats like wet cellophane.',
     's3.auto': 'release the rest',
     'tool.release': 'release', 'tool.push': 'push', 'tool.pinch': 'gather', 'tool.smooth': 'smooth', 'tool.tear': 'tear', 'tool.size': 'brush',
-    's4.pick': 'Choose where the skin will rest. Use the arrows on either side to move between paper and stone.',
+    's4.pick': 'Choose where the skin will rest. Use the arrows on either side to move between stone, paper and wood.',
     's4.text': 'Slide the surface under the skin and lift it out. While it is wet, <strong>push, gather, fold and tear</strong> it into shape; whatever hangs past the edge is trimmed to the surface. Laid face down, the image is mirrored.',
     's4.uploadNote': 'Photograph an object on a plain white ground and the ground is lifted away, leaving the object’s shape. On a busy background the whole photo becomes the surface.',
     's4.white': 'keep the white layer (so the image reads on dark surfaces)',
@@ -391,7 +404,7 @@ const I18N = {
     'hint.3.release': 'Rub from the edges inward to free the skin.', 'hint.3.push': 'Drag the loose skin around.',
     'hint.4.push': 'Drag to push; it wrinkles, and folds over at the edge.', 'hint.4.pinch': 'Hold to gather the skin into wrinkles.',
     'hint.4.smooth': 'Rub to ease the wrinkles out.', 'hint.4.tear': 'Rub to tear.', 'hint.5': 'The wet sheen fades and the skin tightens a little.',
-    'cat.stone': 'stone', 'cat.paper': 'paper', 'addImage': 'add image',
+    'cat.stone': 'stone', 'cat.paper': 'paper', 'addImage': 'add image', 'cat.wood': 'wood', 'surf.cityPiece': 'paper printed with a city', 'surf.flowersPiece': 'paper printed with flowers', 'surf.slab': 'wood slab', 'surf.planks': 'upright planks', 'surf.sign': 'wooden sign', 'surf.driftwood': 'driftwood', 'surf.branches': 'three branches', 'surf.log': 'piece of log',
     'surf.cold': 'cold-press watercolor', 'surf.hot': 'hot-press watercolor', 'surf.hanji': 'hanji', 'surf.kraft': 'kraft paper', 'surf.linen': 'linen', 'surf.greyPaper': 'grey paper', 'surf.tornPlain': 'torn paper', 'surf.crumpled': 'crumpled paper', 'surf.foldedBeige': 'folded newsprint', 'surf.newspaper': 'newspaper', 'surf.roughWhite': 'rough white paper', 'surf.greenWash': 'green-washed paper', 'surf.bookText': 'book page', 'surf.tornCream': 'torn cream paper', 'surf.map': 'map', 'surf.roughCream': 'rough cream paper', 'surf.newspaperBridge': 'newspaper, bridge', 'surf.bookPage': 'page 87', 'surf.foldedCream': 'folded cream paper', 'surf.handmade': 'handmade paper',
     'surf.pebbleWhite': 'white pebble', 'surf.flatStone': 'flat stone', 'surf.brickFragment': 'brick fragment', 'surf.oldBrick': 'old brick', 'surf.clayBrick': 'clay brick',
     'surf.darkSlate': 'dark slate', 'surf.granitePebble': 'granite pebble', 'surf.ochreFlagstone': 'ochre flagstone', 'surf.redBrick': 'red brick', 'surf.custom': 'your own surface',
@@ -1101,32 +1114,32 @@ function coverRect(cw, ch) {
   const sc = Math.min(960 / cw, 720 / ch), w = Math.round(cw * sc), h = Math.round(ch * sc);
   return { x: Math.round(600 - w / 2), y: Math.round(450 - h / 2), w, h };
 }
+/* slot = box in the Figma 1920x1080 "옮길 곳" frames; fit = how the picture sits in that box */
 const SURFACES = {
-  pebbleWhite: { group: 'stone', photo: 'surfaces/pebble-white.jpg' },
-  brickFragment: { group: 'stone', photo: 'surfaces/brick-fragment.jpg' },
-  flatStone: { group: 'stone', photo: 'surfaces/flat-stone.jpg' },
-  oldBrick: { group: 'stone', photo: 'surfaces/old-brick.jpg' },
-  darkSlate: { group: 'stone', photo: 'surfaces/dark-slate.jpg' },
-  granitePebble: { group: 'stone', photo: 'surfaces/granite-pebble.jpg' },
-  clayBrick: { group: 'stone', photo: 'surfaces/clay-brick.jpg' },
-  ochreFlagstone: { group: 'stone', photo: 'surfaces/ochre-flagstone.jpg' },
-  redBrick: { group: 'stone', photo: 'surfaces/red-brick.jpg' },
-  tornPlain: { group: 'paper', photo: 'surfaces/paper/torn-plain.webp' },
-  crumpled: { group: 'paper', photo: 'surfaces/paper/crumpled.webp' },
-  foldedBeige: { group: 'paper', photo: 'surfaces/paper/folded-beige.webp' },
-  newspaper: { group: 'paper', photo: 'surfaces/paper/newspaper.webp' },
-  roughWhite: { group: 'paper', photo: 'surfaces/paper/rough-white.webp' },
-  greenWash: { group: 'paper', photo: 'surfaces/paper/green-wash.webp' },
-  bookText: { group: 'paper', photo: 'surfaces/paper/book-text.webp' },
-  tornCream: { group: 'paper', photo: 'surfaces/paper/torn-cream.webp' },
-  map: { group: 'paper', photo: 'surfaces/paper/map.webp' },
-  roughCream: { group: 'paper', photo: 'surfaces/paper/rough-cream.webp' },
-  newspaperBridge: { group: 'paper', photo: 'surfaces/paper/newspaper-bridge.webp' },
-  bookPage: { group: 'paper', photo: 'surfaces/paper/book-page.webp' },
-  foldedCream: { group: 'paper', photo: 'surfaces/paper/folded-cream.webp' },
-  handmade: { group: 'paper', photo: 'surfaces/handmade-paper.jpg', noCut: true },
-  greyPaper: { group: 'paper', photo: 'surfaces/grey-paper.jpg', noCut: true },
+  pebbleWhite: { group: 'stone', photo: 'surfaces/pebble-white.jpg', slot: [322, 25, 326, 326], fit: 'cover' },
+  brickFragment: { group: 'stone', photo: 'surfaces/brick-fragment.jpg', slot: [655, 134, 326, 218], fit: 'cover' },
+  flatStone: { group: 'stone', photo: 'surfaces/flat-stone.jpg', slot: [988, 75, 276, 276], fit: 'cover' },
+  oldBrick: { group: 'stone', photo: 'surfaces/old-brick.jpg', slot: [1271, 134, 326, 218], fit: 'cover' },
+  clayBrick: { group: 'stone', photo: 'surfaces/clay-brick.jpg', slot: [1082, 358, 163, 163], fit: 'cover' },
+  darkSlate: { group: 'stone', photo: 'surfaces/dark-slate.jpg', slot: [408, 358, 326, 326], fit: 'cover' },
+  granitePebble: { group: 'stone', photo: 'surfaces/granite-pebble.jpg', slot: [741, 358, 327, 218], fit: 'cover' },
+  redBrick: { group: 'stone', photo: 'surfaces/red-brick.jpg', slot: [424, 728, 192, 327], fit: 'cover' },
+  ochreFlagstone: { group: 'stone', photo: 'surfaces/ochre-flagstone.jpg', slot: [700, 619, 327, 218], fit: 'cover' },
+  newspaper: { group: 'paper', photo: 'surfaces/paper/newspaper.webp', slot: [318, 588, 270, 417], fit: 'contain' },
+  crumpled: { group: 'paper', photo: 'surfaces/paper/crumpled.webp', slot: [1287, 176, 188, 278], fit: 'contain' },
+  tornPlain: { group: 'paper', photo: 'surfaces/paper/torn-plain.webp', slot: [815, 89, 453, 349], fit: 'contain' },
+  cityPiece: { group: 'paper', photo: 'surfaces/paper/city-piece.webp', slot: [556, 496, 214, 304], fit: 'contain' },
+  map: { group: 'paper', photo: 'surfaces/paper/map.webp', slot: [805, 454, 206, 366], fit: 'contain' },
+  flowersPiece: { group: 'paper', photo: 'surfaces/paper/flowers-piece.webp', slot: [1059, 438, 130, 219], fit: 'contain' },
+  handmade: { group: 'paper', photo: 'surfaces/handmade-paper.jpg', noCut: true, slot: [709, 761, 199, 133], fit: 'cover' },
+  slab: { group: 'wood', photo: 'surfaces/wood/slab.webp', slot: [723, 111, 672, 327], fit: 'contain' },
+  planks: { group: 'wood', photo: 'surfaces/wood/planks.webp', slot: [415, 492, 249, 397], fit: 'contain' },
+  sign: { group: 'wood', photo: 'surfaces/wood/sign.webp', slot: [276, 190, 327, 222], fit: 'contain' },
+  driftwood: { group: 'wood', photo: 'surfaces/wood/driftwood.webp', slot: [1059, 50, 514, 514], fit: 'contain' },
+  branches: { group: 'wood', photo: 'surfaces/wood/branches.webp', slot: [734, 425, 266, 494], fit: 'contain' },
+  log: { group: 'wood', photo: 'surfaces/wood/log.webp', slot: [392, 354, 331, 195], fit: 'contain' },
 };
+const SPARE_SLOTS = [[1300, 640, 170, 170], [1490, 640, 170, 170], [1300, 830, 170, 170], [1490, 830, 170, 170]];
 function surfName(kind) { return SURFACES[kind] && SURFACES[kind].custom ? t('surf.custom') : t('surf.' + kind); }
 const surfCache = {};
 function loadImg(src) {
@@ -1383,6 +1396,7 @@ function explainText() {
 }
 function showPanels() {
   const n = state.phase, pick = state.picking;
+  if (!pick) document.body.classList.remove('picking-board');
   document.querySelectorAll('.ctl').forEach(el => el.hidden = pick || +el.dataset.step !== n);
   $('stage').hidden = pick; $('pick').hidden = !pick; $('under').hidden = pick;
   $('explain').innerHTML = explainText();
@@ -1414,7 +1428,7 @@ let toastT = 0;
 function toast(msg) { const el = $('toast'); el.textContent = msg; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, 3400); }
 
 /* ---------- choosing where the skin goes ---------- */
-const CATS = ['stone', 'paper'];
+const CATS = ['stone', 'paper', 'wood'];
 let catIdx = 0, customCount = 0;
 const thumbCache = {};
 function hashNum(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619); return (h >>> 0) / 4294967296; }
@@ -1431,30 +1445,60 @@ function openPick() {
   showPanels(); renderPick(); updateReadout(); updateNext();
   window.scrollTo(0, 0);
 }
+function boardMode() { return innerWidth >= 900 && innerWidth / innerHeight >= 1.2; }
+function fitBoard() {
+  const sc = Math.min(innerWidth / 1920, innerHeight / 1080);
+  $('board').style.setProperty('--s', sc);
+}
+const ADD_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6z"/></svg>';
+function pickButton(kind) {
+  const S = SURFACES[kind], b = document.createElement('button');
+  b.type = 'button'; b.className = 'pick-item'; b.id = 'surf-' + kind; b.dataset.surface = kind;
+  const img = new Image(); img.alt = surfName(kind); img.draggable = false;
+  img.style.objectFit = S.fit || 'contain';
+  if (S.photo) img.src = S.photo; else thumbURL(kind).then(u => { img.src = u; });
+  const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = surfName(kind);
+  b.append(img, nm);
+  return b;
+}
 function renderPick() {
-  const cat = CATS[catIdx], box = $('pickItems');
+  const cat = CATS[catIdx], kinds = Object.keys(SURFACES).filter(k => SURFACES[k].group === cat);
   $('pickTitle').textContent = t('cat.' + cat);
-  box.innerHTML = '';
-  const narrow = innerWidth < 700;
-  Object.keys(SURFACES).filter(k => SURFACES[k].group === cat).forEach(kind => {
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'pick-item'; b.id = 'surf-' + kind; b.dataset.surface = kind;
-    const h = hashNum(kind);
-    const big = SURFACES[kind].group === 'paper' ? 0.7 : 1;
-    b.style.width = Math.round(((narrow ? 92 : 140) + h * (narrow ? 70 : 150)) * big) + 'px';
-    b.style.marginTop = Math.round((h - 0.5) * (narrow ? 20 : 70)) + 'px';
-    const img = new Image(); img.alt = surfName(kind);
-    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = surfName(kind);
-    b.append(img, nm);
+  const board = boardMode();
+  document.body.classList.toggle('picking-board', board && state.picking);
+  $('pick').classList.toggle('as-board', board);
+  const box = board ? $('board') : $('pickItems');
+  $('pick').append($('catPrev'), $('catNext'));
+  $('board').innerHTML = ''; $('pickItems').innerHTML = '';
+  let spare = 0;
+  kinds.forEach(kind => {
+    const b = pickButton(kind);
+    if (board) {
+      const slot = SURFACES[kind].slot || SPARE_SLOTS[spare++ % SPARE_SLOTS.length];
+      Object.assign(b.style, { left: slot[0] + 'px', top: slot[1] + 'px', width: slot[2] + 'px', height: slot[3] + 'px' });
+    } else {
+      const h = hashNum(kind), sl = SURFACES[kind].slot;
+      b.style.width = Math.round((sl ? sl[2] : 170) * 0.42) + 'px';
+      b.style.height = Math.round((sl ? sl[3] : 170) * 0.42) + 'px';
+      b.style.marginTop = Math.round((h - 0.5) * 20) + 'px';
+    }
     box.appendChild(b);
-    thumbURL(kind).then(u => { img.src = u; }).catch(() => b.remove());
   });
   const add = document.createElement('label');
   add.className = 'link file-link pick-add'; add.htmlFor = 'surfUpload';
-  add.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6z"/></svg><span></span>';
+  add.innerHTML = ADD_SVG + '<span></span>';
   add.lastChild.textContent = t('addImage');
   box.appendChild(add);
+  if (board) {
+    const prev = $('catPrev'), next = $('catNext');
+    box.append(prev, next);
+    fitBoard();
+  } else {
+    $('pick').insertBefore($('catPrev'), $('pickItems'));
+    $('pick').insertBefore($('catNext'), $('pickItems').nextSibling);
+  }
 }
+window.addEventListener('resize', () => { if (state.picking) { if (boardMode() !== $('pick').classList.contains('as-board')) renderPick(); else if (boardMode()) fitBoard(); } });
 async function chooseSurface(kind) {
   preparing = true;
   try { await ensureSurface(kind); } catch (e) { preparing = false; toast(t('t.openFail')); return; }
@@ -1478,7 +1522,7 @@ function addCustomSurface(file) {
     chooseSurface(kind);
   }).catch(() => { URL.revokeObjectURL(url); toast(t('t.openFail')); });
 }
-$('pickItems').addEventListener('click', e => { const b = e.target.closest('.pick-item'); if (b) chooseSurface(b.dataset.surface); });
+['pickItems', 'board'].forEach(id => $(id).addEventListener('click', e => { const b = e.target.closest('.pick-item'); if (b) chooseSurface(b.dataset.surface); }));
 $('catPrev').addEventListener('click', () => { catIdx = (catIdx + CATS.length - 1) % CATS.length; renderPick(); });
 $('catNext').addEventListener('click', () => { catIdx = (catIdx + 1) % CATS.length; renderPick(); });
 $('surfUpload').addEventListener('change', e => { addCustomSurface(e.target.files[0]); e.target.value = ''; });
